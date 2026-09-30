@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:900px; height:500px; overflow:hidden; }
+  body {
+    font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;
+    background:linear-gradient(135deg,#1a1a2e 0%,#16213e 55%,#23395d 100%);
+    position:relative;
+  }
+  .accent { position:absolute; left:60px; top:92px; width:56px; height:5px; background:#e35d28; }
+  .title {
+    position:absolute; left:60px; top:134px; right:60px;
+    font-size:52px; font-weight:700; color:#fff; line-height:1.28;
+    letter-spacing:1px;
+  }
+  .sub {
+    position:absolute; left:62px; top:318px; right:60px;
+    font-size:24px; color:#b2bed2; line-height:1.5; letter-spacing:0.5px;
+  }
+  .brand {
+    position:absolute; left:62px; bottom:38px;
+    font-size:19px; color:#788498; letter-spacing:1px;
+  }
+  .tag {
+    position:absolute; right:60px; bottom:36px;
+    font-size:18px; color:#e35d28; font-weight:600; letter-spacing:1px;
+  }
+  .seal {
+    position:absolute; right:56px; top:52px;
+    width:74px; height:74px; border:2px solid rgba(227,93,40,.45); border-radius:50%;
+  }
+</style>
+</head>
+<body>
+  <div class="accent"></div>
+  <div class="seal"></div>
+  <div class="title">{{TITLE}}</div>
+  <div class="sub">{{SUBTITLE}}</div>
+  <div class="brand">{{BRAND}} · OPC时代的独孤九剑</div>
+  <div class="tag">{{TAG}}</div>
+</body>
+</html>
