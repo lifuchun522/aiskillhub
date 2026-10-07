@@ -133,3 +133,34 @@ class WeChatPublisher:
                           {"articles": [article]})
         self._check(resp, "创建草稿")
         return resp["media_id"], article
+
+    # ---------- 发表（非群发，freepublish）----------
+    def freepublish_submit(self, media_id):
+        """提交草稿发表。不群发、不推粉丝。返回 publish_id。"""
+        resp = self._post("%s/freepublish/submit?access_token=%s" % (API, self.access_token()),
+                          {"media_id": media_id})
+        self._check(resp, "提交发表")
+        return resp.get("publish_id")
+
+    def freepublish_get(self, publish_id):
+        """查询发表状态。publish_status: 0成功 1发表中 2原创失败 3常规失败 4审核不通过。"""
+        resp = self._post("%s/freepublish/get?access_token=%s" % (API, self.access_token()),
+                          {"publish_id": publish_id})
+        self._check(resp, "查询发表状态")
+        return resp
+
+    def freepublish_wait(self, publish_id, timeout_sec=90, interval=3):
+        """轮询直到成功或失败。成功返回 article_detail（含 article_url）。"""
+        import time
+        deadline = time.time() + timeout_sec
+        last = None
+        while time.time() < deadline:
+            last = self.freepublish_get(publish_id)
+            st = last.get("publish_status")
+            if st == 0:
+                return last
+            if st in (2, 3, 4, 5, 6):
+                raise SystemExit("[发表失败] publish_status=%s detail=%s" % (st, last))
+            time.sleep(interval)
+        raise SystemExit("[发表超时] publish_id=%s last=%s" % (publish_id, last))
+

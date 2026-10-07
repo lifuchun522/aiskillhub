@@ -40,8 +40,7 @@ author: 李福春 资深架构师
         build/<编号>/               # arch_spec.json / image_mapping.txt / 验证截图
         assets/
       01/                           # 篇目录：纯序号，不带中文
-        index.html                  # ★ 轻量版：相对路径引用，双击即看
-        preview.html                # ★ 自包含版：base64 内嵌，预览面板/分享用
+        index.html                  # ★ 本地预览：相对路径引用，双击即看
         正文.md                      # 纯文本终稿
         article_body.html           # 微信安全 HTML（含 {imgN} 占位符，推送脚本消费）
         metadata.json               # 本篇元信息（标题/摘要/承接/悬念）
@@ -64,7 +63,8 @@ author: 李福春 资深架构师
 - 每篇必须有 `metadata.json`，记录本篇在系列中的位置（承接谁、留下什么悬念）——系列连贯性的唯一真相源
 - 视频产物放 `video/` 独立目录，与 `articles/` 平行，**不要混在文章目录里**
 
-**篇目录只留 7 项**（`index.html` / `preview.html` / `正文.md` / `article_body.html` / `metadata.json` / `publish_config.json` / `images/`）。
+**篇目录只留 6 项**（`index.html` / `正文.md` / `article_body.html` / `metadata.json` / `publish_config.json` / `images/`）。
+**不再生成 `preview.html`**（base64 自包含版已移除，本地双击 `index.html` 即可预览）。
 脚本（`*.py`）、`arch_spec.json`、`image_mapping.txt` 一律收到 `_series/` 下，不要在篇目录里堆。
 
 ---
@@ -475,49 +475,17 @@ python fix_for_wechat.py articles/010_xxx/article_body.html
 
 ---
 
-### 第9步：本地预览（双产物：轻量 index.html + 自包含 preview.html）
+### 第9步：本地预览（仅 `index.html`）
 
-**目的：** 在推送草稿前，先本地查看排版效果。**两个产物各管一边：`index.html` 相对路径、几十 KB，本地双击看；`preview.html` base64 自包含，预览面板/分享看（见 S8 最佳路径与"永远不要做的事"）。**
+**目的：** 推送草稿前，本地双击查看排版效果。
 
-#### 9.1 生成两个预览产物（`index.html` 轻量版 + `preview.html` 自包含版）
-
-**为什么是两个**（2026-09-30 实测）：
+**只出一种产物：**
 
 | 产物 | 图片方式 | 体积 | 适用场景 |
 |---|---|---|---|
 | `index.html` | 相对路径 `images/xxx.png` | 13~22 KB | **本地双击看版式**（file:// 下 images/ 可达） |
-| `preview.html` | base64 内嵌（缩到 750px 宽 + JPEG q82） | 420~640 KB | **预览面板 / 分享 / 归档**（单文件即可渲染） |
 
-⚠️ **关键约束：预览面板按「单文件」映射，拿不到 `images/` 子目录** —— 只给相对路径版一定全部 404。反之 base64 单文件版在哪都能看。两个产物各解决一半问题，缺一不可。
-
-```python
-# generate_preview.py（核心逻辑）
-IMG_STYLE = "width:100%;display:block;margin:26px 0;border-radius:6px;"
-BASE64_MAXW, BASE64_QUALITY = 750, 82
-
-def to_data_uri(path):
-    im = Image.open(path).convert("RGB")
-    if im.width > BASE64_MAXW:
-        im = im.resize((BASE64_MAXW, int(im.height * BASE64_MAXW / im.width)), Image.LANCZOS)
-    buf = io.BytesIO()
-    im.save(buf, "JPEG", quality=BASE64_QUALITY, optimize=True, progressive=True)
-    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
-
-def replace_slots(html, keys, tag_for):
-    for key in keys:
-        token = "{%s}" % key
-        tag = tag_for(key)                      # None 表示缺图
-        if tag is None:
-            continue
-        html, _ = re.subn(r"<p[^>]*>\s*" + re.escape(token) + r"\s*</p>", tag, html)
-        html = html.replace(token, tag)
-    return html
-
-# 轻量版：相对路径
-light = replace_slots(body, keys, lambda k: '<img src="images/%s" style="%s">' % (name(k), IMG_STYLE))
-# 自包含版：base64（先缩图再编码，否则体积爆炸）
-full  = replace_slots(body, keys, lambda k: '<img src="%s" style="%s">' % (to_data_uri(path(k)), IMG_STYLE))
-```
+**不再生成 `preview.html`**（base64 自包含版已移除，流程简化）。
 
 运行：
 ```bash
@@ -525,13 +493,11 @@ python _series/templates/generate_preview.py --dir articles/<系列名>/02/
 ```
 
 **⚠️ 铁律：**
-- **占位符必须整体替换为完整 `<img>` 标签**。只把路径或 base64 字符串塞进占位符位置会得到一段裸文本 —— HTML 里 `<img>` 数量为 0，浏览器把路径当正文渲染。自检口径：`grep -c '<img ' <文件>` 必须等于图数
+- **占位符必须整体替换为完整 `<img>` 标签**。只把路径字符串塞进占位符位置会得到一段裸文本 —— HTML 里 `<img>` 数量为 0。自检：`grep -c '<img ' index.html` 必须等于图数
 - **占位符在 `article_body.html` 里必须单独成行，不能包在 `<p>...</p>` 中**（`md2wechat.py` 已按此输出）
-- **base64 版必须先把图缩到 750px 宽再编 JPEG**。原图 1080×630 PNG 直嵌 → 单篇 6~8 MB；缩图 + JPEG q82 → 420~640 KB（**降 90%+**）
-- **两个文件都要有 `<meta charset="UTF-8">`**，否则中文乱码
-- **相对路径版不能直接粘贴进公众号编辑器**（图片不会跟着走）。推送走 `article_body.html` + `push_draft.py`（图片上传微信素材库，与内嵌无关）
-- 验证要用 `scripts/verify_render_dual.py`：分别模拟「单文件映射」与「file:// 整目录」两种模式，确认 `preview.html` 与 `index.html` 各自都能全部加载
-
+- **必须有 `<meta charset="UTF-8">`**，否则中文乱码
+- **相对路径版不能直接粘贴进公众号编辑器**（图片不会跟着走）。推送走 `article_body.html` + `push_draft.py`
+- 验证：`python scripts/verify_render_dual.py --series-dir <系列根目录>`（file:// 确认 `index.html` 图片全部可见）
 ---
 
 ### 第10步：推送草稿箱
@@ -664,7 +630,7 @@ video/<系列名>/
 阶段1：出 series-plan.md（逐篇推进表）→ 用户确认
          ↓
 阶段2：串行创作第 1~9 篇（每篇走完 10 步 SOP，但可暂不推送）
-         每篇产出：index.html + preview.html / article_body.html / metadata.json / 视频 script+storyboard
+         每篇产出：index.html / article_body.html / metadata.json / 视频 script+storyboard
          ↓
 阶段3：用户发布第 1~9 篇 → 回收链接
          ↓
@@ -716,18 +682,11 @@ video/<系列名>/
 - **原因：** 公众号编辑器不支持 `<style>` 标签和 `class=""` 属性，全部被过滤
 - **✅ 正确做法：** 所有样式必须用纯内联 `style=""` 写
 
-#### 坑30：预览面板拿不到 `images/` 子目录，相对路径版图片全挂（2026-09-30）
+#### 坑30：预览面板拿不到 `images/` 子目录（历史坑，已简化）
 
-- **现象：** 本地双击 `index.html` 图片正常，但在预览面板里**全部不显示**（6 张全空）；文件都在，`ls` 看得到 `images/img0.png`
-- **真凶：** 预览面板按**单文件**映射 —— 只有 `index.html` 本身可达，`images/` 子目录**不在映射范围内**，相对引用一律 404。跟 HTML 写法无关
-- **诊断方法：** 起一个只返回这一个 html、其它路径一律 404 的本地服务器，playwright 打开后看 `naturalWidth` 全为 0 → 确认是映射问题而非 HTML 问题
-- **✅ 正确做法：** **生成两个产物，各管一边**
-  | 产物 | 图片方式 | 体积 | 场景 |
-  |---|---|---|---|
-  | `index.html` | 相对路径 | 13~22 KB | 本地双击（file:// 下子目录可达） |
-  | `preview.html` | base64 内嵌 | 420~640 KB | 预览面板 / 分享 / 归档（单文件即可渲染） |
-- **base64 版必须缩图**：原图 1080×630 PNG 直嵌 → 单篇 6~8 MB；**缩到 750px 宽 + JPEG q82** → 420~640 KB（降 90%+）。只在正文显示宽 750，再宽无意义
-- **验证要跑 `scripts/verify_render_dual.py`**：模拟「单文件映射」与「file:// 整目录」两种模式，确认两个产物各自都能全部加载
+- **现象（旧）：** 预览面板按单文件映射，相对路径 `index.html` 图片全挂
+- **现策略（简化）：** **不再生成 `preview.html`**。本地预览一律双击 `index.html`（file://，`images/` 可达）。Agent/面板若只能映射单文件，改为打开篇目录或直接看 `article_body.html` 结构，不必再维护 base64 自包含版
+- **验证：** `verify_render_dual.py` 只查 `index.html@file://` 图片是否全部可见
 
 #### 坑2：预览页占位符未替换
 
@@ -1027,8 +986,8 @@ video/<系列名>/
 | 脚本 | 用途 |
 |------|------|
 | `generate_cover.py` | 生成封面（playwright 截图 HTML 模板，失败自动 Pillow 兜底）。用法：`python generate_cover.py "标题" "副标题" --tag "AI转型"` |
-| `generate_preview.py` | **`article_body.html` → `index.html`（相对路径，轻量）+ `preview.html`（base64 自包含）** 双产物。用法：`python generate_preview.py --dir <篇目录>`。**必须把占位符整体换成完整 `<img>` 标签**（见坑24/30）。`--no-base64` 只出轻量版 |
-| `verify_render_dual.py` | **渲染级验证**：分别模拟「单文件映射」（预览面板）与「file:// 整目录」两种加载模式，确认 `preview.html` 与 `index.html` 各自图片全部可见 |
+| `generate_preview.py` | **`article_body.html` → `index.html`（相对路径）**。用法：`python generate_preview.py --dir <篇目录>`。**必须把占位符整体换成完整 `<img>` 标签**。不生成 `preview.html` |
+| `verify_render_dual.py` | **渲染级验证**：file:// 打开 `index.html`，确认图片全部可见 |
 | `fix_for_wechat.py` | 微信兼容 HTML 自动修复 + 占位符连续性检查 |
 | `process_comics.py` | ImageGen 出图后处理：裁右下角水印 + 归位命名 `imgN.png` |
 | `apply_brand_watermark.py` | 裁掉 ImageGen 强制水印，改打个人品牌水印（资深架构师 李福春 + 头像）。用法：`python apply_brand_watermark.py --all` |
@@ -1039,8 +998,8 @@ video/<系列名>/
 | `make_arch_00.py` | **系列总纲图生成器**（目录篇专用）。九式 × 七习惯 × 三层依赖关系图，中文 Pillow 直排。改 `STAGES`/`SWORDS`/`BREAKS`/`EXEC` 四个数组即可复用。用法：`python make_arch_00.py --out <系列>/00/images/img_arch.png` |
 | `make_archs_00.py` | **架构图精选拼图**（目录篇「九式一览」位专用）。从各章取 `img_arch.png`，按 `SELECTED` 数组**精选 4 张**（覆盖分工/取舍/编排/闭环四类结构），**单列**排布（画布宽 1200，等比缩放不拉伸），每卡带式号徽标 + 式名 + 短定位标签条（`BAR_H=78`）。**自动转 JPG q88 并删 PNG**（体积减半）。用法：`python make_archs_00.py --series-dir <系列目录> --out-dir <系列>/00`。详见坑37 |
 | `make_cover.py` | 生成封面（playwright 截 HTML 模板，失败自动 Pillow 兜底）。用法：`python make_cover.py --dir <篇目录> --title "独孤九剑·破剑式" --sub "别等风来，先下水" --tag "AI转型"` |
-| `wechat_publisher.py` | 微信 API 封装。凭据从 `~/.workbuddy/wechat_config.json` 读（**不要 import APPID**，不导出） |
-| `push_draft_template.py` | `push_draft.py` 模板。复制到文章目录，只改 `IMAGE_FILES`（dict：key=占位符后缀, value=文件名），其余别动 |
+| `wechat_publisher.py` | 微信 API 封装。凭据从 `~/.workbuddy/wechat_config.json` 读。含草稿 `create_draft` 与非群发发表 `freepublish_*`（账号需有 freepublish 权限，否则 48001） |
+| `push_draft_template.py` | `push_draft.py` 模板。复制到文章目录，只改 `IMAGE_FILES`。**推送时必须得到完整 `<img src=URL>`**；裸 `{imgN}` 会自动补成 `<img>`，禁止只把 URL 文本塞进正文（否则草稿里显示成一串链接） |
 
 **依赖**（装在 managed venv：`~/.workbuddy/binaries/python/envs/default`）：
 ```bash
@@ -1111,8 +1070,7 @@ AUTHOR = "你的公众号名称"  # 草稿作者署名
 
 ```
 articles/<系列名>/<编号>/         # 例：articles/OPC时代的独孤九剑/02/
-  index.html                 # ★ 轻量版：图片走相对路径，13~22 KB，本地双击即看
-  preview.html               # ★ 自包含版：base64 内嵌，420~640 KB，预览面板/分享用
+  index.html                 # ★ 本地预览：图片走相对路径，13~22 KB，双击即看
   正文.md                     # 纯文本终稿
   article_body.html          # 微信安全 HTML，{img0}~{imgN} 占位，纯内联 style
   metadata.json              # 本篇元信息（系列连贯性的真相源）
@@ -1156,7 +1114,7 @@ _series/
 | S5 封面生成 | 2次 | Pillow纯色→playwright | **`generate_cover.py` 截图HTML模板**。等待2秒确保字体渲染 |
 | S6 漫画生成 | 5次 | ImageGen(乱码)→豆包APP(手工)→4.0→4.5→列表乱码 | **Seedream 5.0 API + generate_comics.py**。prompt只写场景+≤8字短标题，绝不在图里放列表/序号/多条规则 |
 | S6 HTML排版 | 7+次重推 | 每篇从零写→样式丢失→排查→重推循环 | **从已验证模板复制骨架**，不自己造标签。写完跑 `fix_for_wechat.py` |
-| S8 本地预览 | 5种方案 | file://→HTTP服务器→base64→相对路径→**相对路径在预览面板全挂** | **双产物**：`index.html` 相对路径（本地看）+ `preview.html` base64 自包含（面板/分享看），图片缩 750px + JPEG q82（坑24/27/30）。跑 `verify_render_dual.py` 双模式验证 |
+| S8 本地预览 | 5种方案 | file://→HTTP→base64→双产物 | **只出 `index.html`（相对路径）**，本地双击看；跑 `verify_render_dual.py` 做 file:// 渲染验证。不再生成 `preview.html` |
 | S9 推送草稿 | 8+次 | 缺APPID/缺requests/白名单/编码/**从零写push_draft.py** | **push_draft.py从上一篇复制，只改TITLE/DIGEST/cover配置**。wechat_publisher.py从上一篇复制，不重新导入 |
 | 目录结构 | 每篇重来 | 文件散落根目录/tmp_comics、**脚本堆在篇目录** | **标准模板 + `_series/` 收脚本**。篇目录只留 7 项；规范变更后**先全量重建再交付** |
 
@@ -1186,7 +1144,9 @@ _series/
 - ❌ 不要直接发布（必须手动确认后发布）
 - ❌ 不要在文章里暴露个人身份信息（国企环境）
 - ❌ 不要跳过预览直接推草稿箱
-- ❌ 不要把相对路径版当成万能预览（预览面板拿不到 `images/` 子目录，必须同时产出自包含的 `preview.html`，见坑30）
+- ❌ 不要再生成 `preview.html`（base64 自包含已移除；本地预览只用 `index.html`）
+- ❌ 不要在推草稿时把 `{imgN}` 只替换成裸 URL 字符串（正文会显示成 `http://mmbiz.qpic.cn/...` 链接文本；必须是 `<img src="URL">`）
+- ❌ `article_body.html` 里优先写 `<img src="{img0}" style="...">`，不要只写一行裸 `{img0}`
 - ❌ 不要每篇文章换目录结构（照上面的标准来，保持一致）
 - ❌ 不要从零写 article_body.html（从011/012复制已验证模板）
 - ❌ 不要在漫画里放列表/序号/多条规则（纯场景+短标题）
@@ -1228,7 +1188,7 @@ _series/
 | 正文写作 | ✅ | 一次过，确认后直接动笔 |
 | 去AI味 | ✅ | 精准3处修改，不过度 |
 | 漫画生成 | ✅ | 6张全部成功，蓝白科技风 |
-| 预览 | ✅ | 双产物：index.html 13~22KB 相对路径 + preview.html 420~640KB 自包含 |
+| 预览 | ✅ | index.html 13~22KB 相对路径（本地双击） |
 | **推送** | ❌→✅ | 第1次失败（push_draft.py从零写，缺APPID/APPSECRET），照012重写后成功 |
 | 新增踩坑 | push_draft.py 也绝不能从零写 | 从上一篇复制 `wechat_publisher.py`（凭据用 `load_wechat_config()` 从 `~/.workbuddy/wechat_config.json` 读，不要 `import APPID`，publisher 不导出这些）；`push_draft.py` 的 `IMAGE_FILES` 按本篇实际文件名填（封面=`covers/cover_final.png` 另作 thumb，正文=`comics/img1.png`~`img5.png`），`create_draft()` 传 `thumb_path=封面图` |
 

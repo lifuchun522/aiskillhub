@@ -77,14 +77,25 @@ def main():
     print("\n[2/3] 读取文章 HTML 模板...")
     with open(os.path.join(BASE_DIR, "article_body.html"), "r", encoding="utf-8") as f:
         tpl = clean_html(f.read())
-    # 用 format 注入，避免 f-string 与中文符号冲突
+    # 注入图片 URL：若占位符已在 <img src="{imgN}"> 中则只换 URL；
+    # 若是裸 {imgN}（历史坑：会变成正文里的一串链接文本），补成完整 <img>。
     content = tpl
+    img_style = "width:100%;border-radius:8px;"
     for key, u in urls.items():
-        content = content.replace("{img%s}" % key, u)
+        token = "{img%s}" % key
+        if ('src="%s"' % token) in content or ("src='%s'" % token) in content:
+            content = content.replace(token, u)
+        else:
+            tag = ('<p style="text-align:center;margin:16px 0;">'
+                   '<img src="%s" alt="" style="%s"></p>' % (u, img_style))
+            content = content.replace(token, tag)
     left = re.findall(r"\{img(\w+)\}", content)
     if left:
         print("  [WARN] 仍有未替换占位符: %s" % left)
-    print("  HTML 已加载，图片 URL 已替换")
+    n_img = content.count("<img ")
+    print("  HTML 已加载，<img> %d，图片 URL 已替换" % n_img)
+    if n_img == 0:
+        raise SystemExit("推送中止：正文无 <img> 标签，图片会显示成链接文本")
 
     print("\n[3/3] 创建草稿...")
     media_id, article = wp.create_draft(title=title, content=content,

@@ -20,7 +20,7 @@
 6. **生成配图** —— 两条路线：WorkBuddy ImageGen 自动 / 豆包手动
 7. **微信安全排版** —— Markdown → 纯内联 `<section>`，规避微信编辑器吃样式
 8. **自动修复** —— `fix_for_wechat.py` 兜住脏字符与非法标签
-9. **本地预览** —— 双产物：轻量 `index.html` + 自包含 `preview.html`
+9. **本地预览** —— 轻量 `index.html`（相对路径，本地双击）
 10. **推送草稿箱** —— 微信 API 直推，带图片上传与草稿创建
 
 **系列文章**另有专门规范：`series-plan.md` 前置、七条连贯性铁律、目录篇（第 0 篇）的特殊写法与互链要求。
@@ -54,7 +54,7 @@ wechat-article-workflow/
 │   └── cover_template_1.html     # 封面 HTML 模板
 └── scripts/                      # 全部可执行脚本（15 个）
     ├── md2wechat.py              # 正文.md → 微信安全 HTML（核心）
-    ├── generate_preview.py       # 双预览产物（index.html + preview.html）
+    ├── generate_preview.py       # 本地预览 index.html（相对路径）
     ├── verify_delivery.py        # 交付前全量自检
     ├── make_cover.py             # 封面生成
     ├── make_diagram.py           # 通用结构图（JSON spec 驱动）
@@ -64,7 +64,7 @@ wechat-article-workflow/
     ├── fix_for_wechat.py         # 微信 HTML 自动修复
     ├── finalize_images.py        # 图片终处理
     ├── process_comics.py         # 漫画图批处理
-    ├── verify_render_dual.py     # 双产物渲染核验
+    ├── verify_render_dual.py     # index.html file:// 渲染核验
     ├── wechat_publisher.py       # 微信 API 封装
     ├── push_draft_template.py    # 推送脚本模板
     └── generate_cover.py         # 封面生成（playwright 版）
@@ -166,8 +166,8 @@ pip install playwright && playwright install chromium
 - **表格在微信里必换行** —— 列多、字长的表格在手机上会碎成一片，改用卡片
 - **正文绝不手写图片占位符** —— 会与自动插入撞车，同位置出两张图
 - **系列互链必须用已发布的真实标题** —— 自拟标题在发布后会对不上
-- **长图会导致预览体积爆炸** —— 一张 1200×5435 的高瘦图 base64 后占约 417 KB
 - **导航图不要为它单独跑绘图模型** —— 取现有素材拼合，零成本且视觉统一
+- **不再生成 preview.html** —— 本地预览只用相对路径 `index.html`
 
 ---
 

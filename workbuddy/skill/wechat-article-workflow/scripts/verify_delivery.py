@@ -5,11 +5,10 @@
     python verify_delivery.py [--root <系列根目录>]
 
 检查项（每篇）：
-  1. index.html  < 60 KB、无内嵌 base64、<img src="images/..."> 数 == 图数、相对引用文件都存在
-  2. preview.html 存在、自包含（data:image 数 == 图数）
-  3. article_body.html 微信安全：div / h1-h3 / class= / display:flex / <style> 残留为 0
-  4. 篇目录只保留 6 项（index.html / preview.html / 正文.md / article_body.html
-                       / metadata.json / publish_config.json / images）
+  1. index.html  < 60 KB、无内嵌 base64、<img src="images/..."> 相对引用文件都存在
+  2. article_body.html 微信安全：div / h1-h3 / class= / display:flex / <style> 残留为 0
+  3. 篇目录只保留：index.html / 正文.md / article_body.html
+                   / metadata.json / publish_config.json / images
 """
 import argparse
 import os
@@ -19,7 +18,7 @@ import sys
 DEFAULT_ROOT = os.environ.get("WECHAT_SERIES_ROOT", "")
 sys.stdout.reconfigure(encoding="utf-8")
 
-ALLOW = {"index.html", "preview.html", "正文.md", "article_body.html",
+ALLOW = {"index.html", "正文.md", "article_body.html",
          "metadata.json", "publish_config.json", "images"}
 # 00 篇额外承担系列级素材（规划 / 风格指南 / 总图），不算违规
 ALLOW_00 = {"series-plan.md", "style-guide.md",
@@ -45,7 +44,6 @@ def main():
         d = os.path.join(root, name)
         if not os.path.isdir(d) or name.startswith("_"):
             continue
-        # 只检查编号目录
         if not re.match(r"^\d{2}$", name):
             continue
 
@@ -55,9 +53,7 @@ def main():
             continue
 
         idx_p = os.path.join(d, "index.html")
-        pv_p = os.path.join(d, "preview.html")
         body = open(body_p, encoding="utf-8").read()
-
         probs = []
 
         # -- index.html：轻量 + 相对路径 --
@@ -79,22 +75,6 @@ def main():
                 if not os.path.exists(os.path.join(d, ref)):
                     probs.append("index.html 引用缺失: %s" % ref)
 
-        # -- preview.html：自包含 --
-        n_b64 = 0
-        if not os.path.exists(pv_p):
-            probs.append("缺 preview.html")
-            pk = 0
-        else:
-            ph = open(pv_p, encoding="utf-8").read()
-            pk = os.path.getsize(pv_p) / 1024
-            n_b64 = ph.count("data:image")
-            if n_b64 == 0:
-                probs.append("preview.html 无内嵌图片")
-            if "{img" in ph:
-                probs.append("preview.html 有未替换占位符")
-            if not all(f'<img src="images/{x}"' in ih for x in []) and False:
-                pass
-
         # -- 微信安全 --
         wx = {k: len(re.findall(v, body)) for k, v in WX_PATTERNS.items()}
         wx = {k: v for k, v in wx.items() if v}
@@ -107,18 +87,20 @@ def main():
         if extra:
             probs.append("多余文件 %s" % extra)
 
-        # -- 图数一致 --
-        n_img_dir = len([f for f in os.listdir(os.path.join(d, "images"))
-                         if f.startswith("img") and f.endswith((".png", ".jpg"))])
-        if n_rel and n_b64 and not (n_rel == n_b64 == n_img_dir):
-            probs.append("图数不一致 rel=%d b64=%d 文件=%d" % (n_rel, n_b64, n_img_dir))
+        # -- 图数：相对引用应与 images/ 下 img* 文件数一致 --
+        img_dir = os.path.join(d, "images")
+        n_img_dir = 0
+        if os.path.isdir(img_dir):
+            n_img_dir = len([f for f in os.listdir(img_dir)
+                             if f.startswith("img") and f.endswith((".png", ".jpg"))])
+        if n_rel and n_img_dir and n_rel != n_img_dir:
+            probs.append("图数不一致 rel=%d 文件=%d" % (n_rel, n_img_dir))
 
         if probs:
             ok = False
             print("[%s] <<< %s" % (name, "; ".join(probs)))
         else:
-            print("[%s] index %5.0fKB/相对%2d · preview %5.0fKB/内嵌%2d · 微信OK · 目录OK"
-                  % (name, kb, n_rel, pk, n_b64))
+            print("[%s] index %5.0fKB/相对%2d · 微信OK · 目录OK" % (name, kb, n_rel))
 
     print()
     print("结论：", "全部通过" if ok else "存在待修项")
