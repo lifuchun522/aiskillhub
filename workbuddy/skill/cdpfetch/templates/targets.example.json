@@ -1,0 +1,9 @@
+[
+  { "key": "vendorA_home",     "url": "https://www.example-a.com/" },
+  { "key": "vendorA_pricing",  "url": "https://www.example-a.com/pricing" },
+  { "key": "vendorA_docs",     "url": "https://docs.example-a.com/" },
+  { "key": "vendorA_github",   "url": "https://github.com/example-a/example-a" },
+  { "key": "vendorB_home",     "url": "https://www.example-b.com/" },
+  { "key": "vendorB_pricing",  "url": "https://www.example-b.com/pricing" },
+  { "key": "vendorC_docindex", "url": "https://cloud.example-c.com/document/product/0000" }
+]

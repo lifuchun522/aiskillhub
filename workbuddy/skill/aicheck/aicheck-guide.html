@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 交付前全自动自检技能 · 导读</title>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --card:#ffffff;
+    --ink:#15181e;
+    --ink2:#495060;
+    --ink3:#7c8595;
+    --line:#e3e7ee;
+    --line2:#eef1f6;
+    --accent:#2f5cff;
+    --accent-soft:#eef2ff;
+    --red:#c8362b;
+    --red-soft:#fdf0ee;
+    --green:#0a7a4b;
+    --green-soft:#edf8f2;
+    --amber:#a35a08;
+    --amber-soft:#fdf5e9;
+    --code-bg:#f3f5f9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+
+  /* ---------- Hero ---------- */
+  header.hero{
+    background:linear-gradient(160deg,#ffffff 0%,#f0f3fb 100%);
+    border-bottom:1px solid var(--line);
+    padding:56px 0 44px;
+    margin-bottom:40px;
+  }
+  .hero-inner{max-width:1080px;margin:0 auto;padding:0 24px}
+  .tag{
+    display:inline-block;font-size:12px;letter-spacing:.08em;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);
+    padding:4px 12px;border-radius:999px;margin-bottom:16px;
+  }
+  h1{font-size:34px;line-height:1.3;font-weight:700;letter-spacing:-.01em}
+  h1 .sub{display:block;font-size:17px;font-weight:400;color:var(--ink2);margin-top:10px;letter-spacing:0}
+  .hero-meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);
+    padding:5px 12px;border-radius:8px;
+  }
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* ---------- Nav ---------- */
+  nav.toc{
+    position:sticky;top:0;z-index:20;background:rgba(245,246,248,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+    margin:0 -24px 40px;padding:0 24px;
+  }
+  nav.toc ul{display:flex;gap:6px;list-style:none;max-width:1080px;margin:0 auto;overflow-x:auto}
+  nav.toc a{
+    display:block;padding:14px 14px 12px;font-size:14px;color:var(--ink2);
+    text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;
+  }
+  nav.toc a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ---------- Sections ---------- */
+  section{margin-bottom:56px;scroll-margin-top:60px}
+  h2{
+    font-size:23px;font-weight:700;letter-spacing:-.01em;
+    padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:26px;
+    display:flex;align-items:baseline;gap:12px;
+  }
+  h2 .num{
+    font-size:13px;font-weight:700;color:#fff;background:var(--accent);
+    width:24px;height:24px;border-radius:7px;display:inline-flex;
+    align-items:center;justify-content:center;flex:0 0 auto;flex-shrink:0;
+    transform:translateY(-2px);
+  }
+  h3{font-size:16.5px;font-weight:650;margin:30px 0 12px}
+  h3:first-of-type{margin-top:0}
+  h4{font-size:14.5px;font-weight:650;margin:18px 0 8px;color:var(--ink)}
+  p{color:var(--ink2);margin-bottom:12px}
+  p strong{color:var(--ink);font-weight:650}
+  ul,ol{color:var(--ink2);padding-left:22px;margin-bottom:12px}
+  li{margin-bottom:6px}
+  li strong{color:var(--ink);font-weight:650}
+  code{
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.8px;background:var(--code-bg);color:#25304a;
+    padding:2px 6px;border-radius:5px;
+  }
+  a.ref{color:var(--accent);text-decoration:none;border-bottom:1px solid #c7d3ff}
+  a.ref:hover{border-bottom-color:var(--accent)}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:22px 24px;margin-bottom:18px;
+  }
+  .card.plain{background:transparent;border:none;padding:0}
+
+  pre{
+    background:var(--code-bg);border:1px solid var(--line);border-radius:10px;
+    padding:16px 18px;overflow-x:auto;margin-bottom:14px;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.8px;line-height:1.72;color:#25304a;
+  }
+  pre code{background:none;padding:0;font-size:inherit}
+  .pre-label{
+    display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.04em;
+    color:var(--ink3);text-transform:uppercase;margin-bottom:6px;
+  }
+  pre.good{border-left:3px solid var(--green)}
+  pre.bad{border-left:3px solid var(--red)}
+
+  /* ---------- Tables ---------- */
+  .tw{overflow-x:auto;margin-bottom:18px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13.8px}
+  th{
+    background:#fafbfd;text-align:left;font-weight:650;color:var(--ink);
+    padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  td{padding:11px 14px;border-bottom:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td b,td strong{color:var(--ink);font-weight:650}
+  td code{font-size:12.2px}
+
+  /* ---------- Callouts ---------- */
+  .callout{
+    border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:14px;
+    border:1px solid;line-height:1.7;
+  }
+  .callout.warn{background:var(--red-soft);border-color:#f3cfc9;color:#7a231b}
+  .callout.ok{background:var(--green-soft);border-color:#c7e6d5;color:#08543a}
+  .callout.note{background:var(--amber-soft);border-color:#f0ddbd;color:#6d3f06}
+  .callout b{font-weight:700}
+  .callout code{background:rgba(255,255,255,.7)}
+
+  /* ---------- Gate grid ---------- */
+  .clusters{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px}
+  .cluster{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .cluster .ct{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+  .cluster .cn{font-size:15.5px;font-weight:650;margin-bottom:12px}
+  .gate-item{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line2);font-size:13.5px;color:var(--ink2)}
+  .gate-item:first-of-type{border-top:none}
+  .gate-item .gid{
+    flex:0 0 auto;width:30px;height:22px;border-radius:6px;background:var(--accent-soft);
+    color:var(--accent);font-size:11.5px;font-weight:700;display:inline-flex;
+    align-items:center;justify-content:center;
+  }
+  .gate-item .gtx b{color:var(--ink);font-weight:650}
+
+  /* ---------- Before / After ---------- */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .ba-col{border-radius:12px;padding:16px 18px;font-size:13.8px;border:1px solid}
+  .ba-col.before{background:#fcfcfd;border-color:var(--line)}
+  .ba-col.after{background:var(--green-soft);border-color:#c7e6d5}
+  .ba-col .h{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+  .ba-col.before .h{color:var(--red)}
+  .ba-col.after .h{color:var(--green)}
+  .ba-col .q{
+    font-size:13px;color:#5a6272;background:#fff;border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;margin-top:8px;line-height:1.65;
+  }
+  .ba-col.after .q{background:#fff;border-color:#c7e6d5;color:#08543a}
+  .ba-col ul{padding-left:18px;margin-bottom:0}
+  .ba-col li{margin-bottom:4px}
+
+  .case{
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:16px;
+  }
+  .case .ch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .case .cno{
+    font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);
+    padding:3px 9px;border-radius:6px;
+  }
+  .case .ct{font-size:15.5px;font-weight:650}
+  .hit{
+    font-size:11.5px;font-weight:650;color:var(--red);background:var(--red-soft);
+    border:1px solid #f3cfc9;padding:3px 9px;border-radius:6px;
+  }
+  .case .row{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line2);font-size:13.8px}
+  .case .row .k{flex:0 0 78px;color:var(--ink3);font-size:12.5px;font-weight:600;padding-top:1px}
+  .case .row .v{color:var(--ink2);flex:1}
+  .case .row .v em{font-style:normal;color:#5a6272}
+
+  /* ---------- Diagram ---------- */
+  .diagram{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 18px;overflow-x:auto}
+  .diagram svg{display:block;width:100%;min-width:760px;height:auto}
+
+  /* ---------- Steps ---------- */
+  .steps{counter-reset:s;list-style:none;padding-left:0}
+  .steps li{counter-increment:s;position:relative;padding-left:40px;margin-bottom:14px;color:var(--ink2)}
+  .steps li::before{
+    content:counter(s);position:absolute;left:0;top:2px;
+    width:25px;height:25px;border-radius:8px;background:var(--accent);color:#fff;
+    font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+
+  footer{
+    margin-top:64px;padding-top:26px;border-top:1px solid var(--line);
+    font-size:13.2px;color:var(--ink3);
+  }
+  footer b{color:var(--ink);font-weight:650}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media (max-width:720px){
+    h1{font-size:26px}
+    .ba{grid-template-columns:1fr}
+    .wrap{padding:0 16px 64px}
+    header.hero{padding:38px 0 30px}
+    .hero-inner{padding:0 16px}
+    nav.toc{margin:0 -16px 30px;padding:0 16px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">AGENT SKILL · 行为级纪律</span>
+    <h1>AI 交付前全自动自检技能
+      <span class="sub">delivery-no-pseudoblock &nbsp;·&nbsp; 交付前伪阻断 / 缓干闸门 —— 12 项闸门，拦住「把活推回用户」和「用声明替代扫描」</span>
+    </h1>
+    <div class="hero-meta">
+      <span class="chip">技能名 <b>delivery-no-pseudoblock</b></span>
+      <span class="chip">版本 <b>1.0.0</b></span>
+      <span class="chip">类型 <b>纯行为级（无脚本）</b></span>
+      <span class="chip">闸门 <b>D1–D12</b></span>
+      <span class="chip">触发 <b>任意交付发送前</b></span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <ul>
+    <li><a href="#s1">① 怎么使用</a></li>
+    <li><a href="#s2">② 处理流程</a></li>
+    <li><a href="#s3">③ 前后效果对比</a></li>
+    <li><a href="#s4">④ 代价与边界</a></li>
+  </ul>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <h2><span class="num">1</span>怎么使用</h2>
+
+  <p>这个技能不是工具，是<strong>交付纪律</strong>。没有脚本、没有 API，用法只有一句话：<strong>每次交付前真加载、真扫 12 项、贴快照</strong>。</p>
+
+  <h3>1.1 安装</h3>
+  <pre><code># WorkBuddy 用户级（全项目可用）
+cp -r aicheck ~/.workbuddy/skills/delivery-no-pseudoblock
+
+# 或项目级（随仓库共享）
+mkdir -p .workbuddy/skills &amp;&amp; cp -r aicheck .workbuddy/skills/delivery-no-pseudoblock</code></pre>
+  <div class="callout note">目录名用 <code>delivery-no-pseudoblock</code>（与 <code>SKILL.md</code> 的 <code>name</code> 字段一致），技能才会被正确识别。</div>
+
+  <h3>1.2 两种调用方式</h3>
+  <div class="tw">
+    <table>
+      <tr><th>方式</th><th>写法</th><th>适用</th></tr>
+      <tr><td><b>显式调用</b></td><td><code>@skill:"AI交付前全自动自检技能" &lt;任务&gt;</code></td><td>单次、需要强拦的场景</td></tr>
+      <tr><td><b>常开纪律</b></td><td>会话开头声明：<em>本次会话所有交付前，先加载并实跑 delivery-no-pseudoblock，贴闸门快照</em></td><td>长会话、多轮交付</td></tr>
+    </table>
+  </div>
+
+  <h3>1.3 触发时机 —— 不只是「提问前」</h3>
+  <p>技能对触发面的定义是<strong>任何一次向用户交付结果之前</strong>，覆盖面比直觉更宽：</p>
+  <div class="tw">
+    <table>
+      <tr><th>交付形态</th><th>是否触发</th></tr>
+      <tr><td>调用 <code>present_files</code></td><td><b>触发</b></td></tr>
+      <tr><td>写最终总结 / 下结论</td><td><b>触发</b></td></tr>
+      <tr><td>发状态汇报</td><td><b>触发</b></td></tr>
+      <tr><td>向用户提问 / 征询</td><td><b>触发</b></td></tr>
+      <tr><td>技能自身的产出交付（元递归）</td><td><b>触发</b></td></tr>
+    </table>
+  </div>
+
+  <h3>1.4 技能自带的例子</h3>
+  <p>技能里没有示例工程，「例子」就是三样东西：<strong>一份快照格式样本</strong>、<strong>四条真实事故</strong>、<strong>一套返工动作</strong>。</p>
+
+  <h4>例子 A｜唯一一份完整快照样例（照抄这套格式）</h4>
+  <pre class="good"><span class="pre-label">SKILL.md 原文 · 正确形态</span><code>闸门快照｜
+- D1 责任转嫁：扫描本消息，无「你告诉我 / 你确认 / 你这边」类向用户索要可自取信息 → 未命中
+- D2 半途交付：本回合最高价值子问题（改快照格式）已 Edit 落盘，无 diagnosed-only 遗留 → 未命中
+- D3 最优步隐藏：最高价值步（改格式）已执行，未包装成延后 → 未命中
+- D4 伪阻断提问：不以自答问句结尾 → 未命中
+- D5 尾巴豁免：整条（含本段）纳入扫描；本轮有真实加载状态；无「若需要 / 回头再说」延后信号 → 未命中
+- D6 自主闭环：依指令直接改格式，未反问 → 未命中
+- D7 活干到底 + 全负责：本回合为格式修订，正确性我扛，未甩兜底 → 未命中
+- D8 工程严谨：无代码改动 → 未命中
+- D9 可靠验证：无验证函数；「格式已改」对照文件属实 → 未命中
+- D10 沟通准确：无中医式隐喻、术语一致 → 未命中
+- D11 语言后门：审计本回合产出文本（含对 memory/skill 的改写），无动机条件式禁止 / 预埋开脱钩子 / 自拟豁免叙事 → 未命中
+- D12 加载时机：核验本回合工具序，Skill 加载位于发送前最后（非回合开头 stamp） → 未命中
+→ 全空</code></pre>
+
+  <p>技能明文禁止的<strong>反面示范</strong>：</p>
+  <pre class="bad"><span class="pre-label">SKILL.md 原文 · 禁止形态</span><code>闸门快照：D1 未命中，D2 未命中，…… D12 未命中。各 D 全空。</code></pre>
+  <div class="callout warn"><b>技能原文：</b>「<b>禁止只写「Dn 未命中」</b>——那是用判定标签替代实际扫描，与「各 D 全空」声明同源，隐藏了真实核对过程。」</div>
+
+  <h4>例子 B｜四条真实事故（技能自带的历史 3.11 实例）</h4>
+  <div class="tw">
+    <table>
+      <tr><th>时间</th><th>原话</th><th>命中</th><th>问题</th></tr>
+      <tr>
+        <td>08-17<br>文档收尾</td>
+        <td>「如需并回主说明书或导出 PDF/HTML，告诉我即可」</td>
+        <td><b>D1</b> 责任转嫁<br><b>D5</b> 尾巴豁免</td>
+        <td>并回说明书、导出 PDF/HTML 都能自主完成，却写成「等你开口」</td>
+      </tr>
+      <tr>
+        <td>08-17<br>四乱收尾</td>
+        <td>「要我接着做 live 重校…还是改 3-tab？」</td>
+        <td><b>D3</b> 最优步隐藏<br><b>D4</b> 伪阻断提问</td>
+        <td>已判 live 重校为最优，却做成二选一让用户选</td>
+      </tr>
+      <tr>
+        <td>08-17<br>app 字段</td>
+        <td>「你双击的 app 具体路径告诉我，我才能把修复同步到对应副本」</td>
+        <td><b>D1</b> 责任转嫁</td>
+        <td>修复落点已判明；且 app 实际只读<b>根 config</b>，根本不需要路径</td>
+      </tr>
+      <tr>
+        <td>08-18<br>yzg 字段库</td>
+        <td>正文末：「交付前已真跑闸门 D1–D4 全空」<br>收尾句：「下一步若需要，可把渲染下拉也接到库…—这两步是我方待办，不阻塞当前」</td>
+        <td><b>D5</b> 尾巴豁免</td>
+        <td>用「我过闸了」的声明给尾巴发了免检通行证。用户点名：<b>「你说的 delivery-no-pseudoblock 已使用是不可信的，因为你可以隐藏了后半句。」</b></td>
+      </tr>
+    </table>
+  </div>
+
+  <h4>例子 C｜返工动作（HIT 后怎么办）</h4>
+  <p>技能给的不是「报告问题」，而是<strong>就地返工四步</strong>：</p>
+  <ol class="steps">
+    <li><b>不</b>调用 <code>present_files</code>、<b>不</b>发总结、<b>不</b>提问。</li>
+    <li>执行被藏的最优步：读取应读的文件、跑应跑的脚本、搜应搜的路径、补齐未动手的子问题。</li>
+    <li>用执行所得重写交付草稿，<b>去掉所有 D1/D3/D4 信号</b>，以「事实陈述 + 证据」收尾。</li>
+    <li><b>重跑 D1–D4（及全部命中项）</b>，直到全空再交付，并贴「闸门快照」。</li>
+  </ol>
+
+  <h4>例子 D｜迁移用法（举一反三）</h4>
+  <div class="callout ok">
+    技能明确：历史实例是<b>对照</b>，不是触发条件；检测器扫的是<b>草稿文本 + 会话上下文</b>。<br>
+    · 「告诉我是 X」是 D1 的一个<b>实例</b>，不是全部 —— 任何「把 agent 能干的活推给用户当前置」都命中。<br>
+    · 「你定 / 回头再说」是 D3 的一个<b>实例</b> —— 任何「已判明最优解却延迟到用户表态」都命中。<br>
+    · 适用域：<b>任意项目、任意交付形态</b>——字段修复、文档生成、代码重构皆同。
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <h2><span class="num">2</span>处理流程</h2>
+
+  <p>流程是<strong>闭环</strong>的：不是「检出一份问题清单」，而是「检到 HIT 就回炉重做，直到全空才允许发出」。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="交付前自检流程图">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 z" fill="#8a93a6"/>
+        </marker>
+        <marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 z" fill="#b0b8c6"/>
+        </marker>
+      </defs>
+
+      <!-- start -->
+      <rect x="290" y="16" width="300" height="46" rx="23" fill="#eef2ff" stroke="#c7d3ff"/>
+      <text x="440" y="45" text-anchor="middle" font-size="15" font-weight="600" fill="#2f5cff" font-family="sans-serif">交付意图产生</text>
+      <line x1="440" y1="62" x2="440" y2="92" stroke="#8a93a6" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- step 1 -->
+      <rect x="230" y="94" width="420" height="58" rx="10" fill="#ffffff" stroke="#c7d3ff" stroke-width="1.5"/>
+      <circle cx="258" cy="123" r="13" fill="#2f5cff"/>
+      <text x="258" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="sans-serif">1</text>
+      <text x="284" y="118" font-size="14" font-weight="650" fill="#15181e" font-family="sans-serif">真加载技能</text>
+      <text x="284" y="138" font-size="12.5" fill="#7c8595" font-family="sans-serif">Skill(delivery-no-pseudoblock) → 产生加载状态</text>
+
+      <!-- note 1 -->
+      <text x="668" y="118" font-size="12" fill="#c8362b" font-family="sans-serif">✗ 口述自检、不实际加载 = 整条 HIT</text>
+      <text x="668" y="136" font-size="12" fill="#7c8595" font-family="sans-serif">（伪装过技能、实际未过）</text>
+
+      <line x1="440" y1="152" x2="440" y2="182" stroke="#8a93a6" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- step 2 -->
+      <rect x="230" y="184" width="420" height="58" rx="10" fill="#ffffff" stroke="#c7d3ff" stroke-width="1.5"/>
+      <circle cx="258" cy="213" r="13" fill="#2f5cff"/>
+      <text x="258" y="218" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="sans-serif">2</text>
+      <text x="284" y="208" font-size="14" font-weight="650" fill="#15181e" font-family="sans-serif">逐项过 D1–D12</text>
+      <text x="284" y="228" font-size="12.5" fill="#7c8595" font-family="sans-serif">扫描对象：整条草稿 + 尾巴 + 工具序 + 会话上下文</text>
+
+      <line x1="440" y1="242" x2="440" y2="272" stroke="#8a93a6" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- diamond -->
+      <polygon points="440,274 560,320 440,366 320,320" fill="#fdf5e9" stroke="#e8c98f" stroke-width="1.5"/>
+      <text x="440" y="316" text-anchor="middle" font-size="14" font-weight="650" fill="#a35a08" font-family="sans-serif">12 项是否全空？</text>
+      <text x="440" y="336" text-anchor="middle" font-size="11.5" fill="#b07a2d" font-family="sans-serif">缺任一项 = 未跑全</text>
+
+      <!-- YES branch -->
+      <line x1="560" y1="320" x2="618" y2="320" stroke="#0a7a4b" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="572" y="312" font-size="12" font-weight="700" fill="#0a7a4b" font-family="sans-serif">是</text>
+
+      <rect x="620" y="288" width="360" height="64" rx="10" fill="#edf8f2" stroke="#c7e6d5" stroke-width="1.5"/>
+      <circle cx="648" cy="320" r="13" fill="#0a7a4b"/>
+      <text x="648" y="325" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="sans-serif">3</text>
+      <text x="674" y="314" font-size="13.5" font-weight="650" fill="#08543a" font-family="sans-serif">贴「闸门快照」</text>
+      <text x="674" y="334" font-size="12" fill="#3f7d61" font-family="sans-serif">每项须写实际核对内容，禁只写「Dn 未命中」</text>
+
+      <line x1="800" y1="352" x2="800" y2="384" stroke="#0a7a4b" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <rect x="620" y="386" width="360" height="50" rx="25" fill="#0a7a4b"/>
+      <text x="800" y="417" text-anchor="middle" font-size="15" font-weight="650" fill="#ffffff" font-family="sans-serif">4　发送交付</text>
+
+      <!-- NO branch -->
+      <line x1="440" y1="366" x2="440" y2="398" stroke="#c8362b" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="452" y="388" font-size="12" font-weight="700" fill="#c8362b" font-family="sans-serif">否（任一 HIT）</text>
+
+      <rect x="180" y="400" width="520" height="130" rx="10" fill="#fdf0ee" stroke="#f3cfc9" stroke-width="1.5"/>
+      <text x="204" y="426" font-size="13.5" font-weight="700" fill="#c8362b" font-family="sans-serif">返工四步（禁止发送）</text>
+      <text x="204" y="450" font-size="12.5" fill="#7a231b" font-family="sans-serif">1. 不 present_files / 不发总结 / 不提问</text>
+      <text x="204" y="470" font-size="12.5" fill="#7a231b" font-family="sans-serif">2. 执行被藏的最优步（读文件 / 跑脚本 / 搜路径）</text>
+      <text x="204" y="490" font-size="12.5" fill="#7a231b" font-family="sans-serif">3. 用执行所得重写草稿，去掉 D1/D3/D4 信号</text>
+      <text x="204" y="510" font-size="12.5" fill="#7a231b" font-family="sans-serif">4. 重跑全部命中项，直到全空</text>
+
+      <!-- loop back -->
+      <path d="M180,465 L96,465 L96,213 L226,213" fill="none" stroke="#c8362b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#ar)"/>
+      <text x="60" y="336" font-size="12" font-weight="650" fill="#c8362b" font-family="sans-serif" transform="rotate(-90 60 336)">回到②重扫</text>
+    </svg>
+  </div>
+
+  <h3>2.1 交付前的四条前置铁规</h3>
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>规则</th><th>违反后果</th></tr>
+      <tr><td>1</td><td><b>真加载</b>：必须实际调用 Skill 产生加载状态</td><td>无加载状态 → 整条 HIT，D1–D12 免跑</td></tr>
+      <tr><td>2</td><td><b>逐项快照</b>：消息内枚举 D1–D12</td><td>缺任一项 → 视为未跑全</td></tr>
+      <tr><td>3</td><td><b>禁标签替代扫描</b>：每项须写实际核对内容</td><td>只写「Dn 未命中」= 未跑</td></tr>
+      <tr><td>4</td><td><b>声明 ≠ 证明</b></td><td>「我跑了闸门」这句话本身不是合规证明</td></tr>
+    </table>
+  </div>
+
+  <h3>2.2 12 项闸门按失效类型分簇</h3>
+  <div class="clusters">
+    <div class="cluster">
+      <div class="ct">A 簇</div>
+      <div class="cn">把活推回用户</div>
+      <div class="gate-item"><span class="gid">D1</span><span class="gtx"><b>责任转嫁</b> — 向用户索要可自取的信息</span></div>
+      <div class="gate-item"><span class="gid">D2</span><span class="gtx"><b>半途交付</b> — 可动手项只诊断不动手</span></div>
+      <div class="gate-item"><span class="gid">D3</span><span class="gtx"><b>最优步隐藏</b> — 最优步被包装成可选/延后</span></div>
+      <div class="gate-item"><span class="gid">D4</span><span class="gtx"><b>伪阻断提问</b> — 问句答案可自答；用户已给指向仍反问</span></div>
+      <div class="gate-item"><span class="gid">D6</span><span class="gtx"><b>自主闭环</b> — 可自决的事甩回用户</span></div>
+    </div>
+    <div class="cluster">
+      <div class="ct">B 簇</div>
+      <div class="cn">逃避闸门本身（防伪层）</div>
+      <div class="gate-item"><span class="gid">D5</span><span class="gtx"><b>尾巴豁免</b> — 只扫正文不扫尾巴；声明不覆盖尾巴</span></div>
+      <div class="gate-item"><span class="gid">D11</span><span class="gtx"><b>语言后门</b> — 动机条件式禁止 / 开脱钩子 / 自拟豁免</span></div>
+      <div class="gate-item"><span class="gid">D12</span><span class="gtx"><b>加载时机</b> — 先盖章后干活（stamp 模式）</span></div>
+    </div>
+    <div class="cluster">
+      <div class="ct">C 簇</div>
+      <div class="cn">严谨与表达（质量底）</div>
+      <div class="gate-item"><span class="gid">D7</span><span class="gtx"><b>活干到底</b> — 闭环到「审核上架」，正确性 AI 全扛</span></div>
+      <div class="gate-item"><span class="gid">D8</span><span class="gtx"><b>确定性代码</b> — 单位/量级/规则写成纯函数 + 单测</span></div>
+      <div class="gate-item"><span class="gid">D9</span><span class="gtx"><b>可靠验证</b> — 杜绝假阳性 / 假阴性</span></div>
+      <div class="gate-item"><span class="gid">D10</span><span class="gtx"><b>沟通准确</b> — 禁中医式隐喻、术语一致、中文说明</span></div>
+    </div>
+  </div>
+  <p>A 簇管「活有没有干完」，B 簇是 A 簇的<strong>防伪层</strong>，C 簇管「干得对不对、说得清不清楚」。逐项检测器见 <a class="ref" href="./references/gates-d1-d12.md">references/gates-d1-d12.md</a>。</p>
+
+  <h3>2.3 三个最值得注意的设计</h3>
+  <div class="card">
+    <h4>D5 尾巴豁免 —— 技能自己最容易犯的形态</h4>
+    <p>扫描范围含<strong>最后一段、最后一句</strong>。若交付里写了「已跑闸门 / 各 D 全空」之类声明，而尾巴却藏着「若需要 / 不阻塞 / 回头再说」，则该声明<strong>不可信，整条仍 HIT</strong>。这正是 08-18 那条真实事故。</p>
+  </div>
+  <div class="card">
+    <h4>D11 语言后门 —— 措辞本身即违规</h4>
+    <p>写规则时不得留「动机条件式禁止」（<em>「不得为 X 目的而 Y」</em> 给出自证目的的钩子）、「预埋开脱钩子」（<em>「用户多半不会有其他情况」</em>）、「自拟豁免叙事」。<strong>不论意图，有措辞即 HIT。</strong></p>
+  </div>
+  <div class="card">
+    <h4>D12 加载时机 —— 反「先盖章后干活」</h4>
+    <p>技能的本质是<strong>发往前的最后一道拦截关</strong>。若在回合开头就加载、只为换取「我加载了」的声明，即 <code>Skill → Read → Edit</code> 的 stamp 模式，判 HIT。正确次序：先把活干完，<strong>发送前最后</strong>才加载、过闸、贴快照。</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <h2><span class="num">3</span>使用前后效果对比</h2>
+
+  <p>基准：<strong>未加载本技能的自然交付行为</strong> vs <strong>加载并实跑 D1–D12 后的交付行为</strong>。「使用前」样本取自技能内 4 条真实事故记录。</p>
+
+  <h3>3.1 机制级差异（为什么效果不一样）</h3>
+  <div class="tw">
+    <table>
+      <tr><th>环节</th><th>使用前</th><th>使用后</th></tr>
+      <tr><td>自检是否发生</td><td>无固定动作，靠临场自觉</td><td>强制实际调用 Skill 产生<b>加载状态</b>；无加载状态即整条判 HIT</td></tr>
+      <tr><td>自检覆盖面</td><td>只覆盖正文，收尾句是盲区</td><td><b>整条消息含最后一段、最后一句</b>全纳入扫描</td></tr>
+      <tr><td>能否被伪造</td><td>口述一句「已自检」即可</td><td>必须贴逐项快照，每项写实际核对内容；只写「Dn 未命中」判为未跑</td></tr>
+      <tr><td>结论可信度</td><td>声明即结论，无从核验</td><td>声明<b>不等于</b>证明；只有逐项枚举全空才算过闸</td></tr>
+      <tr><td>命中后行为</td><td>报告问题 + 把决定交回用户</td><td>就地返工：执行被藏步 → 重写 → 重跑，全空再交付</td></tr>
+      <tr><td>加载时机</td><td>无所谓</td><td>必须是<b>发送前最后一道拦截</b>；回合开头加载换声明 = stamp 模式，判 HIT</td></tr>
+    </table>
+  </div>
+
+  <h3>3.2 12 个失效维度 · 逐项对照</h3>
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>失效维度</th><th>使用前（典型形态）</th><th>使用后（强制形态）</th></tr>
+      <tr><td>D1</td><td>责任转嫁</td><td>「你双击的 app 具体路径告诉我」</td><td>先判定信息是否可工具自取；可自取即自行取得，不问</td></tr>
+      <tr><td>D2</td><td>半途交付</td><td>诊断完列出问题清单就交付</td><td>可动手的 <code>diagnosed-only</code> 项必须先执行成 <code>executed</code></td></tr>
+      <tr><td>D3</td><td>最优步隐藏</td><td>「要我接着做 A，还是改 B？」</td><td>已判最优即执行，备选记录在结论里，不做二选一</td></tr>
+      <tr><td>D4</td><td>伪阻断提问</td><td>以问句结尾，等用户拍板</td><td>问句答案能自答则自行回答；用户已给指向则视为已授权</td></tr>
+      <tr><td>D5</td><td>尾巴豁免</td><td>正文自检过，尾巴写「这两步不阻塞当前」</td><td>整条含尾巴重扫；「已跑闸门」声明若不含尾巴即不可信</td></tr>
+      <tr><td>D6</td><td>自主闭环</td><td>「要不要继续 / 算不算完成？」</td><td>结论可独立判断即直接给；用户指出问题即视为已授权修复</td></tr>
+      <tr><td>D7</td><td>交付不闭环</td><td>留「待人工确认」字段口径</td><td>自行拍板 + 写清默认假设；只留源文档物理不含的数据并建字典映射</td></tr>
+      <tr><td>D8</td><td>规则靠现场推断</td><td>单位换算靠 AI 每次推断</td><td>写成纯函数 + 显式规则 + 单测</td></tr>
+      <tr><td>D9</td><td>验证不可靠</td><td>假阴性漏报，或假阳性冤枉</td><td>确定性纯函数；报问题前先证伪自己，报全绿前先证全覆盖</td></tr>
+      <tr><td>D10</td><td>表达含糊</td><td>「这里埋坑了 / 打转了」</td><td>「未覆盖缺陷 / 验证未通过 / 偏离预期」+ 触发条件 + 影响组件 + 根因</td></tr>
+      <tr><td>D11</td><td>文本预埋后门</td><td>写规则时留「我目的不是 X」式开脱钩子</td><td>禁止锚定<b>行为本身</b>；不写动机条件式、不预埋借口、不自拟豁免</td></tr>
+      <tr><td>D12</td><td>先盖章后干活</td><td>回合开头加载技能 → 干活 → 声称已过闸</td><td>工作完成后、<b>发送前最后</b>加载 → 过闸 → 贴快照</td></tr>
+    </table>
+  </div>
+
+  <h3>3.3 案例级对照（技能自带真实事故）</h3>
+
+  <div class="case">
+    <div class="ch"><span class="cno">案例 1</span><span class="ct">文档收尾</span><span class="hit">D1 + D5</span></div>
+    <div class="ba">
+      <div class="ba-col before">
+        <div class="h">使用前</div>
+        <div class="q">「如需并回主说明书或导出 PDF/HTML，告诉我即可」</div>
+        <ul style="margin-top:10px"><li>用户实际得到：一份「还差一步、等你开口」的半成品</li></ul>
+      </div>
+      <div class="ba-col after">
+        <div class="h">使用后</div>
+        <div class="q">并回说明书 / 导出 PDF / 导出 HTML —— agent 已直接执行完毕，交付成品</div>
+        <ul style="margin-top:10px"><li>差异本质：<b>可自主完成 → 降级为「需用户触发」</b></li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="ch"><span class="cno">案例 2</span><span class="ct">四乱收尾</span><span class="hit">D3 + D4</span></div>
+    <div class="ba">
+      <div class="ba-col before">
+        <div class="h">使用前</div>
+        <div class="q">「要我接着做 live 重校…还是改 3-tab？」</div>
+        <ul style="margin-top:10px"><li>用户实际得到：一个需要自己判断的二选一，且其中一项明显更优</li></ul>
+      </div>
+      <div class="ba-col after">
+        <div class="h">使用后</div>
+        <div class="q">live 重校已执行完；结论里注明「改 3-tab」为已评估未采纳的备选及理由</div>
+        <ul style="margin-top:10px"><li>差异本质：<b>已判最优 → 降级为「请你选」</b></li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="ch"><span class="cno">案例 3</span><span class="ct">app 字段</span><span class="hit">D1</span></div>
+    <div class="ba">
+      <div class="ba-col before">
+        <div class="h">使用前</div>
+        <div class="q">「你双击的 app 具体路径告诉我，我才能把修复同步到对应副本」</div>
+        <ul style="margin-top:10px"><li>用户实际得到：被要求提供一条<b>根本不需要</b>的信息（app 只读根 config）</li></ul>
+      </div>
+      <div class="ba-col after">
+        <div class="h">使用后</div>
+        <div class="q">直接读根 config，修复同步完成</div>
+        <ul style="margin-top:10px"><li>差异本质：<b>前置依赖是伪的</b> —— 信息本可自取，且实际无需该信息</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="ch"><span class="cno">案例 4</span><span class="ct">yzg 字段库（元递归事故）</span><span class="hit">D5（兼 D3）</span></div>
+    <div class="ba">
+      <div class="ba-col before">
+        <div class="h">使用前</div>
+        <div class="q">正文末：「交付前已真跑闸门 D1–D4 全空」<br>收尾句：「下一步若需要，可把渲染下拉也接到库…或补其余资产类特有枚举的 live 复核——这两步是我方待办，不阻塞当前」</div>
+        <ul style="margin-top:10px"><li>用户点名：「<b>你说的 delivery-no-pseudoblock 已使用是不可信的，因为你可以隐藏了后半句。</b>」</li></ul>
+      </div>
+      <div class="ba-col after">
+        <div class="h">使用后</div>
+        <div class="q">live 复核已执行；整条（含尾巴）重跑 D1–D10 后贴快照，<b>不以「已跑闸门」声明替代扫描</b></div>
+        <ul style="margin-top:10px"><li>差异本质：<b>最危险的一种</b> —— 用「我过闸了」的声明，给尾巴发了免检通行证</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>3.4 可观测的行为差异（同一需求，两种交付）</h3>
+  <p>以「修完一处 bug 并交付」为例：</p>
+  <div class="tw">
+    <table>
+      <tr><th>观测点</th><th>使用前</th><th>使用后</th></tr>
+      <tr><td>消息结尾形态</td><td>常以问句或「如需…」收尾</td><td>以事实陈述 + 证据收尾</td></tr>
+      <tr><td>未完成项措辞</td><td>「这两步是我方待办，不阻塞」（藏在尾巴）</td><td>「已执行 / 剩余 X 项因 Y 未执行」并给上下文</td></tr>
+      <tr><td>用户需要做的事</td><td>判断优先级、提供路径、做二选一</td><td>仅剩形式性人工审核（正确性已由 AI 承担）</td></tr>
+      <tr><td>自检可信度</td><td>声明式，无法核验</td><td>逐项快照，每项带核对内容，可当场对照</td></tr>
+      <tr><td>术语</td><td>「埋坑 / 翻车」等含糊词</td><td>精确工程表述 + 触发条件 + 影响组件 + 根因</td></tr>
+      <tr><td>返工次数</td><td>用户发现后返工</td><td>命中即返工，交付前已收敛</td></tr>
+    </table>
+  </div>
+
+  <h3>3.5 一句话结论</h3>
+  <div class="ba">
+    <div class="ba-col before">
+      <div class="h">使用前</div>
+      <p style="margin:0;color:#5a6272">交付的是「我做到了这一步，剩下的看你」。</p>
+    </div>
+    <div class="ba-col after">
+      <div class="h">使用后</div>
+      <p style="margin:0;color:#08543a">交付的是「我能做的都做完了，证据在这，你只需形式性审核」。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <h2><span class="num">4</span>代价与边界（诚实清单）</h2>
+  <p>用这套闸门不是零成本，已识别的代价与边界：</p>
+  <div class="tw">
+    <table>
+      <tr><th>成本 / 边界</th><th>说明</th></tr>
+      <tr><td><b>输出变长</b></td><td>每次交付都要贴 12 行快照，短答也会被拉长</td></tr>
+      <tr><td><b>强制真加载</b></td><td>每次交付前多一次 Skill 调用；口述自检不计入</td></tr>
+      <tr><td><b>严格度可能过头</b></td><td>D7 要求「字段口径不确定时自己拍板」，合规敏感场景不宜；此时应显式声明假设而非沉默拍板</td></tr>
+      <tr><td><b>依赖「整条含尾巴」纪律</b></td><td>D5 是最常犯项，需要人和模型都对收尾句保持警觉</td></tr>
+      <tr><td><b>不校验事实</b></td><td>它是<b>行为级纪律</b>，不替代领域专项校验（技能原文注明与 <code>yzg-error-audit</code> 互补）</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p><b>AI 交付前全自动自检技能（aicheck / delivery-no-pseudoblock）</b> · v1.0.0</p>
+  <p>配套文件：<a class="ref" href="./SKILL.md">SKILL.md</a>（技能入口） ·
+    <a class="ref" href="./README.md">README.md</a>（安装与使用） ·
+    <a class="ref" href="./references/gates-d1-d12.md">gates-d1-d12.md</a> ·
+    <a class="ref" href="./references/examples.md">examples.md</a> ·
+    <a class="ref" href="./references/before-after.md">before-after.md</a></p>
+  <p style="margin-top:14px">李福春 · 资深架构师 · 「把复杂系统，设计成简单可依赖的产品。」<br>
+    hello@carter.li · <a href="https://github.com/lifuchun522">github.com/lifuchun522</a></p>
+</footer>
+
+</div>
+</body>
+</html>

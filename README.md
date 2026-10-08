@@ -16,7 +16,9 @@
 aiskillhub/
 └── workbuddy/                    # 面向 WorkBuddy 的技能
     └── skill/                    # 通用 Skill（标准 SKILL.md 规范）
-        └── wechat-article-workflow/
+        ├── wechat-article-workflow/
+        ├── aicheck/
+        └── cdpfetch/
 ```
 
 之所以先按工具分，是因为不同平台的技能虽然都叫 `SKILL.md`，但在**安装路径、元数据字段、脚本依赖**上各有各的约定。按工具分目录，安装时直接整目录拷贝，不用挑文件。
@@ -38,6 +40,47 @@ aiskillhub/
 - 技能入口：[`workbuddy/skill/wechat-article-workflow/SKILL.md`](./workbuddy/skill/wechat-article-workflow/SKILL.md)
 
 **它包含什么**：完整的 10 步 SOP、微信兼容 HTML 规则（纯内联 `<section>` 方案）、自研的三种 Markdown 扩展语法（GFM 表格 / `> [!card]` 卡片 / 可点击链接）、双预览产物机制、系列文章连贯性七条铁律，以及 15 个可直接调用的 Python 脚本。
+
+---
+
+### AI 交付前全自动自检（aicheck）
+
+一个**行为级**技能：在每一次向用户交付结果**之前**，强制加载并实跑一道 12 项闸门（D1–D12），拦截两类缓干形态——**把活推回用户**，和**用声明替代扫描**。
+
+它没有脚本、没有 API，管的是**交付纪律**：责任归属、交付完整性、自检可信度。最核心的贡献是防「假装做了」而不只是「忘了做」：
+
+- **D5 尾巴豁免** —— 正文自检过，收尾一句「这两步不阻塞当前」把最优步藏进免检区（技能自身最容易犯的形态）
+- **D11 语言后门** —— 写规则时预埋「我目的不是 X」式开脱钩子；**措辞本身即违规，不论意图**
+- **D12 加载时机** —— 禁止「先加载技能当合规盖章、后干活」的 stamp 模式，必须是发送前最后一道拦截
+
+配套提供 `references/` 三份速查（闸门检测器 / 自带例子 / 前后对比）和一份可视化导读 `aicheck-guide.html`。
+
+- 技能目录：[`workbuddy/skill/aicheck/`](./workbuddy/skill/aicheck/)
+- 使用说明：[`workbuddy/skill/aicheck/README.md`](./workbuddy/skill/aicheck/README.md)
+- 技能入口：[`workbuddy/skill/aicheck/SKILL.md`](./workbuddy/skill/aicheck/SKILL.md)
+- 可视化导读：[`workbuddy/skill/aicheck/aicheck-guide.html`](./workbuddy/skill/aicheck/aicheck-guide.html)
+
+---
+
+### 真实浏览器抓取与证据看板（cdpfetch）
+
+把「抓多个网页做对比」从「打开页面抄几行」变成**可回溯、可验证、可交付**的一条流水线。
+
+它解决的不是「怎么把网页内容读出来」——那是基础能力。它解决的是抓取类任务里那些**反复踩、反复忘的工程问题**：懒加载没滚动导致拿到**看似完整实则残缺**的正文、CDP 通道根本不回传 HTTP 状态码（错误页也会显示 `status: 200`）、二手站点传播已下架的旧定价、单文件 HTML 被 CDN 依赖污染、报「验证通过」实则没覆盖全。
+
+两条抓取通道，产出格式完全一致，下游无差别消费：
+
+- **CDP 直连** —— 复用你日常的 Chrome / Edge，**天然携带登录态**，适合内部系统与强反爬站点
+- **Playwright 无头** —— 独立 Chromium，**零侵入**，适合公开站点批量取数
+
+最有价值的部分是那份 15 条**踩坑清单**（P0/P1/P2），包括一条反直觉的：**验证器自己的假阳性比不验证更危险**——初版验证器对一份已确认合格的看板报出 2 项 FAIL，两项都是验证器的错。
+
+- 技能目录：[`workbuddy/skill/cdpfetch/`](./workbuddy/skill/cdpfetch/)
+- 使用说明：[`workbuddy/skill/cdpfetch/README.md`](./workbuddy/skill/cdpfetch/README.md)
+- 技能入口：[`workbuddy/skill/cdpfetch/SKILL.md`](./workbuddy/skill/cdpfetch/SKILL.md)
+- 踩坑清单：[`workbuddy/skill/cdpfetch/references/pitfalls.md`](./workbuddy/skill/cdpfetch/references/pitfalls.md)
+
+**它包含什么**：五步 SOP（编目 → 抓取 → 取一手事实 → 出看板 → 验证）、5 个可直接调用的脚本、4 份 references（双通道选型 / 存证字段规范 / 单文件看板规范 / 踩坑清单）。所有脚本都实跑验证过，含 CDP 通道端到端（起真实 Chromium + 抓取）与验证器的正例反例双向验证。
 
 ---
 
