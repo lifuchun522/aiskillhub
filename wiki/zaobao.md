@@ -1,5 +1,7 @@
 ﻿# zaobao｜架构师早报三问与同盟讨论（v6.1）
 
+> 本页对应 **GPT 版 v6.1**（出图走 Image 2.5）。同一技能的 **WorkBuddy 版 v6.2**（出图改为 hy3 + 画布归一）见 [zaobao-workbuddy](zaobao-workbuddy)。
+
 仓库路径：[`gpt/skill/zaobao/`](https://github.com/lifuchun522/aiskillhub/tree/main/gpt/skill/zaobao)
 
 完整使用说明：[`README.md`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/README.md)

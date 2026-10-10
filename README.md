@@ -18,10 +18,11 @@ aiskillhub/
 │   └── skill/                    # 通用 Skill（标准 SKILL.md 规范）
 │       ├── wechat-article-workflow/
 │       ├── aicheck/
-│       └── cdpfetch/
+│       ├── cdpfetch/
+│       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
 └── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
     └── skill/
-        └── zaobao/
+        └── zaobao/               # 同一技能的 GPT 版（Image 2.5 出图 v6.1）
 ```
 
 之所以先按工具分，是因为不同平台的技能虽然都叫 `SKILL.md`，但在**安装路径、元数据字段、脚本依赖**上各有各的约定。按工具分目录，安装时直接整目录拷贝，不用挑文件。
@@ -87,7 +88,24 @@ aiskillhub/
 
 ---
 
-### 架构师早报三问与同盟讨论（zaobao）
+### 架构师早报三问与同盟讨论（zaobao · WorkBuddy 版 v6.2）
+
+把「三栏早报」变成可发群、可进微信、可二次创作的一套产物：芒格三问三答、同盟讨论帖、两份微信友好 HTML、hy3 手绘白板与分栏截图。日常用法只有两步——**一段早报原文 + 一个技能名 `/zaobao`**，默认只交付一个带本地时间戳的 `article-YYYYMMDDHHMM.zip`，不含 Skill 目录。
+
+它解决的不是「怎么写早报」——那是内容本身。它解决的是流水线里那些**容易偷工或混包**的工程合同：栏目不得挪用、图必须来自真实出图模型、首页导航只准三个入口、全部链接新页签、交付前过 D1–D12。
+
+这一版最值得记的是**换模型带出的两个坑**：出图模型 hy3 不按你给的尺寸出图（实测 `1440×1072` 与 `1024×1024`），而裁剪坐标是按 `1448×1086` 写死的 → 补上画布归一 + ±28% 宽高比守卫；检测脚本把一张好图误判为「特征不足」，根因是采样网格 `160×90` 太粗、把细密线条平均掉了 → 改成 `320×180` 后恢复正常。**检测脚本报错时，先问「是图错了，还是尺子错了」。**
+
+- 技能目录：[`workbuddy/skill/zaobao/`](./workbuddy/skill/zaobao/)
+- 使用说明：[`workbuddy/skill/zaobao/README.md`](./workbuddy/skill/zaobao/README.md)（含完整实战记录）
+- 技能入口：[`workbuddy/skill/zaobao/SKILL.md`](./workbuddy/skill/zaobao/SKILL.md)
+- Wiki 摘要：[`wiki/zaobao-workbuddy.md`](./wiki/zaobao-workbuddy.md)
+
+**它包含什么**：`build.py`（校验 → 画布归一 → 切图 → 生成 HTML/MD → 打包命名）、浏览器渲染 QA、单测回归样例、白板风格参考图、真实交付包 `article-202610101434.zip`，以及 D1–D12 / wxp-json / v6.2 release notes 等 references。
+
+---
+
+### 架构师早报三问与同盟讨论（zaobao · GPT 版 v6.1）
 
 把「三栏早报」变成可发群、可进微信、可二次创作的一套产物：芒格三问三答、同盟讨论帖、两份微信友好 HTML、Image 2.5 手绘白板与分栏截图。默认只交付一个带本地时间戳的 `article-YYYYMMDDHHMM.zip`，不含 Skill 目录。
 
