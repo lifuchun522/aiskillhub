@@ -1,0 +1,313 @@
+# M6 流程模型元文件 - m6-flow-model.yaml
+# 依据《合同管理需求规格说明书-V9.md》第四部分 + 附录 C.5
+model_type: FLOW
+version: "1.0"
+domain: "销售合同执行管理"
+
+flows:
+  # ══════════════════════════════════════════════════════════
+  # PROC-01 合同全生命周期流程（COLLABORATION）
+  # ══════════════════════════════════════════════════════════
+  - id: FLOW-CONTRACT-001
+    name: 合同全生命周期流程
+    flowType: COLLABORATION
+    description: 从合同创建、审批、生效、开票和收款到合同关闭的端到端协同流程
+    businessObjectRefs:
+      - AGG-CONTRACT-001
+      - AGG-INVOICE-001
+      - AGG-RECEIPT-001
+    roleRefs:
+      - ROLE-SALES
+      - ROLE-FINANCE
+      - ROLE-FINANCE-MANAGER
+      - ROLE-GENERAL-MANAGER
+    trigger:
+      triggerType: MANUAL
+    preconditions:
+      - "销售合同已完成线下签字盖章，具备登记条件"
+    postconditions:
+      - "合同已归档或流程已明确终止"
+    startActivity: A01
+    endActivities: [A09]
+    activities:
+      - activityId: A01
+        name: 开始
+        activityType: START
+        nextActivities: [A02]
+      - activityId: A02
+        name: 创建合同（保存草稿/提交审批）
+        activityType: USER_TASK
+        roleRef: ROLE-SALES
+        behaviorRef: Contract_Submit
+        nextActivities: [A03]
+      - activityId: A03
+        name: 合同登记审批
+        activityType: SUB_FLOW_CALL
+        subFlowRef: FLOW-CONTRACT-APPROVAL-001
+        nextActivities: [A04]
+      - activityId: A04
+        name: 审批结果判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 审批通过
+            conditionExpression: "approval.outcome == 'APPROVE'"
+            targetActivity: A05
+            isDefault: true
+          - branchName: 驳回后修改重提
+            conditionExpression: "approval.outcome == 'REJECT'"
+            targetActivity: A02
+            isDefault: false
+          - branchName: 终止且不再提交
+            conditionExpression: "approval.outcome == 'TERMINATE'"
+            targetActivity: A09
+            isDefault: false
+      - activityId: A05
+        name: 开票与收款循环
+        activityType: SUB_FLOW_CALL
+        subFlowRef: FLOW-CONTRACT-INVOICE-002
+        nextActivities: [A06]
+      - activityId: A06
+        name: 合同结清判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 满足结清条件
+            ruleRef: RULE-CONTRACT-SETTLEMENT
+            targetActivity: A07
+            isDefault: false
+          - branchName: 未结清，继续开票收款
+            conditionExpression: null
+            targetActivity: A05
+            isDefault: true
+      - activityId: A07
+        name: 合同结清（由同步联动自动触发）
+        activityType: SYSTEM_TASK
+        behaviorRef: Contract_UpdateSettlementStatus
+        nextActivities: [A08]
+      - activityId: A08
+        name: 合同作废或归档
+        activityType: USER_TASK
+        roleRef: ROLE-FINANCE-MANAGER
+        behaviorRef: Contract_VoidOrArchive
+        nextActivities: [A09]
+      - activityId: A09
+        name: 结束
+        activityType: END
+        nextActivities: []
+
+  # ══════════════════════════════════════════════════════════
+  # PROC-02 合同开票与收款流程（COLLABORATION）
+  # ══════════════════════════════════════════════════════════
+  - id: FLOW-CONTRACT-INVOICE-002
+    name: 合同开票与收款流程
+    flowType: COLLABORATION
+    description: 根据客户付款通知完成开票审批、付款阶段占用、收款登记和状态联动
+    businessObjectRefs:
+      - AGG-CONTRACT-001
+      - AGG-INVOICE-001
+      - AGG-RECEIPT-001
+    roleRefs:
+      - ROLE-FINANCE
+      - ROLE-FINANCE-MANAGER
+    trigger:
+      triggerType: MANUAL
+    preconditions:
+      - "合同已纳入管理且客户已发出付款通知"
+    postconditions:
+      - "本次有效开票已全部收齐，或开票审批终止/开票作废"
+    startActivity: B01
+    endActivities: [B09]
+    activities:
+      - activityId: B01
+        name: 开始
+        activityType: START
+        nextActivities: [B02]
+      - activityId: B02
+        name: 开票登记（保存草稿/提交审批）
+        activityType: USER_TASK
+        roleRef: ROLE-FINANCE
+        behaviorRef: Invoice_Submit
+        nextActivities: [B03]
+      - activityId: B03
+        name: 开票审批
+        activityType: SUB_FLOW_CALL
+        subFlowRef: FLOW-INVOICE-APPROVAL-002
+        nextActivities: [B04]
+      - activityId: B04
+        name: 审批结果判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 审批通过
+            conditionExpression: "approval.outcome == 'APPROVE'"
+            targetActivity: B05
+            isDefault: true
+          - branchName: 驳回后修改重提
+            conditionExpression: "approval.outcome == 'REJECT'"
+            targetActivity: B02
+            isDefault: false
+          - branchName: 终止且不再提交
+            conditionExpression: "approval.outcome == 'TERMINATE'"
+            targetActivity: B09
+            isDefault: false
+      - activityId: B05
+        name: 更新付款阶段开票状态（同步联动自动触发）
+        activityType: SYSTEM_TASK
+        behaviorRef: PaymentStage_UpdateInvoiceStatus
+        nextActivities: [B06]
+      - activityId: B06
+        name: 录入收款
+        activityType: USER_TASK
+        roleRef: ROLE-FINANCE
+        behaviorRef: Receipt_Record
+        nextActivities: [B07]
+      - activityId: B07
+        name: 更新开票收款状态（同步联动自动触发）
+        activityType: SYSTEM_TASK
+        behaviorRef: Invoice_UpdateReceiptStatus
+        nextActivities: [B08]
+      - activityId: B08
+        name: 开票是否全部收齐
+        activityType: GATEWAY
+        branches:
+          - branchName: 已全部收齐
+            ruleRef: RULE-INVOICE-RECEIPT-STATUS
+            targetActivity: B09
+            isDefault: false
+          - branchName: 未收齐，继续收款
+            conditionExpression: null
+            targetActivity: B06
+            isDefault: true
+      - activityId: B09
+        name: 结束
+        activityType: END
+        nextActivities: []
+
+  # ══════════════════════════════════════════════════════════
+  # PROC-APP-01 合同登记审批（APPROVAL）
+  # ══════════════════════════════════════════════════════════
+  - id: FLOW-CONTRACT-APPROVAL-001
+    name: 合同登记审批
+    flowType: APPROVAL
+    description: 合同先由财务经理审批，金额大于等于100万元时增加总经理审批
+    businessObjectRefs:
+      - AGG-CONTRACT-001
+    roleRefs:
+      - ROLE-FINANCE-MANAGER
+      - ROLE-GENERAL-MANAGER
+    trigger:
+      triggerType: BEHAVIOR
+      behaviorRef: Contract_Submit
+    preconditions:
+      - "contract.status == '待财务经理审批'"
+    postconditions:
+      - "合同审批通过、驳回或终止"
+    startActivity: P01
+    endActivities: [P07, P08]
+    activities:
+      - activityId: P01
+        name: 开始
+        activityType: START
+        nextActivities: [P02]
+      - activityId: P02
+        name: 财务经理审批
+        activityType: APPROVAL_TASK
+        roleRef: ROLE-FINANCE-MANAGER
+        behaviorRef: Contract_ApproveFinance
+        approvalOutcomes: [APPROVE, REJECT]
+        nextActivities: [P03]
+      - activityId: P03
+        name: 财务审批结果判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 驳回
+            conditionExpression: "approval.outcome == 'REJECT'"
+            targetActivity: P08
+            isDefault: false
+          - branchName: 通过
+            conditionExpression: "approval.outcome == 'APPROVE'"
+            targetActivity: P04
+            isDefault: true
+      - activityId: P04
+        name: 大额合同判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 金额大于等于100万元
+            ruleRef: RULE-CONTRACT-APPROVAL-LEVEL
+            targetActivity: P05
+            isDefault: false
+          - branchName: 普通金额合同
+            conditionExpression: null
+            targetActivity: P06
+            isDefault: true
+      - activityId: P05
+        name: 总经理审批
+        activityType: APPROVAL_TASK
+        roleRef: ROLE-GENERAL-MANAGER
+        behaviorRef: Contract_ApproveGeneralManager
+        approvalOutcomes: [APPROVE, REJECT]
+        nextActivities: [P06]
+      - activityId: P06
+        name: 标记审批通过（合同已纳入管理）
+        activityType: BEHAVIOR_CALL
+        behaviorRef: Contract_ApproveGeneralManager
+        nextActivities: [P07]
+      - activityId: P07
+        name: 审批通过结束
+        activityType: END
+        nextActivities: []
+      - activityId: P08
+        name: 驳回结束
+        activityType: END
+        nextActivities: []
+
+  # ══════════════════════════════════════════════════════════
+  # PROC-APP-02 开票审批（APPROVAL）
+  # ══════════════════════════════════════════════════════════
+  - id: FLOW-INVOICE-APPROVAL-002
+    name: 开票审批
+    flowType: APPROVAL
+    description: 开票由财务经理单节点审批
+    businessObjectRefs:
+      - AGG-INVOICE-001
+    roleRefs:
+      - ROLE-FINANCE-MANAGER
+    trigger:
+      triggerType: BEHAVIOR
+      behaviorRef: Invoice_Submit
+    preconditions:
+      - "invoice.approvalStatus == '待财务经理审批'"
+    postconditions:
+      - "开票审批通过、驳回或终止"
+    startActivity: Q01
+    endActivities: [Q04, Q05]
+    activities:
+      - activityId: Q01
+        name: 开始
+        activityType: START
+        nextActivities: [Q02]
+      - activityId: Q02
+        name: 财务经理审批
+        activityType: APPROVAL_TASK
+        roleRef: ROLE-FINANCE-MANAGER
+        behaviorRef: Invoice_ApproveFinance
+        approvalOutcomes: [APPROVE, REJECT]
+        nextActivities: [Q03]
+      - activityId: Q03
+        name: 审批结果判断
+        activityType: GATEWAY
+        branches:
+          - branchName: 通过
+            conditionExpression: "approval.outcome == 'APPROVE'"
+            targetActivity: Q04
+            isDefault: true
+          - branchName: 驳回
+            conditionExpression: "approval.outcome == 'REJECT'"
+            targetActivity: Q05
+            isDefault: false
+      - activityId: Q04
+        name: 审批通过结束（开票已批准）
+        activityType: END
+        nextActivities: []
+      - activityId: Q05
+        name: 驳回结束
+        activityType: END
+        nextActivities: []

@@ -10,7 +10,7 @@
 
 ## 目录组织
 
-仓库按**宿主工具**分目录，每个工具下按**技能类型**再分一层：
+仓库按**宿主工具**分目录，每个工具下按**技能类型**再分一层；不绑定宿主的通用技能统一放 `sa/`：
 
 ```
 aiskillhub/
@@ -20,9 +20,12 @@ aiskillhub/
 │       ├── aicheck/
 │       ├── cdpfetch/
 │       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
-└── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
+├── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
+│   └── skill/
+│       └── zaobao/               # 同一技能的 GPT 版（Image 2.5 出图 v6.1）
+└── sa/                           # 通用技能（不绑定宿主工具，WorkBuddy / Claude Code / Codex / Cursor 通用）
     └── skill/
-        └── zaobao/               # 同一技能的 GPT 版（Image 2.5 出图 v6.1）
+        └── ontology-dev/         # 本体驱动业务系统开发（需求探索 → 本体建模 → 应用构建，v9）
 ```
 
 之所以先按工具分，是因为不同平台的技能虽然都叫 `SKILL.md`，但在**安装路径、元数据字段、脚本依赖**上各有各的约定。按工具分目录，安装时直接整目录拷贝，不用挑文件。
@@ -117,6 +120,25 @@ aiskillhub/
 - Wiki 摘要：[`wiki/zaobao.md`](./wiki/zaobao.md)
 
 **它包含什么**：`build.py` 确定性打包、浏览器冒烟、单测回归样例、白板风格参考图，以及 D1–D12 / wxp-json 等 references。
+
+---
+
+### 本体驱动业务系统开发（ontology-dev · v9）
+
+把「一段业务需求」变成「一套可运行管理系统」的技能：**需求探索 → 本体建模 → 应用构建**三步法，全程以七模型本体 YAML（M1/M2/M3/M5/M6/M7/MU）为唯一语义来源，最终产出严格对齐需求文档、本体模型与代码的 BS 系统。
+
+它解决的不是「AI 会不会写代码」——那是模型的事。它解决的是**语义漂移**：需求做完就丢、模型一套代码一套、生成完了也不知道哪个功能对应需求哪一条。手段是三道门禁——需求探索 8 阶段逐阶段硬暂停等人确认、建模期可追溯性与引用一致性强制核对、开发期严格对齐四份规范。
+
+最有价值的部分是它**自带可运行实物**：双技术底座（Python: Flask+SQLite / Go: Gin+PostgreSQL）+ 一个跑通的合同管理样例，两套端到端 `smoke_test.py` 实测全通过，复制即用，不是骨架加 TODO。
+
+- 技能目录：[`sa/skill/ontology-dev/`](./sa/skill/ontology-dev/)
+- 使用说明：[`sa/skill/ontology-dev/README.md`](./sa/skill/ontology-dev/README.md)
+- 技能入口：[`sa/skill/ontology-dev/SKILL.md`](./sa/skill/ontology-dev/SKILL.md)
+- Wiki 摘要（含实测测评）：[`wiki/ontology-dev.md`](./wiki/ontology-dev.md)
+
+**它包含什么**：`SKILL.md`（三阶段 + 门禁 + 纪律）、5 份方法论文档（需求探索提示词 V9 / 七模型元规范 / 开发指导书 / 技术架构 / UI-UE 规范）、黄金范例（合同管理需求规格 + 七模型 YAML）、双技术底座，以及一个 13 项端到端全通过的完整应用样例。
+
+> 来源与授权：本技能同步自上游 [`sharptoolbox/ontology-driven-dev`](https://github.com/sharptoolbox/ontology-driven-dev)（MIT License），保留原作者署名与 [`LICENSE`](./sa/skill/ontology-dev/LICENSE)。
 
 ---
 
