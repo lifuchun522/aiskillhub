@@ -14,11 +14,14 @@
 
 ```
 aiskillhub/
-└── workbuddy/                    # 面向 WorkBuddy 的技能
-    └── skill/                    # 通用 Skill（标准 SKILL.md 规范）
-        ├── wechat-article-workflow/
-        ├── aicheck/
-        └── cdpfetch/
+├── workbuddy/                    # 面向 WorkBuddy 的技能
+│   └── skill/                    # 通用 Skill（标准 SKILL.md 规范）
+│       ├── wechat-article-workflow/
+│       ├── aicheck/
+│       └── cdpfetch/
+└── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
+    └── skill/
+        └── zaobao/
 ```
 
 之所以先按工具分，是因为不同平台的技能虽然都叫 `SKILL.md`，但在**安装路径、元数据字段、脚本依赖**上各有各的约定。按工具分目录，安装时直接整目录拷贝，不用挑文件。
@@ -84,6 +87,20 @@ aiskillhub/
 
 ---
 
+### 架构师早报三问与同盟讨论（zaobao）
+
+把「三栏早报」变成可发群、可进微信、可二次创作的一套产物：芒格三问三答、同盟讨论帖、两份微信友好 HTML、Image 2.5 手绘白板与分栏截图。默认只交付一个带本地时间戳的 `article-YYYYMMDDHHMM.zip`，不含 Skill 目录。
+
+它解决的不是「怎么写早报」——那是内容本身。它解决的是流水线里那些**容易偷工或混包**的工程合同：栏目不得挪用、图必须来自真实 ImageGen、首页导航只准三个入口、全部链接新页签、交付前过 D1–D12。
+
+- 技能目录：[`gpt/skill/zaobao/`](./gpt/skill/zaobao/)
+- 使用说明：[`gpt/skill/zaobao/README.md`](./gpt/skill/zaobao/README.md)
+- 技能入口：[`gpt/skill/zaobao/SKILL.md`](./gpt/skill/zaobao/SKILL.md)
+
+**它包含什么**：`build.py` 确定性打包、浏览器冒烟、单测回归样例、白板风格参考图，以及 D1–D12 / wxp-json 等 references。
+
+---
+
 ## 如何安装
 
 每个技能目录都是一份自包含的技能包，**整目录拷贝**到你所用工具的 skills 目录即可。具体路径各工具不同，详见各技能自己的 README。
@@ -91,6 +108,8 @@ aiskillhub/
 通用思路是：用户级放 `~/.<工具名>/skills/`（全项目可用），项目级放 `<项目>/.<工具名>/skills/`（随仓库共享，团队协作时更合适）。
 
 安装后不需要额外配置。用自然语言提需求，技能会被自动识别。
+
+> **例外**：`aicheck` 这类**行为级纪律**技能，装进 skills 目录还不够——它需要在每次请求都被注入的位置声明为「常开规则」（Cursor 用 `~/.cursor/rules/*.mdc` + `alwaysApply: true`，WorkBuddy 用用户级 `MEMORY.md`，Claude Code 用 `CLAUDE.md`，Codex 用 `AGENTS.md`）。各工具的具体落点见该技能 README。
 
 ---
 
