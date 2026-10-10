@@ -96,6 +96,7 @@ aiskillhub/
 - 技能目录：[`gpt/skill/zaobao/`](./gpt/skill/zaobao/)
 - 使用说明：[`gpt/skill/zaobao/README.md`](./gpt/skill/zaobao/README.md)
 - 技能入口：[`gpt/skill/zaobao/SKILL.md`](./gpt/skill/zaobao/SKILL.md)
+- Wiki 摘要：[`wiki/zaobao.md`](./wiki/zaobao.md)
 
 **它包含什么**：`build.py` 确定性打包、浏览器冒烟、单测回归样例、白板风格参考图，以及 D1–D12 / wxp-json 等 references。
 
