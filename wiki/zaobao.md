@@ -12,12 +12,19 @@
 
 ## 成品示例（2026-10-10）
 
-一期真实交付（Grok 4.7 / 温昱人才题 / 技术品味），最终回复只给一个带时间戳的 ZIP：
+一期真实交付（Grok 4.7 / 温昱人才题 / 技术品味），最终回复只给一个带时间戳的 ZIP。
+
+解压后 `index.html` 预览（手绘白板 + 三问三答 + 资源导航）：
+
+![发布包首页预览：白板图与三问三答](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/preview-202610101313.png?raw=true)
+
+对话交付截图（唯一 ZIP 链接）：
 
 ![交付截图：仅展示一个带时间戳的 ZIP 下载链接](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/delivery-202610101313.png?raw=true)
 
 | 样例 | 链接 |
 |---|---|
+| 首页预览截图 | [`preview-202610101313.png`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/preview-202610101313.png) |
 | 交付截图 | [`delivery-202610101313.png`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/delivery-202610101313.png) |
 | 完整发布包 | [`article-202610101313.zip`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/article-202610101313.zip) |
 | 本地打包回归输入 | [`demo-2026-10-08.json`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/demo-2026-10-08.json) |
@@ -65,6 +72,7 @@ article-YYYYMMDDHHMM.zip
 | `scripts/build.py` | 确定性打包与时间戳命名 |
 | `scripts/browser_smoke.py` | HTML 冒烟 |
 | `tests/` | 回归单测 |
+| `examples/preview-202610101313.png` | 发布包首页预览截图 |
 | `examples/delivery-202610101313.png` | 真实交付截图 |
 | `examples/article-202610101313.zip` | 真实交付发布包 |
 | `assets/style-reference-*.png` | 白板风格锚点 |

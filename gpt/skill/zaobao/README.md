@@ -43,10 +43,17 @@ cp -r gpt/skill/zaobao .cursor/skills/zaobao
 
 一期真实交付：输入三栏早报（Grok 4.7 / 温昱人才题 / 技术品味），最终回复只给一个 `article-202610101313.zip`。
 
+解压后 `index.html` 预览（手绘白板 + 三问三答 + 资源导航）：
+
+![发布包首页预览：白板图与三问三答](./examples/preview-202610101313.png)
+
+对话交付截图（唯一 ZIP 链接）：
+
 ![交付截图：仅展示一个带时间戳的 ZIP 下载链接](./examples/delivery-202610101313.png)
 
 | 样例 | 说明 |
 |---|---|
+| [`examples/preview-202610101313.png`](./examples/preview-202610101313.png) | 发布包 `index.html` 预览截图 |
 | [`examples/delivery-202610101313.png`](./examples/delivery-202610101313.png) | 对话交付截图（唯一 ZIP 链接） |
 | [`examples/article-202610101313.zip`](./examples/article-202610101313.zip) | 完整发布包（可解压对照 HTML / md / img） |
 | [`examples/demo-2026-10-08.json`](./examples/demo-2026-10-08.json) | 本地 `build.py` 回归输入（另一期） |
@@ -139,6 +146,7 @@ article-YYYYMMDDHHMM.zip
 | `scripts/browser_smoke.py` | HTML 冒烟 |
 | `tests/` | 结构与回归单测 |
 | `examples/demo-2026-10-08.json` | 本地打包回归输入 |
+| `examples/preview-202610101313.png` | 发布包首页预览截图 |
 | `examples/delivery-202610101313.png` | 真实交付截图（单 ZIP） |
 | `examples/article-202610101313.zip` | 真实交付发布包样例 |
 | `assets/` | 用户确认的白板风格参考图 |
