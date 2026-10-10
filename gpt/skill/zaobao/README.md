@@ -39,6 +39,20 @@ cp -r gpt/skill/zaobao .cursor/skills/zaobao
 
 ---
 
+## 成品示例（2026-10-10）
+
+一期真实交付：输入三栏早报（Grok 4.7 / 温昱人才题 / 技术品味），最终回复只给一个 `article-202610101313.zip`。
+
+![交付截图：仅展示一个带时间戳的 ZIP 下载链接](./examples/delivery-202610101313.png)
+
+| 样例 | 说明 |
+|---|---|
+| [`examples/delivery-202610101313.png`](./examples/delivery-202610101313.png) | 对话交付截图（唯一 ZIP 链接） |
+| [`examples/article-202610101313.zip`](./examples/article-202610101313.zip) | 完整发布包（可解压对照 HTML / md / img） |
+| [`examples/demo-2026-10-08.json`](./examples/demo-2026-10-08.json) | 本地 `build.py` 回归输入（另一期） |
+
+---
+
 ## 使用方式（自然语言）
 
 在已安装该 Skill 的对话里，直接贴三栏原文，例如：
@@ -124,7 +138,9 @@ article-YYYYMMDDHHMM.zip
 | `scripts/build.py` | 确定性打包与时间戳命名 |
 | `scripts/browser_smoke.py` | HTML 冒烟 |
 | `tests/` | 结构与回归单测 |
-| `examples/demo-2026-10-08.json` | 本期回归样例输入 |
+| `examples/demo-2026-10-08.json` | 本地打包回归输入 |
+| `examples/delivery-202610101313.png` | 真实交付截图（单 ZIP） |
+| `examples/article-202610101313.zip` | 真实交付发布包样例 |
 | `assets/` | 用户确认的白板风格参考图 |
 | `references/` | D1–D12、wxp-json、release notes、研究备注 |
 

@@ -10,6 +10,18 @@
 
 输入【科技热点】【架构文章推荐】【今日一言】三栏原文，闭环产出芒格三问、同盟讨论、微信 HTML、手绘白板图，最终只交付一个 `article-YYYYMMDDHHMM.zip`。
 
+## 成品示例（2026-10-10）
+
+一期真实交付（Grok 4.7 / 温昱人才题 / 技术品味），最终回复只给一个带时间戳的 ZIP：
+
+![交付截图：仅展示一个带时间戳的 ZIP 下载链接](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/delivery-202610101313.png?raw=true)
+
+| 样例 | 链接 |
+|---|---|
+| 交付截图 | [`delivery-202610101313.png`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/delivery-202610101313.png) |
+| 完整发布包 | [`article-202610101313.zip`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/article-202610101313.zip) |
+| 本地打包回归输入 | [`demo-2026-10-08.json`](https://github.com/lifuchun522/aiskillhub/blob/main/gpt/skill/zaobao/examples/demo-2026-10-08.json) |
+
 ## 安装
 
 ```bash
@@ -53,6 +65,8 @@ article-YYYYMMDDHHMM.zip
 | `scripts/build.py` | 确定性打包与时间戳命名 |
 | `scripts/browser_smoke.py` | HTML 冒烟 |
 | `tests/` | 回归单测 |
+| `examples/delivery-202610101313.png` | 真实交付截图 |
+| `examples/article-202610101313.zip` | 真实交付发布包 |
 | `assets/style-reference-*.png` | 白板风格锚点 |
 | `references/D1-D12.md` | 交付前闸门 |
 | `references/wxp-json.md` | index.json 契约 |
