@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cloudq-oss-cert-rotation v1.4.0 · 使用步骤手册</title>
+<style>
+  :root{
+    --bg:#0f1419; --card:#171d26; --card2:#1d2530; --line:#2a3340;
+    --txt:#e6edf3; --sub:#9aa7b4; --brand:#3b82f6; --brand2:#22d3ee;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --code:#0b0f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+       background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  h1{font-size:27px;margin:0 0 6px;letter-spacing:.5px}
+  h1 .v{color:var(--brand2);font-size:18px;font-weight:600}
+  .lede{color:var(--sub);margin:0;font-size:14px}
+  h2{font-size:20px;margin:42px 0 14px;padding-left:12px;border-left:4px solid var(--brand)}
+  h3{font-size:16px;margin:26px 0 10px;color:var(--brand2)}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:18px 20px;margin:14px 0;position:relative;overflow:hidden}
+  .step::before{content:attr(data-n);position:absolute;right:14px;top:10px;font-size:46px;
+        font-weight:800;color:#ffffff0d;line-height:1}
+  .step .tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:20px;
+        margin-right:8px;font-weight:600;vertical-align:middle}
+  .t-cmd{background:#1e3a5f;color:#93c5fd}
+  .t-cfg{background:#3a2f12;color:#fcd34d}
+  .t-sec{background:#14302a;color:#6ee7b7}
+  .t-out{background:#2a2030;color:#d8b4fe}
+  code{background:var(--code);border:1px solid var(--line);border-radius:6px;
+       padding:1px 7px;font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+       font-size:13px;color:#7dd3fc}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;
+      padding:14px 16px;overflow:auto;font-size:13px;line-height:1.55;
+      font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;color:#cbd5e1;margin:10px 0}
+  pre .c{color:#64748b}.pre .k{color:#f472b6}
+  .kv{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;margin:10px 0;font-size:13.5px}
+  .kv div:nth-child(odd){color:var(--sub)}
+  ul{margin:8px 0;padding-left:20px}
+  li{margin:5px 0}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--card2);color:var(--brand2)}
+  tr:nth-child(even) td{background:#131a22;}
+  .note{border-left:4px solid var(--warn);background:#241d0e;border-radius:0 8px 8px 0;
+        padding:10px 14px;margin:12px 0;color:#fde68a;font-size:13.5px}
+  .ok{border-left:4px solid var(--ok);background:#0e2419;color:#a7f3d0}
+  .bad{border-left:4px solid var(--bad);background:#241010;color:#fecaca}
+  .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);
+        border-radius:6px;padding:2px 8px;margin:2px 3px;font-size:12px;color:var(--sub)}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+  .flow .box{background:var(--card2);border:1px solid var(--line);border-radius:8px;
+        padding:8px 12px;font-size:13px}
+  .flow .arr{color:var(--brand);font-weight:700}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 22px;margin:18px 0}
+  .toc a{color:var(--brand2);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .foot{margin-top:50px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}
+  .sig{color:#475569;font-size:11.5px;margin-top:4px}
+  b.hl{color:#fbbf24}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>cloudq-oss-cert-rotation <span class="v">v1.4.0</span></h1>
+  <p class="lede">OSS 自定义域名证书 · 免费证重新申请 + 部署 使用步骤手册（精确到每步命令与输出）</p>
+</header>
+
+<section class="toc">
+  <b style="color:var(--sub)">目录</b>
+  <ul style="columns:2;margin:8px 0">
+    <li><a href="#s0">0. 能力边界与铁律</a></li>
+    <li><a href="#s1">1. 准备 Python 环境</a></li>
+    <li><a href="#s2">2. 创建 RAM 子账号 AK（最小权限）</a></li>
+    <li><a href="#s3">3. 填写配置文件 config.json</a></li>
+    <li><a href="#s4">4. 子命令一：plan（离线操作单）</a></li>
+    <li><a href="#s5">5. 子命令二：inspect（只读核查）</a></li>
+    <li><a href="#s6">6. 子命令三：rotate（真正轮换）</a></li>
+    <li><a href="#s7">7. 流程全链路图</a></li>
+    <li><a href="#s8">8. 常见错误与退出码</a></li>
+    <li><a href="#s9">9. 重要警告（务必先读）</a></li>
+  </ul>
+</section>
+
+<!-- ========== 0 ========== -->
+<h2 id="s0">0. 能力边界与铁律</h2>
+<div class="step" data-n="0">
+  <p>本 skill 解决的是你的真实场景：<b class="hl">阿里云「免费个人测试证书」（3 个月有效期）到期后不能续费，只能重新申请 + 部署到 OSS 自定义域名 HTTPS</b>。</p>
+  <table>
+    <tr><th>模块</th><th>性质</th><th>说明</th></tr>
+    <tr><td>只读巡检层（原 v1.3.1）</td><td>只读</td><td>entry_probe / cert_probe / probe_report / bench_baseline，只诊断、不写</td></tr>
+    <tr><td>cert_rotate.py（v1.4.0 新增）</td><td>写（需授权）</td><td>plan / inspect / rotate 三子命令，写操作必须 <code>--authorized</code></td></tr>
+  </table>
+  <div class="note"><b>铁律（三层，缺一不可）：</b>
+    <ul>
+      <li>任何写操作（申请 / 部署 / 改 DNS）必须显式传 <code>--authorized</code>，否则只出操作单、不触云；</li>
+      <li>AK/SK 仅从环境变量 <code>ALIYUN_ACCESS_KEY_ID</code> / <code>ALIYUN_ACCESS_KEY_SECRET</code> 读取，<b>绝不硬编码、绝不写盘到 Memory/仓库</b>；</li>
+      <li>证书内容默认仅在内存中传递，部署到 OSS，不落本地磁盘（除非你手动导出）。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========== 1 ========== -->
+<h2 id="s1">1. 准备 Python 环境</h2>
+<div class="step" data-n="1">
+  <span class="tag t-cmd">命令</span><b>创建 venv 并安装轮换模块依赖</b>
+  <div class="kv">
+    <div>推荐运行时</div><div>WorkBuddy 托管 Python <code>C:/Users/Carter.li/.workbuddy/binaries/python/versions/3.13.12/python.exe</code></div>
+    <div>依赖文件</div><div><code>requirements-rotate.txt</code>（CAS SDK + oss2；alidns 为可选项）</div>
+  </div>
+  <pre><span class="c"># 1) 建 venv（已存在则跳过）</span>
+PY="C:/Users/Carter.li/.workbuddy/binaries/python/versions/3.13.12/python.exe"
+VENV="C:/Users/Carter.li/.workbuddy/binaries/python/envs/default"
+"$PY" -m venv "$VENV"
+VENVPY="$VENV/Scripts/python.exe"
+
+<span class="c"># 2) 安装依赖</span>
+"$VENVPY" -m pip install -r requirements-rotate.txt
+<span class="c"># 仅 inspect/rotate 需要；plan 不需要任何第三方库</span></pre>
+  <div class="ok">校验：<code>"$VENVPY" -c "import alibabacloud_cas20200407, oss2; print('IMPORT_OK')"</code> 应输出 <code>IMPORT_OK</code>。</div>
+  <div class="note">只读巡检层（cert_probe 等）只依赖 Python 标准库；<b>只有 cert_rotate 子命令需要上面这些第三方库</b>。</div>
+</div>
+
+<!-- ========== 2 ========== -->
+<h2 id="s2">2. 创建 RAM 子账号 AK（最小权限）</h2>
+<div class="step" data-n="2">
+  <span class="tag t-sec">安全</span><b>切勿使用主账号 AK</b>，按最小权限创建子账号。
+  <div class="kv">
+    <div>控制台入口</div><div>阿里云 RAM 控制台 → 用户 → 创建用户 → 勾选「编程访问」</div>
+    <div>授权策略</div><div><code>AliyunYundunCertFullAccess</code>（证书服务写）+ <code>AliyunOSSFullAccess</code>（部署到 OSS）。只读核查可降为 <code>AliyunYundunCertReadOnlyAccess</code> + <code>AliyunOSSReadOnlyAccess</code></div>
+    <div>可选（自动 DNS）</div><div>若要用 <code>--auto-dns</code>，再授权 <code>AliyunDNSFullAccess</code></div>
+  </div>
+  <pre><span class="c"># 取得后，运行时通过环境变量注入（不要写进任何文件）</span>
+export ALIYUN_ACCESS_KEY_ID="LTAI5txxxxxxxxxxxx"
+export ALIYUN_ACCESS_KEY_SECRET="xxxxxxxxxxxxxxxxxxxx"
+<span class="c"># Windows PowerShell:</span>
+$env:ALIYUN_ACCESS_KEY_ID="LTAI5txxxxxxxxxxxx"
+$env:ALIYUN_ACCESS_KEY_SECRET="xxxxxxxxxxxxxxxxxxxx"</pre>
+  <div class="bad">用完后建议在 RAM 控制台「禁用」或「删除」该 AccessKey，降低泄露风险。本 skill 不在任何位置持久化你的密钥。</div>
+</div>
+
+<!-- ========== 3 ========== -->
+<h2 id="s3">3. 填写配置文件 config.json</h2>
+<div class="step" data-n="3">
+  <span class="tag t-cfg">配置</span><b>复制样例并填写，<code>--config</code> 默认读同目录 <code>config.json</code></b>
+  <pre><span class="c"># 复制样例</span>
+cp config.example.json config.json   <span class="c"># 或 Windows: copy config.example.json config.json</span></pre>
+  <table>
+    <tr><th>字段</th><th>必填</th><th>含义 / 取值</th></tr>
+    <tr><td><code>domain</code></td><td>是</td><td>要换证的 OSS 自定义域名，如 <code>www.example.com</code></td></tr>
+    <tr><td><code>oss_bucket</code></td><td>是</td><td>已绑定该自定义域名的 OSS bucket 名</td></tr>
+    <tr><td><code>region</code></td><td>否</td><td>OSS 地域，如 <code>cn-hangzhou</code>；影响 oss2 V4 签名与 CAS region</td></tr>
+    <tr><td><code>oss_endpoint</code></td><td>是</td><td>OSS 访问域名，如 <code>https://oss-cn-hangzhou.aliyuncs.com</code></td></tr>
+    <tr><td><code>validate_type</code></td><td>否</td><td>固定 <code>DNS</code>（免费证默认 DNS 验证）</td></tr>
+    <tr><td><code>product_code</code></td><td>否</td><td>免费证产品码 <code>digicert-free-1-free</code>（默认已填）</td></tr>
+    <tr><td><code>wait_seconds</code></td><td>否</td><td>轮询间隔秒数，默认 <code>30</code></td></tr>
+    <tr><td><code>max_poll</code></td><td>否</td><td>最大轮询次数，默认 <code>40</code>（约 20 分钟上限）</td></tr>
+  </table>
+  <div class="note">所有字段也可用 CLI 临时覆盖：<code>--domain</code> / <code>--oss-bucket</code> / <code>--region</code> / <code>--oss-endpoint</code>。AK 不在配置文件里，只在环境变量。</div>
+</div>
+
+<!-- ========== 4 ========== -->
+<h2 id="s4">4. 子命令一：plan（离线操作单）</h2>
+<div class="step" data-n="4">
+  <span class="tag t-cmd">命令</span><b>生成更新操作单，无需 AK、不触云</b>
+  <pre>python3 scripts/cert_rotate.py plan --config config.json
+<span class="c"># 或临时指定域名（无需配置文件里的 domain）：</span>
+python3 scripts/cert_rotate.py plan --domain www.example.com --oss-bucket my-bucket</pre>
+  <div class="kv">
+    <div>需要 AK</div><div>否</div>
+    <div>退出码</div><div><code>0</code> 成功；<code>2</code> 缺少 domain / config</div>
+    <div>输出</div><div>JSON：6 步操作 + 每步 risk + 前置条件 + 授权提醒</div>
+  </div>
+  <pre><span class="c"># 预期输出（节选）</span>
+{
+  "action": "rotate_oss_custom_domain_cert",
+  "target": { "domain": "www.example.com", "oss_bucket": "my-bucket", ... },
+  "steps": [
+    { "step": 1, "op": "check_free_quota", "risk": "none", ... },
+    { "step": 2, "op": "apply_free_cert", "risk": "consumes 1 of 20 yearly free quota" },
+    { "step": 3, "op": "dns_validate", "risk": "adds TXT record to domain DNS" },
+    { "step": 4, "op": "poll_status", "risk": "none" },
+    { "step": 5, "op": "download_cert", "risk": "in-memory only, not written to disk by default" },
+    { "step": 6, "op": "deploy_oss", "risk": "overwrites existing OSS cname cert" }
+  ],
+  "authorization_required": true
+}</pre>
+  <div class="ok">用途：先让你/审核人确认 6 步与风险（尤其第 2 步消耗免费额度、第 6 步覆盖旧证），再决定是否执行。</div>
+</div>
+
+<!-- ========== 5 ========== -->
+<h2 id="s5">5. 子命令二：inspect（只读核查）</h2>
+<div class="step" data-n="5">
+  <span class="tag t-cmd">命令</span><b>只读查免费额度 + OSS 自定义域名证书状态，需 AK 但仍不写</b>
+  <pre><span class="c"># 先设置环境变量（见步骤 2），再执行：</span>
+ALIYUN_ACCESS_KEY_ID=xxx ALIYUN_ACCESS_KEY_SECRET=yyy \
+  python3 scripts/cert_rotate.py inspect --config config.json</pre>
+  <div class="kv">
+    <div>需要 AK</div><div>是（环境变量）</div>
+    <div>写操作</div><div>无（只读 Query）</div>
+    <div>退出码</div><div><code>0</code> 成功；<code>2</code> 缺 AK / 缺 domain / 缺 oss_bucket</div>
+  </div>
+  <pre><span class="c"># 预期输出（节选）</span>
+{
+  "quota": {
+    "product_code": "digicert-free-1-free",
+    "total": 20, "used": 3, "remain": 17,   <span class="c"># 当年免费额度剩余</span>
+    "raw": { ... }
+  },
+  "oss_cname": [
+    { "domain": "www.example.com", "status": "Enabled",
+      "cert_status": "Enabled", "cert_id": "xxx" }
+  ]
+}</pre>
+  <div class="note">关键判断：<b>remain &gt; 0</b> 才能继续；<code>oss_cname</code> 为空说明该域名还没绑到 bucket，需先去 OSS 控制台绑定自定义域名再轮换。</div>
+</div>
+
+<!-- ========== 6 ========== -->
+<h2 id="s6">6. 子命令三：rotate（真正轮换）</h2>
+<div class="step" data-n="6">
+  <span class="tag t-cmd">命令</span><b>端到端执行：申请免费证 → DNS 验证 → 轮询签发 → 下载 → 部署 OSS</b>
+  <pre><span class="c"># 手动加 TXT（默认交互确认）：</span>
+ALIYUN_ACCESS_KEY_ID=xxx ALIYUN_ACCESS_KEY_SECRET=yyy \
+  python3 scripts/cert_rotate.py rotate --config config.json --authorized
+
+<span class="c"># 同账号 DNS 自动加 TXT（免去手动）：</span>
+  ... rotate --config config.json --authorized --auto-dns
+
+<span class="c"># 非交互环境（脚本/CI，跳过回车确认）：</span>
+  ... rotate --config config.json --authorized --auto-dns --no-confirm-dns</pre>
+  <div class="kv">
+    <div>需要 AK</div><div>是（环境变量）</div>
+    <div>需要授权</div><div>必须 <code>--authorized</code>，否则拒绝（退出码 2）</div>
+    <div>退出码</div><div><code>0</code> 部署成功；<code>2</code> 拒绝/失败（见错误表）</div>
+  </div>
+
+  <h3>执行顺序（代码内 6 步）</h3>
+  <ol>
+    <li><b>check_free_quota</b> — 只读查额度，<code>remain&lt;=0</code> 直接抛错终止。</li>
+    <li><b>apply_free_cert</b> — 调 <code>CreateCertificateForPackageRequest</code>，<b>消耗 1 张免费额度</b>，返回 OrderId。</li>
+    <li><b>dns_validate</b> — 调 <code>DescribeCertificateState</code>：
+        <ul>
+          <li>返回含 <code>record_value</code> → 待验证，打印 TXT 主机记录/类型/值；</li>
+          <li><code>--auto-dns</code> 时调 AliDNS 自动加 TXT；否则等你手动加后<b>回车继续</b>（<code>--no-confirm-dns</code> 跳过）。</li>
+        </ul></li>
+    <li><b>poll_status</b> — 每 <code>wait_seconds</code> 秒轮询，最多 <code>max_poll</code> 次；当回包含 <code>certificate</code>+<code>private_key</code> 判定为 issued。</li>
+    <li><b>download_cert</b> — 用签发回包里的证书+私钥（<b>默认仅内存，不落盘</b>）；缺失则再查一次，仍无则报错提示手动下载。</li>
+    <li><b>deploy_oss</b> — 调 <code>put_bucket_cname</code> 覆盖部署到 OSS 自定义域名（<code>force=True</code>）。</li>
+  </ol>
+  <pre><span class="c"># 成功输出（节选）</span>
+{
+  "order_id": "123456",
+  "domain": "www.example.com",
+  "status": "deployed",
+  "cert_not_after": "2612..."   <span class="c"># 从证书粗略抽取的有效期截止</span>
+}</pre>
+  <div class="ok">完成后去 OSS 控制台「自定义域名 / 传输管理 / HTTPS」确认证书已更新，或在浏览器访问该域名看锁标。</div>
+</div>
+
+<!-- ========== 7 ========== -->
+<h2 id="s7">7. 流程全链路图</h2>
+<div class="flow">
+  <div class="box">① plan<br><span style="font-size:11px;color:var(--sub)">离线操作单</span></div>
+  <div class="arr">→</div>
+  <div class="box">② env AK<br><span style="font-size:11px;color:var(--sub)">最小权限</span></div>
+  <div class="arr">→</div>
+  <div class="box">③ inspect<br><span style="font-size:11px;color:var(--sub)">查额度/CNAME</span></div>
+  <div class="arr">→</div>
+  <div class="box">④ rotate --authorized<br><span style="font-size:11px;color:var(--sub)">申请→验证→轮询→部署</span></div>
+  <div class="arr">→</div>
+  <div class="box">⑤ 控制台确认<br><span style="font-size:11px;color:var(--sub)">HTTPS 锁标</span></div>
+</div>
+<div class="note">每一步都可独立重跑：plan 永远免费；inspect 只读无副作用；rotate 若中途失败（如 TXT 没加），修正后重跑会重新申请一张（注意额度消耗）。</div>
+
+<!-- ========== 8 ========== -->
+<h2 id="s8">8. 常见错误与退出码</h2>
+<table>
+  <tr><th>现象 / 输出</th><th>退出码</th><th>原因</th><th>处理</th></tr>
+  <tr><td><code>写操作被拒绝：必须显式传递 --authorized</code></td><td>2</td><td>rotate 未带授权</td><td>加 <code>--authorized</code></td></tr>
+  <tr><td><code>缺少 AK/SK（请设置环境变量 ...）</code></td><td>2</td><td>未设置环境变量</td><td>export 两个 ALIYUN_ 变量</td></tr>
+  <tr><td><code>免费额度已用尽（remain=0）</code></td><td>2</td><td>当年 20 张额度用完</td><td>买 Pro 版或等次年额度；或换账号</td></tr>
+  <tr><td><code>inspect 需 config 含 domain 与 oss_bucket</code></td><td>2</td><td>配置缺字段</td><td>补全 config.json</td></tr>
+  <tr><td><code>轮询 N 次仍未签发</code></td><td>2</td><td>DNS TXT 没加 / 未生效 / 域名不通</td><td>检查 TXT 记录，等 DNS 生效后重跑</td></tr>
+  <tr><td><code>未能从 API 取得证书内容</code></td><td>2</td><td>签发回包未含私钥</td><td>到控制台手动下载 cert.pem/key.pem 再部署</td></tr>
+</table>
+
+<!-- ========== 9 ========== -->
+<h2 id="s9">9. 重要警告（务必先读）</h2>
+<div class="bad">
+  <ul>
+    <li><b>免费证只有 3 个月</b>：每 3 个月这套流程要重跑一次，每次消耗 1/20 年额度。你正在做 CI/CD 自动化，建议把它做成定时任务（每 ~2 个月自动 rotate）。</li>
+    <li><b>真实云链路仍为 NOT_VERIFIED</b>：本手册步骤的端到端（rotate 真正申请+部署）需你的真实 AK 与 config 才能验证；当前仅 47 个离线单测（假客户端注入）全过 + plan/rotate 门控冒烟通过。</li>
+    <li><b>覆盖即生效</b>：deploy_oss 用 <code>force=True</code>，会直接覆盖 OSS 自定义域名上的旧证书，无回滚按钮——确保 domain/oss_bucket 填对。</li>
+    <li><b>DNS 验证窗口</b>：手动加 TXT 后若未等生效就回车，轮询会超时失败；用 <code>--auto-dns</code> 可免去手动但需额外 AliDNS 权限。</li>
+  </ul>
+</div>
+
+<div class="step" data-n="★">
+  <h3 style="margin-top:6px">一键自检清单</h3>
+  <span class="pill">venv 已建 + 依赖已装</span>
+  <span class="pill">RAM 子账号 AK（最小权限）</span>
+  <span class="pill">config.json 填好 domain/oss_bucket/oss_endpoint</span>
+  <span class="pill">AK 已 export 到环境变量</span>
+  <span class="pill">plan 看过 6 步风险</span>
+  <span class="pill">inspect 确认 remain&gt;0 且 CNAME 已绑</span>
+  <span class="pill">rotate 带 --authorized</span>
+  <span class="pill">控制台确认 HTTPS 生效</span>
+  <span class="pill">用后禁用 AK</span>
+</div>
+
+<div class="foot">
+  文档依据 <code>scripts/cert_rotate.py</code>（v1.4.0）源码与 <code>config.example.json</code> 生成，命令、参数、退出码、字段均与代码一致。
+  <div class="sig">cloudq-oss-cert-rotation · v1.4.0 · 李福春 · 资深架构师</div>
+</div>
+
+</div>
+</body>
+</html>

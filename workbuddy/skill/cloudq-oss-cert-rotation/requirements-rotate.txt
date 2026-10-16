@@ -1,0 +1,9 @@
+# cert_rotate.py 专用依赖（只读巡检脚本不需要这些）
+# 安装：pip install -r requirements-rotate.txt
+# 仅在执行 `rotate`（真正申请+部署）或 `inspect`（查 CAS 配额）时才需要
+alibabacloud_cas20200407
+alibabacloud_tea_openapi
+alibabacloud_tea_util
+oss2
+# 可选：--auto-dns 自动加 TXT 验证记录时需要
+alibabacloud_alidns20150109

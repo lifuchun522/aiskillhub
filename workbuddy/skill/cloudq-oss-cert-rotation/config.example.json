@@ -1,0 +1,10 @@
+{
+  "domain": "www.example.com",
+  "oss_bucket": "your-bucket-name",
+  "region": "cn-hangzhou",
+  "oss_endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "validate_type": "DNS",
+  "product_code": "digicert-free-1-free",
+  "wait_seconds": 30,
+  "max_poll": 40
+}
