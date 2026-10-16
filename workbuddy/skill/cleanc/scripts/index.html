@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cleanc · Windows C 盘可清理目录管理</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --line:#e3e6ea; --line2:#eef0f3;
+    --fg:#1f2328; --fg2:#5b636e; --fg3:#8b949e;
+    --accent:#2563eb; --accent-bg:#eff4ff;
+    --ok:#0f7b3f; --ok-bg:#eaf7ef;
+    --warn:#b54708; --warn-bg:#fff5e8;
+    --danger:#d92d20; --danger-bg:#fdecea;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{max-width:1300px;margin:0 auto;padding:20px 20px 60px}
+  h1{font-size:19px;margin:0 0 2px;font-weight:650}
+  h2{font-size:15px;margin:26px 0 10px;font-weight:620;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  h2 .n{font-weight:500;color:var(--fg3);font-size:13px}
+  h2 .ctl{margin-left:auto;font-size:12.5px;font-weight:400;color:var(--fg2);display:flex;align-items:center;gap:7px}
+  h2 .ctl input{width:88px;font:inherit;font-size:12.5px;padding:3px 8px;border:1px solid var(--line);
+    border-radius:6px;background:#fff;text-align:right}
+  .sub{color:var(--fg2);font-size:12.5px;margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:12px;margin-bottom:16px}
+  .stat{padding:13px 15px}
+  .stat .k{font-size:12px;color:var(--fg2);margin-bottom:5px}
+  .stat .v{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px;font-weight:500;color:var(--fg3);margin-left:3px}
+  .stat.warn .v{color:var(--warn)} .stat.ok .v{color:var(--ok)} .stat.accent .v{color:var(--accent)}
+  .stat.dim .v{font-size:13px;font-weight:560;color:var(--fg2);line-height:2.1}
+  .bar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:11px 13px;margin-bottom:6px}
+  button{font:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);
+    background:#fff;color:var(--fg);padding:6px 13px;transition:.12s}
+  button:hover:not(:disabled){border-color:#c9cfd6;background:#fafbfc}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:520}
+  button.primary:hover:not(:disabled){background:#1d4fd8;border-color:#1d4fd8}
+  button.danger{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:520}
+  button.danger:hover:not(:disabled){background:#b42318;border-color:#b42318}
+  button.ghost{background:transparent;border-color:transparent;color:var(--fg2);padding:6px 8px}
+  button.ghost:hover:not(:disabled){background:#eef0f3}
+  button.sm{padding:4px 10px;font-size:12.5px}
+  input[type=search]{font:inherit;padding:6px 11px;border:1px solid var(--line);border-radius:7px;
+    background:#fff;min-width:200px}
+  .spacer{flex:1}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line2);vertical-align:top}
+  th{font-weight:600;color:var(--fg2);font-size:12px;background:#fafbfc;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfc}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .path{font-family:var(--mono);font-size:12px;word-break:break-all}
+  .tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11.5px;font-weight:520;white-space:nowrap}
+  .tag.low{background:var(--ok-bg);color:var(--ok)}
+  .tag.mid{background:var(--warn-bg);color:var(--warn)}
+  .tag.lock{background:#f0f1f3;color:var(--fg2)}
+  .tag.auth{background:var(--accent-bg);color:var(--accent)}
+  .desc{color:var(--fg2);font-size:12.5px}
+  .impact{color:var(--fg2);font-size:12.5px;line-height:1.6}
+  code.cmd{font-family:var(--mono);font-size:11px;color:#39434d;background:#f7f8fa;
+    border:1px solid var(--line2);border-radius:6px;padding:4px 7px;margin-top:5px;
+    display:block;word-break:break-all;line-height:1.5}
+  .bar-mini{height:5px;background:#eef0f3;border-radius:3px;overflow:hidden;min-width:52px;margin-top:5px}
+  .bar-mini i{display:block;height:100%;background:var(--accent)}
+  .bar-mini.mid i{background:var(--warn)}
+  #log{font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;word-break:break-all;
+    background:#fafbfc;border-top:1px solid var(--line);padding:12px 14px;max-height:430px;overflow:auto;
+    color:#24292f;border-radius:0 0 9px 9px}
+  #log .l-err{color:#a8140a;font-weight:600}
+  #log .l-cmd{color:#1a4fbf}
+  #log .l-ok{color:#0f7b3f}
+  #logHead{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:12.5px;color:var(--fg2)}
+  .badge{font-size:11.5px;padding:2px 8px;border-radius:5px;background:var(--accent-bg);color:var(--accent);font-weight:560}
+  .badge.done{background:var(--ok-bg);color:var(--ok)}
+  .mask{position:fixed;inset:0;background:rgba(20,24,30,.42);display:none;
+    align-items:center;justify-content:center;padding:24px;z-index:50}
+  .mask.on{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:680px;width:100%;max-height:86vh;
+    display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(16,24,40,.2)}
+  .modal header{padding:15px 18px;border-bottom:1px solid var(--line);font-weight:620}
+  .modal .body{padding:16px 18px;overflow:auto}
+  .modal footer{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;
+    background:#fafbfc}
+  .warnbox{background:var(--danger-bg);color:#a8140a;border-radius:8px;padding:10px 13px;
+    font-size:12.5px;font-weight:560;margin-bottom:13px}
+  .warnbox.info{background:var(--accent-bg);color:#1a4fbf;font-weight:500}
+  .kv{display:grid;grid-template-columns:88px 1fr;gap:6px 12px;font-size:12.5px;margin-bottom:12px}
+  .kv dt{color:var(--fg2)} .kv dd{margin:0;font-family:var(--mono);word-break:break-all}
+  .empty{padding:26px;text-align:center;color:var(--fg3)}
+  .spin{width:14px;height:14px;border:2px solid #cbd3dc;border-top-color:var(--accent);
+    border-radius:50%;display:inline-block;animation:sp .7s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .err{background:var(--danger-bg);color:#a8140a;border:1px solid #f5c2bd;border-radius:9px;
+    padding:12px 15px;font-size:13px;margin-bottom:16px;display:none}
+  .err.on{display:block}
+  .err code{font-family:var(--mono);background:#fff;padding:2px 6px;border-radius:5px;
+    border:1px solid #f5c2bd;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>cleanc · Windows C 盘可清理目录管理</h1>
+  <p class="sub" id="meta">正在扫描…</p>
+  <div class="err" id="err"></div>
+
+  <div class="stats">
+    <div class="card stat accent"><div class="k">C 盘可用</div><div class="v" id="s-free">–</div></div>
+    <div class="card stat ok"><div class="k">低风险可一键清理</div><div class="v" id="s-low">–</div></div>
+    <div class="card stat warn"><div class="k">中风险合计</div><div class="v" id="s-mid">–</div></div>
+    <div class="card stat"><div class="k">系统目录（脚本不碰）</div><div class="v" id="s-lock">–</div></div>
+    <div class="card stat dim"><div class="k">执行权限</div><div class="v" id="s-admin">–</div></div>
+  </div>
+
+  <div class="card bar">
+    <button class="primary" id="btn-reload">重新扫描</button>
+    <button class="danger" id="btn-all">清理全部低风险</button>
+    <button id="btn-preview-all">预演（不删除）</button>
+    <div class="spacer"></div>
+    <input type="search" id="q" placeholder="过滤路径 / 类别…">
+  </div>
+
+  <h2>低风险目录 <span class="n" id="n-low"></span></h2>
+  <div class="card"><table>
+    <thead><tr>
+      <th>目录</th><th>类别</th><th class="num">清理前MB</th><th class="num">占比</th>
+      <th class="num">文件数</th><th>执行指令（等价命令行）</th><th>操作</th>
+    </tr></thead>
+    <tbody id="tb-low"><tr><td colspan="7" class="empty"><span class="spin"></span> 扫描中…</td></tr></tbody>
+  </table></div>
+
+  <h2>低风险 · 需人工处理 <span class="n" id="n-lock"></span></h2>
+  <div class="card"><table>
+    <thead><tr><th>目录</th><th>类别</th><th class="num">清理前MB</th><th>不自动清理的原因 / 替代做法</th></tr></thead>
+    <tbody id="tb-lock"></tbody>
+  </table></div>
+
+  <h2>中风险目录 · 清理后的影响后果 <span class="n" id="n-mid"></span>
+    <span class="ctl">仅显示大于
+      <input type="number" id="midMin" value="500" min="0" step="50"> MB 的目录</span>
+  </h2>
+  <div class="card"><table>
+    <thead><tr>
+      <th>目录</th><th>类别</th><th class="num">清理前MB</th><th class="num">占比</th>
+      <th>清理后的影响后果 / 建议指令</th>
+    </tr></thead>
+    <tbody id="tb-mid"></tbody>
+  </table></div>
+
+  <h2>服务端执行日志</h2>
+  <div class="card">
+    <div id="logHead"><span id="logTitle">最近一次操作</span>
+      <span class="badge" id="logBadge" style="display:none">执行中</span>
+      <span class="spacer"></span>
+      <span id="logName" style="font-family:var(--mono);font-size:11.5px;color:var(--fg3)"></span></div>
+    <div id="log">（暂无操作记录。点击任一「清理」按钮后，服务端会逐目录输出：目录 / 执行指令 / 清理前MB / 清理后MB / 状态 / 失败处置命令）</div>
+  </div>
+
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <header id="m-title">确认清理</header>
+    <div class="body">
+      <div class="warnbox" id="m-warn"></div>
+      <dl class="kv" id="m-kv"></dl>
+      <div class="impact" id="m-impact"></div>
+    </div>
+    <footer>
+      <button class="ghost" id="m-cancel">取消</button>
+      <button id="m-dry">预演（不删除）</button>
+      <button class="danger" id="m-go">确认清理</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt = n => n >= 1024 ? (n/1024).toFixed(2) + ' GB' : n.toFixed(1) + ' MB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let DATA = null, FILTER = '', POLL = null;
+
+/* ---------- 扫描 ---------- */
+async function load(refresh) {
+  $('#meta').innerHTML = '<span class="spin"></span> 正在扫描目录体积（首次约 30~60 秒，之后 5 分钟内复用缓存）…';
+  let r, d;
+  try {
+    r = await fetch('/api/targets' + (refresh ? '?refresh=1' : ''));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    d = await r.json();
+  } catch (e) {
+    return fail('无法连接 cleanc 服务（' + e.message + '）。本页面必须由 Python 服务提供，'
+      + '直接双击打开 html 文件时按钮不会生效。<br>请先运行：'
+      + '<code>python server.py serve --port 8848</code> 然后访问 <code>http://127.0.0.1:8848/</code>');
+  }
+  if (d.ok === false) return fail('扫描失败：' + esc(d.error));
+  DATA = d;
+  const s = d.summary;
+  $('#meta').innerHTML = `扫描时间 ${esc(d.generated_at)} · 用户目录 <code>${esc(d.host)}</code> · `
+    + `共 ${s.total} 项 · 可清理范围仅限 <b>targets.json 中 authorized=true 且 risk=low</b> 的目录`;
+  $('#s-free').innerHTML = (d.disk_free_mb/1024).toFixed(2) + ' <small>GB</small>';
+  $('#s-low').innerHTML = s.low_authorized + ' <small>项 / ' + fmt(s.low_authorized_mb) + '</small>';
+  $('#s-mid').innerHTML = fmt(s.mid_mb);
+  $('#s-lock').innerHTML = s.locked + ' <small>项</small>';
+  $('#s-admin').textContent = d.is_admin ? '管理员（可删受保护目录）' : '普通用户（受保护目录会失败）';
+  render();
+}
+
+function fail(msg) {
+  $('#meta').textContent = '';
+  $('#err').innerHTML = '&#9888;&#65039; ' + msg;
+  $('#err').classList.add('on');
+  ['#s-free','#s-low','#s-mid','#s-lock','#s-admin'].forEach(x => $(x).innerHTML = '–');
+  ['#tb-low','#tb-mid','#tb-lock'].forEach(x => $(x).innerHTML =
+    `<tr><td colspan="7" class="empty">服务未连接，无法读取数据</td></tr>`);
+}
+
+function render() {
+  const items = DATA.items.filter(i =>
+    !FILTER || (i.path + i.category + i.desc).toLowerCase().includes(FILTER));
+
+  const low  = items.filter(i => i.risk === 'low' && i.authorized);
+  const lock = items.filter(i => i.risk === 'low' && !i.authorized);
+  const midAll = DATA.items.filter(i => i.risk === 'mid');
+  const TH = Number($('#midMin').value) || 0;
+  const mid = midAll.filter(i => i.size_mb > TH);
+  const midHidden = midAll.length - mid.length;
+  const lowTotal = DATA.items.filter(i => i.risk==='low' && i.authorized).reduce((a,b)=>a+b.size_mb,0) || 1;
+  const midTotal = midAll.reduce((a,b)=>a+b.size_mb,0) || 1;
+
+  $('#n-low').textContent  = `${low.length} 项 · 合计 ${fmt(low.reduce((a,b)=>a+b.size_mb,0))}`;
+  $('#n-lock').textContent = `${lock.length} 项`;
+  $('#n-mid').textContent  = `显示 ${mid.length} 项 / 共 ${midAll.length} 项 · 显示合计 ${fmt(mid.reduce((a,b)=>a+b.size_mb,0))}`
+    + (midHidden > 0 ? ` · 已隐藏 ≤${TH} MB 的 ${midHidden} 项` : '');
+
+  $('#tb-low').innerHTML = low.length ? low.map(i => `
+    <tr>
+      <td><div class="path">${esc(i.path)}</div><div class="desc">${esc(i.desc)}</div></td>
+      <td><span class="tag auth">${esc(i.category)}</span></td>
+      <td class="num"><b>${i.size_mb.toFixed(1)}</b></td>
+      <td class="num">${(i.size_mb*100/lowTotal).toFixed(2)}%
+        <div class="bar-mini"><i style="width:${Math.min(100,i.size_mb*100/lowTotal)}%"></i></div></td>
+      <td class="num">${i.files.toLocaleString()}</td>
+      <td><code class="cmd">${esc(i.cmd || '')}</code></td>
+      <td><button class="primary sm" data-act="one" data-id="${esc(i.id)}" data-path="${esc(i.path)}"
+        data-mb="${i.size_mb}" data-cmd="${esc(i.cmd||'')}" data-impact="${esc(i.impact)}">清理</button></td>
+    </tr>`).join('') : `<tr><td colspan="7" class="empty">无可清理的授权目录</td></tr>`;
+
+  $('#tb-lock').innerHTML = lock.length ? lock.map(i => `
+    <tr>
+      <td><div class="path">${esc(i.path)}</div><div class="desc">${esc(i.desc)}</div></td>
+      <td><span class="tag lock">${esc(i.category)}</span></td>
+      <td class="num"><b>${i.size_mb.toFixed(1)}</b></td>
+      <td class="impact">${esc(i.impact)}${i.hint ? `<code class="cmd">${esc(i.hint)}</code>` : ''}</td>
+    </tr>`).join('') : `<tr><td colspan="4" class="empty">无匹配项</td></tr>`;
+
+  $('#tb-mid').innerHTML = mid.length ? mid.map(i => `
+    <tr>
+      <td><div class="path">${esc(i.path)}</div><div class="desc">${esc(i.desc)}</div></td>
+      <td><span class="tag mid">${esc(i.category)}</span></td>
+      <td class="num"><b>${i.size_mb.toFixed(1)}</b></td>
+      <td class="num">${(i.size_mb*100/midTotal).toFixed(2)}%
+        <div class="bar-mini mid"><i style="width:${Math.min(100,i.size_mb*100/midTotal)}%"></i></div></td>
+      <td class="impact">${esc(i.impact)}
+        ${i.hint ? `<code class="cmd">建议指令：${esc(i.hint)}</code>` : ''}</td>
+    </tr>`).join('') : `<tr><td colspan="5" class="empty">没有大于 ${TH} MB 的中风险目录</td></tr>`;
+}
+
+/* ---------- 弹窗 ---------- */
+let PENDING = null;
+function confirmDialog({ title, warn, warnClass, kv, impact, ids }) {
+  PENDING = ids;
+  $('#m-title').textContent = title;
+  $('#m-warn').className = 'warnbox' + (warnClass ? ' ' + warnClass : '');
+  $('#m-warn').innerHTML = warn;
+  $('#m-kv').innerHTML = kv;
+  $('#m-impact').innerHTML = impact;
+  $('#mask').classList.add('on');
+}
+function closeDialog() { $('#mask').classList.remove('on'); PENDING = null; }
+$('#m-cancel').onclick = closeDialog;
+$('#mask').onclick = e => { if (e.target.id === 'mask') closeDialog(); };
+$('#m-dry').onclick = () => run(PENDING, false);
+$('#m-go').onclick  = () => run(PENDING, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDialog(); });
+
+/* ---------- 执行 + 实时日志轮询 ---------- */
+function setBusy(on) {
+  ['#btn-reload','#btn-all','#btn-preview-all'].forEach(s => $(s).disabled = on);
+  document.querySelectorAll('#tb-low button[data-act=one]').forEach(b => b.disabled = on);
+  const badge = $('#logBadge');
+  badge.style.display = on ? 'inline-block' : 'none';
+  badge.className = 'badge' + (on ? '' : ' done');
+  badge.textContent = on ? '执行中' : '已完成';
+}
+
+async function run(ids, apply) {
+  if (!ids || !ids.length) return;
+  closeDialog();
+  setBusy(true);
+  const t0 = Date.now();
+  $('#logTitle').innerHTML = (apply ? '实际清理' : '预演') + ' · ' + ids.length + ' 个请求项'
+    + ' · 已用时 <span id="tick">0.0s</span>';
+  $('#log').textContent = '[' + new Date().toLocaleTimeString() + '] 已提交清理任务，等待服务端响应…';
+  $('#logName').textContent = '';
+  render_lines([], t0);
+
+  let job;
+  try {
+    const r = await fetch('/api/clean', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ids, apply })
+    });
+    job = await r.json();
+    if (job.ok === false) throw new Error(job.error || ('HTTP ' + r.status));
+  } catch (e) {
+    setBusy(false);
+    $('#log').innerHTML = `<span class="l-err">提交失败：${esc(e.message)}</span>\n`
+      + '请确认本页面通过 http://127.0.0.1:<端口>/ 访问（由 Python 服务提供），而不是直接打开的 html 文件。';
+    return;
+  }
+  $('#logName').textContent = (job.log_file || '').split(/[\\/]/).pop();
+
+  let seen = 0, lines = [], lastChange = Date.now(), warned = false;
+  clearInterval(POLL);
+  POLL = setInterval(async () => {
+    const tick = $('#tick');
+    if (tick) tick.textContent = ((Date.now() - t0) / 1000).toFixed(1) + 's';
+    try {
+      const j = await (await fetch('/api/job?id=' + encodeURIComponent(job.job_id))).json();
+      if (j.lines && j.lines.length !== seen) {
+        seen = j.lines.length;
+        lines = j.lines;
+        lastChange = Date.now();
+        render_lines(lines, t0);
+      } else if (!j.done && !warned && Date.now() - lastChange > 45000) {
+        warned = true;
+        render_lines(lines.concat([
+          '',
+          `[等待中] 已 ${Math.round((Date.now() - lastChange) / 1000)} 秒没有新输出。`,
+          '         单个目标最长等待 20~120 秒；若删除被宿主安全策略拦截批量删除，',
+          '         会判定 TIMEOUT 并输出可直接执行的 PowerShell / cmd 清理指令。',
+        ]), t0);
+      }
+      if (j.done) {
+        clearInterval(POLL);
+        setBusy(false);
+        render_lines(lines, t0, true);   // 汇总行由服务端日志给出，前端不重复输出
+        await load(false);
+      }
+    } catch (e) { /* 单次轮询失败忽略，下次继续 */ }
+  }, 600);
+}
+
+function render_lines(lines, t0, done) {
+  const el = $('#log');
+  const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
+  el.innerHTML = lines.length
+    ? lines.map(esc_line).join('\n')
+    : '<span class="spin"></span> 等待服务端输出…';
+  if (done) {
+    const secs = ((Date.now() - t0) / 1000).toFixed(1);
+    el.innerHTML += `\n<span class="l-ok">总耗时 ${secs} 秒</span>`;
+  }
+  if (atBottom) el.scrollTop = el.scrollHeight;
+}
+
+function esc_line(s) {
+  let h = esc(s);
+  if (/^\s*(▶|cleanc|任务|主机|待处理|C 盘可用)/.test(s)) return '<b>' + h + '</b>';
+  if (/状态：(OK|DRY-RUN)/.test(s)) return '<span class="l-ok">' + h + '</span>';
+  if (/状态：(PARTIAL|FAIL|SKIP|TIMEOUT|BLOCKED)/.test(s)) return '<span class="l-err">' + h + '</span>';
+  if (/^(takeown|icacls)|Remove-Item|rmdir|Get-ChildItem/.test(s.trim())) return '<span class="l-cmd">' + h + '</span>';
+  if (/^\s*(原因|未能删除|未完成|未生效|预检|处置方式|分批替代|A\.|B\.|C\.|\[等待中\])/.test(s))
+    return '<span class="l-err">' + h + '</span>';
+  if (/^\s*\[拒绝\]/.test(s)) return '<span class="l-err">' + h + '</span>';
+  return h;
+}
+
+/* ---------- 事件 ---------- */
+$('#tb-low').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act="one"]');
+  if (!b) return;
+  const mb = (+b.dataset.mb).toFixed(1);
+  confirmDialog({
+    title: '确认清理该目录',
+    warn: '&#9888;&#65039; 此操作非常危险，可能导致不可逆的数据丢失！删除即为永久删除，不进回收站。',
+    kv: `<dt>目录</dt><dd>${esc(b.dataset.path)}</dd>
+         <dt>清理前</dt><dd>${mb} MB</dd>
+         <dt>执行指令</dt><dd>${esc(b.dataset.cmd)}</dd>
+         <dt>方式</dt><dd>清空目录内容，保留目录本身；被占用的文件自动跳过</dd>`,
+    impact: esc(b.dataset.impact) + '<br><br>删除后本页会自动刷新体积；若出现部分失败，'
+          + '服务端日志会给出提权与强制删除命令。',
+    ids: [b.dataset.id]
+  });
+});
+
+$('#btn-all').onclick = () => {
+  const s = DATA.summary;
+  confirmDialog({
+    title: '确认清理全部低风险目录',
+    warn: '&#9888;&#65039; 此操作非常危险，可能导致不可逆的数据丢失！删除即为永久删除，不进回收站。',
+    kv: `<dt>目录数</dt><dd>${s.low_authorized} 个（均已在 targets.json 中授权）</dd>
+         <dt>清理前合计</dt><dd>${fmt(s.low_authorized_mb)}</dd>
+         <dt>执行权限</dt><dd>${DATA.is_admin ? '管理员' : '普通用户'}</dd>
+         <dt>清理范围</dt><dd>仅 authorized=true 且 risk=low，NO_GO 区硬拦截</dd>`,
+    impact: '全部为缓存/日志/临时文件，删除后由程序按需重建。首次启动或首次构建会变慢，不丢失代码、配置与登录态。',
+    ids: ['__all_low__']
+  });
+};
+
+$('#btn-preview-all').onclick = () => {
+  const s = DATA.summary;
+  confirmDialog({
+    title: '预演：全部低风险目录', warnClass: 'info',
+    warn: '预演模式不会删除任何文件，只统计清理前后的体积。',
+    kv: `<dt>目录数</dt><dd>${s.low_authorized} 个</dd>
+         <dt>预演合计</dt><dd>${fmt(s.low_authorized_mb)}</dd>`,
+    impact: '预演结果中「释放MB」为当前体积的预估值，实际释放量以执行后为准。',
+    ids: ['__all_low__']
+  });
+};
+
+$('#btn-reload').onclick = () => load(true);
+$('#q').oninput = e => { FILTER = e.target.value.trim().toLowerCase(); render(); };
+$('#midMin').oninput = render;
+
+load();
+</script>
+</body>
+</html>

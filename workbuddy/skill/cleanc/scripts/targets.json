@@ -1,0 +1,624 @@
+{
+  "version": "1.0",
+  "note": "授权清单。authorized=true 且 risk=low 的条目才允许被清理接口删除。占位符: %HOME% %LOCAL% %ROAM% ，支持 * 通配。",
+  "entries": [
+    {
+      "id": "local-temp",
+      "pattern": "%LOCAL%/Temp",
+      "risk": "low",
+      "category": "临时文件",
+      "desc": "用户临时目录",
+      "impact": "清理后：占用中的临时文件会被跳过；未保存的临时工作可能丢失。目录会由系统与程序自动重建。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "uv-cache",
+      "pattern": "%LOCAL%/uv/cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "uv 包管理下载缓存",
+      "impact": "清理后：下次 uv 安装依赖需重新下载。等价命令 uv cache clean。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "npm-cache-local",
+      "pattern": "%LOCAL%/npm-cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "npm 下载缓存",
+      "impact": "清理后：下次 npm install 需重新下载。等价命令 npm cache clean --force。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "npm-cache-roaming",
+      "pattern": "%ROAM%/npm-cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "npm 缓存(roaming 兜底路径)",
+      "impact": "清理后：下次 npm install 需重新下载。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "yarn-cache",
+      "pattern": "%LOCAL%/Yarn/Cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "Yarn 下载缓存",
+      "impact": "清理后：下次 yarn install 需重新下载。等价命令 yarn cache clean。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "pip-cache",
+      "pattern": "%LOCAL%/pip/cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "pip 下载缓存",
+      "impact": "清理后：下次 pip install 需重新下载 wheel。等价命令 pip cache purge。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "poetry-cache",
+      "pattern": "%LOCAL%/pypoetry/Cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "Poetry 下载缓存",
+      "impact": "清理后：下次 poetry install 需重新下载。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "bun-cache",
+      "pattern": "%HOME%/.bun/install/cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "Bun 安装缓存",
+      "impact": "清理后：下次 bun install 需重新下载。等价命令 bun pm cache rm。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "scoop-cache",
+      "pattern": "%HOME%/scoop/cache",
+      "risk": "low",
+      "category": "包缓存",
+      "desc": "Scoop 安装包缓存",
+      "impact": "清理后：重装已装软件时需重新下载安装包。等价命令 scoop cache rm *。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "gradle-caches",
+      "pattern": "%HOME%/.gradle/caches",
+      "risk": "low",
+      "category": "构建缓存",
+      "desc": "Gradle 依赖与构建缓存",
+      "impact": "清理后：下次构建重新解析/下载依赖并全量编译，首次构建明显变慢（数分钟至数十分钟）。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "gradle-dists",
+      "pattern": "%HOME%/.gradle/wrapper/dists",
+      "risk": "low",
+      "category": "构建缓存",
+      "desc": "Gradle 发行包缓存",
+      "impact": "清理后：下次 gradlew 需重新下载对应 Gradle 发行包（约 100~200MB）。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "go-build",
+      "pattern": "%LOCAL%/go-build",
+      "risk": "low",
+      "category": "构建缓存",
+      "desc": "Go 编译产物缓存",
+      "impact": "清理后：下次 go build 全量重编译，变慢。等价命令 go clean -cache。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "sonar",
+      "pattern": "%HOME%/.sonar",
+      "risk": "low",
+      "category": "构建缓存",
+      "desc": "SonarScanner 缓存",
+      "impact": "清理后：下次扫描重新拉取分析器与规则包。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "sonarlint",
+      "pattern": "%HOME%/.sonarlint",
+      "risk": "low",
+      "category": "构建缓存",
+      "desc": "SonarLint 本地缓存",
+      "impact": "清理后：IDE 内 SonarLint 重新下载规则与分析缓存，首次分析变慢。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "embedmongo",
+      "pattern": "%HOME%/.embedmongo",
+      "risk": "low",
+      "category": "运行时缓存",
+      "desc": "Embedded MongoDB 二进制缓存",
+      "impact": "清理后：下次运行嵌入 Mongo 的测试/程序需重新下载对应版本二进制。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "pkg-cache",
+      "pattern": "%HOME%/.cache/pkg",
+      "risk": "low",
+      "category": "运行时缓存",
+      "desc": "pkg 编译产物缓存",
+      "impact": "清理后：下次 pkg 打包需重新编译目标 Node 运行时（耗时较长）。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "crashdumps",
+      "pattern": "%LOCAL%/CrashDumps",
+      "risk": "low",
+      "category": "崩溃转储",
+      "desc": "应用崩溃转储文件",
+      "impact": "清理后：历史崩溃 dump 不可再用于事后分析。不影响程序运行。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "win-webcache",
+      "pattern": "%LOCAL%/Microsoft/Windows/WebCache",
+      "risk": "low",
+      "category": "浏览器缓存",
+      "desc": "系统 WinINet/WebCache",
+      "impact": "清理后：系统组件与部分应用的网页缓存重建，首次加载变慢。不清除 Cookie 与登录态。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "win-inetcache",
+      "pattern": "%LOCAL%/Microsoft/Windows/INetCache",
+      "risk": "low",
+      "category": "浏览器缓存",
+      "desc": "系统 INetCache(IE 组件)",
+      "impact": "清理后：调用 IE 内核的应用重新缓存。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-cacheddata",
+      "pattern": "%ROAM%/Cursor/CachedData",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor V8 编译缓存",
+      "impact": "清理后：Cursor 首次启动重新编译内核代码，启动变慢一次。不影响配置与历史。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-cache",
+      "pattern": "%ROAM%/Cursor/Cache",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor 网络/资源缓存",
+      "impact": "清理后：Cursor 重新拉取资源，首次启动变慢。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-cachedprofiles",
+      "pattern": "%ROAM%/Cursor/CachedProfilesData",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor 用户数据缓存",
+      "impact": "清理后：重新生成，无数据丢失。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-logs",
+      "pattern": "%ROAM%/Cursor/logs",
+      "risk": "low",
+      "category": "日志",
+      "desc": "Cursor 运行日志",
+      "impact": "清理后：历史日志不可追溯，无法用于问题排查。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-partitions",
+      "pattern": "%ROAM%/Cursor/Partitions",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor 分区缓存",
+      "impact": "清理后：重新生成，无数据丢失。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-gpucache",
+      "pattern": "%ROAM%/Cursor/GPUCache",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor GPU 渲染缓存",
+      "impact": "清理后：界面重新渲染缓存，首次启动略慢。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "cursor-codecache",
+      "pattern": "%ROAM%/Cursor/Code Cache",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "Cursor JS 代码缓存",
+      "impact": "清理后：重新编译缓存，首次启动略慢。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "lark-codecache",
+      "pattern": "%ROAM%/LarkShell/CodeCache",
+      "risk": "low",
+      "category": "应用缓存",
+      "desc": "飞书 CodeCache",
+      "impact": "清理后：飞书首次启动重新编译缓存，变慢一次。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "lark-shadercache",
+      "pattern": "%ROAM%/LarkShell/ShaderCache",
+      "risk": "low",
+      "category": "应用缓存",
+      "desc": "飞书 ShaderCache",
+      "impact": "清理后：重新生成，无数据丢失。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "lark-grshadercache",
+      "pattern": "%ROAM%/LarkShell/GrShaderCache",
+      "risk": "low",
+      "category": "应用缓存",
+      "desc": "飞书 GPU Shader 缓存",
+      "impact": "清理后：重新生成，无数据丢失。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "dingtalk-log",
+      "pattern": "%ROAM%/DingTalk/log",
+      "risk": "low",
+      "category": "日志",
+      "desc": "钉钉运行日志",
+      "impact": "清理后：历史日志不可追溯。不影响登录与消息。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "jetbrains-log",
+      "pattern": "%LOCAL%/JetBrains/*/log",
+      "risk": "low",
+      "category": "日志",
+      "desc": "JetBrains IDE 运行日志",
+      "impact": "清理后：历史日志不可追溯，无法用于 IDE 问题排查。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "jetbrains-jcef",
+      "pattern": "%LOCAL%/JetBrains/*/jcef_cache",
+      "risk": "low",
+      "category": "IDE缓存",
+      "desc": "JetBrains 内嵌浏览器缓存",
+      "impact": "清理后：IDE 内浏览器组件重新缓存。",
+      "authorized": true,
+      "mode": "clear"
+    },
+    {
+      "id": "jetbrains-tmp",
+      "pattern": "%LOCAL%/JetBrains/*/tmp",
+      "risk": "low",
+      "category": "临时文件",
+      "desc": "JetBrains 临时文件",
+      "impact": "清理后：IDE 运行中会占用部分文件并跳过，其余重建。建议关闭 IDE 后清理。",
+      "authorized": true,
+      "mode": "clear"
+    },
+
+    {
+      "id": "workbuddy-logs",
+      "pattern": "%HOME%/.workbuddy/logs",
+      "risk": "low",
+      "category": "日志",
+      "desc": "WorkBuddy 运行日志",
+      "impact": "清理后：历史日志不可追溯。WorkBuddy 运行中清理可能中断当前会话日志写入，建议退出后清理。",
+      "authorized": false,
+      "mode": "clear",
+      "hint": "退出 WorkBuddy 后执行：rm -rf \"$HOME/.workbuddy/logs\"/*"
+    },
+    {
+      "id": "workbuddy-traces",
+      "pattern": "%HOME%/.workbuddy/traces",
+      "risk": "low",
+      "category": "日志",
+      "desc": "WorkBuddy 链路 trace",
+      "impact": "清理后：历史 trace 不可追溯。同上看，建议退出后清理。",
+      "authorized": false,
+      "mode": "clear",
+      "hint": "退出 WorkBuddy 后执行：rm -rf \"$HOME/.workbuddy/traces\"/*"
+    },
+    {
+      "id": "win-logs",
+      "pattern": "C:/Windows/Logs",
+      "risk": "low",
+      "category": "系统日志",
+      "desc": "Windows CBS/DISM/WindowsUpdate 日志",
+      "impact": "系统目录。脚本按安全策略不碰操作系统文件，交人工处理。",
+      "authorized": false,
+      "mode": "clear",
+      "hint": "自动清理：cleanmgr /sageset:1 勾选'系统存档日志'后 cleanmgr /sagerun:1"
+    },
+    {
+      "id": "recycle-bin",
+      "pattern": "C:/$RECYCLE.BIN",
+      "risk": "low",
+      "category": "回收站",
+      "desc": "回收站内容",
+      "impact": "系统托管目录。清空即永久删除回收站内文件，不可恢复。脚本不碰，交人工。",
+      "authorized": false,
+      "mode": "clear",
+      "hint": "PowerShell: Clear-RecycleBin -Force"
+    },
+
+    {
+      "id": "docker-wsl",
+      "pattern": "%LOCAL%/Docker/wsl",
+      "risk": "mid",
+      "category": "容器",
+      "desc": "Docker/WSL 虚拟磁盘 (ext4.vhdx)",
+      "impact": "清理后影响：直接删目录会毁掉全部镜像与容器数据，且 ext4.vhdx 不会自动回收。正确路径是先 docker system prune -a 释放内部空间，再在 WSL 内压缩 vhdx（fstrim + Optimize-VHD），否则磁盘空间不下降。未提交的容器数据会丢失，已推送镜像可重新拉取。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "docker system prune -a --volumes  然后 wsl --shutdown; Optimize-VHD -Path <vhdx> -Mode Full"
+    },
+    {
+      "id": "jetbrains-index",
+      "pattern": "%LOCAL%/JetBrains/*/index",
+      "risk": "mid",
+      "category": "IDE缓存",
+      "desc": "JetBrains 项目索引",
+      "impact": "清理后影响：重新打开项目时全量重建索引，期间 CPU 占用高、代码跳转/补全/全局搜索不可用，大项目通常 10~40 分钟。不丢失代码、设置与插件配置；索引本就是可重建产物。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "推荐在 IDE 内 File > Invalidate Caches / Restart 执行，比直接删目录安全"
+    },
+    {
+      "id": "jetbrains-caches",
+      "pattern": "%LOCAL%/JetBrains/*/caches",
+      "risk": "mid",
+      "category": "IDE缓存",
+      "desc": "JetBrains 本地缓存",
+      "impact": "清理后影响：首次启动变慢，部分本地历史与缓存重建。项目代码、VCS 配置、插件不受影响。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "优先用 File > Invalidate Caches / Restart"
+    },
+    {
+      "id": "jetbrains-fullline",
+      "pattern": "%LOCAL%/JetBrains/*/full-line",
+      "risk": "mid",
+      "category": "IDE缓存",
+      "desc": "JetBrains full-line 补全索引",
+      "impact": "清理后影响：全行代码补全模型需重新下载/训练，首次使用该功能时明显变慢或暂时不可用。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "cursor-state-vscdb",
+      "pattern": "%ROAM%/Cursor/User/globalStorage/state.vscdb",
+      "risk": "mid",
+      "category": "应用数据",
+      "desc": "Cursor 全局状态数据库",
+      "impact": "清理后影响：丢失全部 Cursor 对话历史、Chat/AI 会话记录与部分工作区 UI 状态，不可恢复。若含 Team/Agent 配置也可能一并丢失。代码仓库不受影响。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "建议先在 Settings > 导出聊天记录，或直接保留该文件"
+    },
+    {
+      "id": "cursor-agent-worker",
+      "pattern": "%ROAM%/Cursor/User/globalStorage/anysphere.cursor-agent-worker",
+      "risk": "mid",
+      "category": "应用数据",
+      "desc": "Cursor Agent worker 缓存",
+      "impact": "清理后影响：Agent 需重新建立工作区索引与上下文缓存，前几次调用明显变慢；已提交代码与仓库状态不受影响。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "cursor-history",
+      "pattern": "%ROAM%/Cursor/User/History",
+      "risk": "mid",
+      "category": "应用数据",
+      "desc": "Cursor 本地文件历史",
+      "impact": "清理后影响：丢失编辑器本地文件时间线（可回滚到任意保存点的能力），git 提交记录不受影响。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "m2-repo",
+      "pattern": "%HOME%/.m2/repository",
+      "risk": "mid",
+      "category": "依赖仓库",
+      "desc": "Maven 本地依赖仓库",
+      "impact": "清理后影响：下次 Maven 构建需重新下载全部依赖，按网络状况 10~60 分钟；离线/内网无代理环境下将直接构建失败。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "建议只删 _remote.repositories 或指定 groupId 下的旧版本目录，不必整体删除"
+    },
+    {
+      "id": "m2-rar",
+      "pattern": "%HOME%/.m2/repository.rar",
+      "risk": "mid",
+      "category": "依赖仓库",
+      "desc": "Maven 仓库打包备份",
+      "impact": "清理后影响：失去该离线备份，若本地仓库损坏将无法快速还原。属冗余备份，确认不需要后删除代价可控。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "codex-runtimes",
+      "pattern": "%HOME%/.cache/codex-runtimes",
+      "risk": "mid",
+      "category": "运行时",
+      "desc": "Codex 运行时缓存",
+      "impact": "清理后影响：下次运行 Codex 需重新下载运行时组件，首次启动变慢。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "puppeteer",
+      "pattern": "%HOME%/.cache/puppeteer",
+      "risk": "mid",
+      "category": "运行时",
+      "desc": "Puppeteer Chromium 内核",
+      "impact": "清理后影响：依赖 puppeteer 的脚本/测试首次运行需重新下载 Chromium（约 100~300MB），期间自动化测试不可用。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "chromium-snapshots",
+      "pattern": "%HOME%/.chromium-browser-snapshots",
+      "risk": "mid",
+      "category": "运行时",
+      "desc": "Chromium 快照缓存",
+      "impact": "清理后影响：使用快照的测试脚本需重新下载；若脚本固定了 revision，可能因下载源不可用而导致测试失败。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "go-modcache",
+      "pattern": "%HOME%/go/pkg/mod",
+      "risk": "mid",
+      "category": "依赖仓库",
+      "desc": "Go 模块缓存",
+      "impact": "清理后影响：下次构建重新下载全部模块，内网环境可能失败。等价命令 go clean -modcache。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "go clean -modcache"
+    },
+    {
+      "id": "dingtalk-old",
+      "pattern": "%LOCAL%/DingTalk_*",
+      "risk": "mid",
+      "category": "安装残留",
+      "desc": "钉钉历史版本目录",
+      "impact": "清理后影响：该旧版本无法回滚。当前在用版本目录（名称与安装版本一致）删除后钉钉将无法启动或自动降级重装。需逐个确认版本号后再删。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "先比对 dingtalk 安装目录当前版本号，只删与之不同的编号目录"
+    },
+    {
+      "id": "updater-caches",
+      "pattern": "%LOCAL%/*-updater",
+      "risk": "mid",
+      "category": "安装残留",
+      "desc": "各 Electron 应用更新包残留",
+      "impact": "清理后影响：失去离线回滚到旧版本的能力，在线更新不受影响。若某应用正在更新过程中删除，可能导致更新中断需重试。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "保留最新版本目录，删除其余"
+    },
+    {
+      "id": "chrome-caches",
+      "pattern": "%LOCAL%/Google/Chrome/User Data/*/Cache",
+      "risk": "mid",
+      "category": "浏览器缓存",
+      "desc": "Chrome 网页缓存",
+      "impact": "清理后影响：首次访问站点变慢，需重新加载资源。Cookie、密码、书签、扩展均在 Cache 之外，不受影响。Chrome 运行中清理会被占用跳过。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "或 Chrome 设置 > 隐私 > 清除浏览数据（只勾缓存）"
+    },
+    {
+      "id": "chrome-codecache",
+      "pattern": "%LOCAL%/Google/Chrome/User Data/*/Code Cache",
+      "risk": "mid",
+      "category": "浏览器缓存",
+      "desc": "Chrome JS 代码缓存",
+      "impact": "清理后影响：JS 需重新编译，依赖大量 JS 的站点首次加载变慢。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "edge-caches",
+      "pattern": "%LOCAL%/Microsoft/Edge/User Data/*/Cache",
+      "risk": "mid",
+      "category": "浏览器缓存",
+      "desc": "Edge 网页缓存",
+      "impact": "清理后影响：首次访问站点变慢。登录态与收藏不受影响。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "-"
+    },
+    {
+      "id": "explorer-thumbs",
+      "pattern": "%LOCAL%/Microsoft/Windows/Explorer",
+      "risk": "mid",
+      "category": "缩略图",
+      "desc": "资源管理器缩略图缓存",
+      "impact": "清理后影响：图片/视频视图首次打开需重新生成缩略图，浏览大文件夹时 CPU 短时升高。文件夹视图设置可能重置。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "仅在资源管理器未打开时清理"
+    },
+    {
+      "id": "uwp-localcache",
+      "pattern": "%LOCAL%/Packages/*/LocalCache",
+      "risk": "mid",
+      "category": "应用缓存",
+      "desc": "UWP 应用本地缓存",
+      "impact": "清理后影响：对应 UWP 应用首次启动变慢、需重新拉取数据。部分应用可能要求重新登录。需按应用逐个判断，勿全量删除。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "逐个确认，优先清理体积大的单个应用目录"
+    },
+    {
+      "id": "hiberfil",
+      "pattern": "C:/hiberfil.sys",
+      "risk": "mid",
+      "category": "系统文件",
+      "desc": "休眠文件",
+      "impact": "清理后影响：执行 powercfg /h off 会关闭休眠功能并禁用快速启动，开机自检时间略增，笔记本合盖休眠不可用。不影响关机与睡眠（睡眠仍可用，但不再有混合睡眠）。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "管理员执行 powercfg /h off （影响可逆：powercfg /h on）"
+    },
+    {
+      "id": "winsxs",
+      "pattern": "C:/Windows/WinSxS",
+      "risk": "mid",
+      "category": "系统文件",
+      "desc": "组件存储(不可直接删)",
+      "impact": "清理后影响：执行 DISM StartComponentCleanup /ResetBase 后，已安装的更新无法卸载、无法回滚，系统组件修复能力下降。切勿手动删除该目录，会导致系统不可用。",
+      "authorized": false,
+      "mode": "manual",
+      "hint": "管理员执行 DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase"
+    }
+  ]
+}

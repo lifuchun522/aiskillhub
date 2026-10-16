@@ -19,6 +19,7 @@ aiskillhub/
 │       ├── wechat-article-workflow/
 │       ├── aicheck/
 │       ├── cdpfetch/
+│       ├── cleanc/               # Windows C 盘可清理目录扫描与安全清理（v1.0.0）
 │       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
 ├── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
 │   └── skill/
@@ -88,6 +89,28 @@ aiskillhub/
 - 踩坑清单：[`workbuddy/skill/cdpfetch/references/pitfalls.md`](./workbuddy/skill/cdpfetch/references/pitfalls.md)
 
 **它包含什么**：五步 SOP（编目 → 抓取 → 取一手事实 → 出看板 → 验证）、5 个可直接调用的脚本、4 份 references（双通道选型 / 存证字段规范 / 单文件看板规范 / 踩坑清单）。所有脚本都实跑验证过，含 CDP 通道端到端（起真实 Chromium + 抓取）与验证器的正例反例双向验证。
+
+---
+
+### Windows 磁盘可清理目录扫描与安全清理（cleanc）
+
+把「C 盘满了，帮我清一下」变成 **只读扫描 → 授权清单 → 网页逐条确认 → 全字段日志** 的一条闭环。低风险项给清理按钮一键清，中风险项只写清清理后果，系统目录只给命令不代跑。
+
+它解决的不是「怎么找出大文件」——那是基础能力。它解决的是删磁盘时那些**反复踩、反复忘的工程问题**：删除调用被宿主策略**静默忽略**却返回成功、任务挂起导致页面永远停在「执行中」、Windows 的 `SO_REUSEADDR` 让新旧两个服务实例同时监听同一端口、`.bat` 被统一成 LF 之后双击报解析错误。
+
+三条最硬的约束：
+
+- **不碰操作系统文件是代码级的** —— `C:\Windows`、`C:\Program Files*`、`C:\ProgramData`、`C:\Users` 裸根、盘根、`$RECYCLE.BIN` 等进独立于清单的 `NO_GO` 黑名单，即使写进 `targets.json` 且 `authorized: true` 也删不动；外加双闸门（只有 `risk=low && authorized=true` 可删，且路径必须落在本次扫描解析出的授权集合内）。
+- **不报假绿** —— 删除后**必须重新测量体积**才判 `OK`。只凭「调用没抛异常」就报成功，会在删除被静默忽略时给用户一个撒谎的结果。
+- **删不掉就交还命令** —— 权限不足给 `takeown` + `icacls`，进程占用给 `Remove-Item` / `rmdir`，批量删除被拦截则如实标 `BLOCKED` / `TIMEOUT` 并给出可复制的手工命令，不绕过策略、不硬扛。
+
+- 技能目录：[`workbuddy/skill/cleanc/`](./workbuddy/skill/cleanc/)
+- 使用说明：[`workbuddy/skill/cleanc/README.md`](./workbuddy/skill/cleanc/README.md)
+- 完整使用文档：[`workbuddy/skill/cleanc/references/usage-windows.md`](./workbuddy/skill/cleanc/references/usage-windows.md)
+- 技能入口：[`workbuddy/skill/cleanc/SKILL.md`](./workbuddy/skill/cleanc/SKILL.md)
+- Wiki 摘要：[`wiki/cleanc.md`](./wiki/cleanc.md)
+
+**它包含什么**：一个 736 行的纯标准库 `server.py`（只读扫描 + 授权清理 + HTTP API + 内置管理页）、一张带 `impact` 后果说明的授权清单 `targets.json`、37 项断言的端到端自检 `selftest.py`、一个可选的真实浏览器实跑脚本 `tests/verify_browser.py`，以及两份 references（安全边界 / 完整使用文档）。实测基线来自一台真实开发机：C 盘 298 GB 已用、仅剩 1.8 GB，`C:\Users` 独占 222 GB。
 
 ---
 
