@@ -20,6 +20,7 @@ aiskillhub/
 │       ├── aicheck/
 │       ├── cdpfetch/
 │       ├── cleanc/               # Windows C 盘可清理目录扫描与安全清理（v1.0.0）
+│       ├── gr-zpj/               # 表单驱动作品集生成（v1.0.0）
 │       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
 ├── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
 │   └── skill/
@@ -111,6 +112,29 @@ aiskillhub/
 - Wiki 摘要：[`wiki/cleanc.md`](./wiki/cleanc.md)
 
 **它包含什么**：一个 736 行的纯标准库 `server.py`（只读扫描 + 授权清理 + HTTP API + 内置管理页）、一张带 `impact` 后果说明的授权清单 `targets.json`、37 项断言的端到端自检 `selftest.py`、一个可选的真实浏览器实跑脚本 `tests/verify_browser.py`，以及两份 references（安全边界 / 完整使用文档）。实测基线来自一台真实开发机：C 盘 298 GB 已用、仅剩 1.8 GB，`C:\Users` 独占 222 GB。
+
+---
+
+### 表单驱动作品集生成（gr-zpj）
+
+填一张**离线表单**，当场得到一个离线可用、零依赖的单页作品集 HTML —— 手机、微信、企业微信、钉钉里打开都正常；也可以只用一份 `content.json` 走命令行流水线，进 CI。**两条入口，一份模板**，产出的页面结构逐项等价，这一点由测试断言。
+
+它解决的不是「怎么排版」——那是模板的事。它解决的是作品集**反复改版**时那些容易悄悄坏掉的连带修改：删了一个区块、导航里那个链接还指着它；删掉最后一块、留下一条光秃秃的分隔线；项目顺序调了，章节序号 01/02/03 却没跟着动。上一代（`jl-zpj`，简历 PDF → 命令行）靠的是一份「删区块要连带清九处」的人工纪律，漏一处不报错，只是页面悄悄坏掉。
+
+这一版把它换成了四种**声明式标记**：
+
+- `<!--SEC:key-->` —— 数据为空则整块消失；
+- `<!--NAV:id-->` —— 区块消失，导航项一起消失（`verify.py` 断言无死链）；
+- `<!--HR-->` —— 区块间分隔线，渲染后归一（限定在 `<main>` 内，首尾与重复的一律去掉）；
+- `<!--N-->` —— 章节序号按 DOM 顺序自动编号，不可能与顺序脱钩。
+
+- 技能目录：[`workbuddy/skill/gr-zpj/`](./workbuddy/skill/gr-zpj/)
+- 采集表单：[`workbuddy/skill/gr-zpj/assets/form.html`](./workbuddy/skill/gr-zpj/assets/form.html)
+- 使用说明：[`workbuddy/skill/gr-zpj/README.md`](./workbuddy/skill/gr-zpj/README.md)
+- 技能入口：[`workbuddy/skill/gr-zpj/SKILL.md`](./workbuddy/skill/gr-zpj/SKILL.md)
+- Wiki 摘要：[`wiki/gr-zpj.md`](./wiki/gr-zpj.md)
+
+**它包含什么**：一张 711 KB 的离线采集表单（九个区块 + 内嵌模板与示例 + 浏览器端渲染引擎 + 进度/检查面板）、一份 519 行的模板骨架（单一事实来源）、5 个脚本（注入校验 / 演示数据 / 构建 / 五端渲染自检 / 打包）、56 项自动化测试（含「表单生成的页面 vs 命令行构建的页面」逐项比对），以及 4 份 references。开发期抓到三个**不报错、文字全对**的真 bug（资源字典形状错位导致图全破、动态列表行只写 `placeholder` 导致导出全空、分隔线归一未限定 `<main>` 导致删首块后多一条线），三条都已变成硬断言。
 
 ---
 
