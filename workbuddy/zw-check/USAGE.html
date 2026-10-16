@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zw-check v1.0.0 · 使用步骤手册</title>
+<style>
+  :root{
+    --bg:#0f1419; --card:#171d26; --card2:#1d2530; --line:#2a3340;
+    --txt:#e6edf3; --sub:#9aa7b4; --brand:#3b82f6; --brand2:#22d3ee;
+    --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --code:#0b0f14;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+       background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 22px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:26px}
+  h1{font-size:27px;margin:0 0 6px;letter-spacing:.5px}
+  h1 .v{color:var(--brand2);font-size:18px;font-weight:600}
+  .lede{color:var(--sub);margin:0;font-size:14px}
+  h2{font-size:20px;margin:40px 0 14px;padding-left:12px;border-left:4px solid var(--brand)}
+  h3{font-size:16px;margin:24px 0 10px;color:var(--brand2)}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:18px 20px;margin:14px 0;position:relative;overflow:hidden}
+  .step::before{content:attr(data-n);position:absolute;right:14px;top:8px;font-size:46px;
+        font-weight:800;color:#ffffff0d;line-height:1}
+  .step .tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:20px;
+        margin-right:8px;font-weight:600;vertical-align:middle}
+  .t-cmd{background:#1e3a5f;color:#93c5fd}
+  .t-cfg{background:#3a2f12;color:#fcd34d}
+  .t-out{background:#2a2030;color:#d8b4fe}
+  code{background:var(--code);border:1px solid var(--line);border-radius:6px;
+       padding:1px 7px;font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+       font-size:13px;color:#7dd3fc}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;
+      padding:14px 16px;overflow:auto;font-size:13px;line-height:1.55;
+      font-family:"JetBrains Mono","SFMono-Regular",Consolas,monospace;color:#cbd5e1;margin:10px 0}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--card2);color:var(--brand2)}
+  tr:nth-child(even) td{background:#131a22}
+  ul{margin:8px 0;padding-left:20px} li{margin:5px 0}
+  .note{border-left:4px solid var(--warn);background:#241d0e;border-radius:0 8px 8px 0;
+        padding:10px 14px;margin:12px 0;color:#fde68a;font-size:13.5px}
+  .ok{border-left-color:var(--ok);background:#0e2419;color:#a7f3d0}
+  .bad{border-left-color:var(--bad);background:#241010;color:#fecaca}
+  .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);
+        border-radius:6px;padding:2px 8px;margin:2px 3px;font-size:12px;color:var(--sub)}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 22px;margin:18px 0}
+  .toc a{color:var(--brand2);text-decoration:none} .toc a:hover{text-decoration:underline}
+  .s-PASS{color:var(--ok);font-weight:700} .s-FAIL{color:var(--bad);font-weight:700}
+  .s-WARN{color:var(--warn);font-weight:700} .s-NA{color:var(--sub);font-weight:700}
+  .foot{margin-top:50px;border-top:1px solid var(--line);padding-top:16px;color:var(--sub);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>zw-check <span class="v">v1.0.0</span></h1>
+  <p class="lede">投稿 / 征文稿件发布前检查 —— 字数口径、加工痕迹、HTML 结构、征文硬性要求、稿件与源码一致性，一条命令跑完。只读、离线、可复算。</p>
+</header>
+
+<div class="toc">
+  <b>目录</b>
+  <ul>
+    <li><a href="#s0">0 · 准备</a></li>
+    <li><a href="#s1">1 · 先定口径（赛道 / 字数 / 配图）</a></li>
+    <li><a href="#s2">2 · 一条命令跑完五组检查</a></li>
+    <li><a href="#s3">3 · 结果怎么读</a></li>
+    <li><a href="#s4">4 · 图片要真的打开一次</a></li>
+    <li><a href="#s5">5 · 稿子里的源码事实要和源码对齐</a></li>
+    <li><a href="#s6">6 · 改完复跑，接进 CI</a></li>
+    <li><a href="#s7">检查项速查</a></li>
+    <li><a href="#s8">本机实测输出</a></li>
+    <li><a href="#s9">已知边界</a></li>
+  </ul>
+</div>
+
+<h2 id="s0">0 · 准备</h2>
+
+<div class="step" data-n="0">
+  <span class="tag t-cmd">安装</span>
+  <pre># 整个目录拷到本机 skills 目录（按平台约定）
+cp -r workbuddy/zw-check ~/.workbuddy/skills/zw-check
+
+# 离线检查只要 Python 3.9+，无第三方依赖
+python3 -m unittest discover -s tests -v      # 应输出：Ran 51 tests ... OK
+
+# 图片实测是可选能力
+pip install playwright &amp;&amp; python -m playwright install chromium</pre>
+  <div class="note ok">本技能只读：不修改稿件、不改文件名、不写回磁盘；<code>zwcheck.py</code> 全程不触网。</div>
+</div>
+
+<h2 id="s1">1 · 先定口径</h2>
+
+<div class="step" data-n="1">
+  <span class="tag t-cfg">参数</span>
+  <div class="kv">
+    <b>赛道</b>：<code>--track cloudq | workbuddy | none</code>（决定检查哪套征文规则）<br>
+    <b>字数上限</b>：<code>--max-chars 1000</code>（含空格口径，最严）<br>
+    <b>配图区间</b>：<code>--min-images 3 --max-images 6</code><br>
+    <b>正文区域</b>：<code>--from '&lt;h1' --to '&lt;script&gt;'</code>（预览页带工具栏时必填，否则工具栏文字会被算进字数）
+  </div>
+  <div class="note">判定口径先定死的理由：同一篇稿子在不同口径下能差出几十字符。「含空格」是最严的一种，先按它定，别的口径只会更宽松。</div>
+</div>
+
+<h2 id="s2">2 · 一条命令跑完五组检查</h2>
+
+<div class="step" data-n="2">
+  <span class="tag t-cmd">all</span>
+  <pre>python3 scripts/zwcheck.py all 稿件.html \
+    --track workbuddy --max-chars 1000 --min-images 3 --max-images 6 \
+    --from '&lt;h1' --to '&lt;script&gt;'</pre>
+  <p>也可单跑一类：</p>
+  <pre>python3 scripts/zwcheck.py text    稿件.md   --max-chars 1000
+python3 scripts/zwcheck.py html    稿件.html --max-images 6
+python3 scripts/zwcheck.py rules   稿件.md   --track cloudq --skill-md skill/SKILL.md
+python3 scripts/zwcheck.py consist 稿件.md   --skill-dir skill/ --run-tests</pre>
+  <div class="kv">
+    <b>退出码</b>：<code>0</code> 全部通过 · <code>1</code> 存在 FAIL · <code>2</code> 参数或文件错误<br>
+    <b>JSON</b>：加 <code>--json</code> 输出结构化结果，便于接自动化
+  </div>
+</div>
+
+<h2 id="s3">3 · 结果怎么读</h2>
+
+<div class="step" data-n="3">
+  <span class="tag t-out">判读</span>
+  <table>
+    <tr><th>状态</th><th>含义</th><th>动作</th></tr>
+    <tr><td><span class="s-PASS">PASS</span></td><td>该项通过</td><td>无</td></tr>
+    <tr><td><span class="s-FAIL">FAIL</span></td><td>硬指标不满足</td><td>必改，改完复跑</td></tr>
+    <tr><td><span class="s-WARN">WARN</span></td><td>提示项（痕迹 warn 级）</td><td>人看后决定；放行要 <code>--allow '&lt;原文串&gt;'</code> 逐条写</td></tr>
+    <tr><td><span class="s-NA">NA</span></td><td>判不了，附原因</td><td>看原因：平台侧 / 缺输入 / 人的判断，谁去补写在 detail 里</td></tr>
+  </table>
+  <pre>  [PASS] 字数（含空格）≤ 1000     含空格 960，不含空格 893，中文 561，余量 40
+  [FAIL] 配图 ≥ 3 张             当前 0 张
+  [WARN] 加工痕迹（warn 级）提示    命中 2 处，按文体斟酌
+  [NA  ] 发布板块 =「实用文章」      平台侧动作，稿件无法自证</pre>
+  <div class="note bad">不给「全部忽略」开关：放行必须逐条显式写出，否则等于把闸门关掉。</div>
+</div>
+
+<h2 id="s4">4 · 图片要真的打开一次</h2>
+
+<div class="step" data-n="4">
+  <span class="tag t-cmd">check_images</span>
+  <pre>python3 scripts/check_images.py 稿件.html        # 人读输出
+python3 scripts/check_images.py 稿件.html --json # 机器读输出</pre>
+  <p>静态检查只能说「引用了 <code>img/xx.png</code>」，说不了「这张图真的加载出来了」。路径拼错、大小写不符、文件漏打包，静态检查全都看不出来，浏览器一看就现形。</p>
+  <pre>== 图片实测（article.html）==
+  加载成功 19/19
+    [OK ] img/16-term-report.png  2360x1418
+    [OK ] img/17-card-efficiency.png  2280x974
+  失败请求：无
+  结论：全部加载成功</pre>
+  <div class="note">失败请求也要看：<code>requestfailed</code> 非空同样判 <code>FAIL</code>，即使图片数对得上。</div>
+</div>
+
+<h2 id="s5">5 · 稿子里的源码事实要和源码对齐</h2>
+
+<div class="step" data-n="5">
+  <span class="tag t-cmd">consist</span>
+  <pre>python3 scripts/zwcheck.py consist 稿件.md --skill-dir skill/ --run-tests</pre>
+  <table>
+    <tr><th>检查项</th><th>做法</th></tr>
+    <tr><td>目录树 vs 实际文件</td><td>抓正文里的 ASCII 目录树代码块，与实际文件集合比对；<b>只比 basename</b></td></tr>
+    <tr><td>内嵌元数据 vs SKILL.md</td><td>正文里贴的 <code>name/description</code> 与真实 <code>SKILL.md</code> 逐字比</td></tr>
+    <tr><td>单测数 vs 实跑</td><td>正文写「36 项」→ 真的跑一遍，比对 <code>Ran N tests</code>；不加 <code>--run-tests</code> 就是 NA</td></tr>
+  </table>
+  <div class="note bad">一致性比对必须用<b>原始文本</b>：目录树和元数据都在围栏代码块里，用去代码块的可见正文会全部漏检。CLI 已按原始文本比对。</div>
+</div>
+
+<h2 id="s6">6 · 改完复跑，接进 CI</h2>
+
+<div class="step" data-n="6">
+  <span class="tag t-cmd">复跑</span>
+  <pre>#!/usr/bin/env bash
+set -e
+python3 scripts/zwcheck.py all 稿件.html --track workbuddy --max-chars 1000 \
+    --min-images 3 --max-images 6 --from '&lt;h1' --to '&lt;script&gt;'
+python3 scripts/check_images.py 稿件.html
+echo "全部检查通过，可以发布"</pre>
+  <div class="note ok">门禁逻辑：FAIL 归零才算过。改完后复跑，不靠「我记得我改过了」。</div>
+</div>
+
+<h2 id="s7">检查项速查</h2>
+<table>
+  <tr><th>类别</th><th>ID</th><th>检查项</th><th>FAIL 条件</th></tr>
+  <tr><td rowspan="3">文本</td><td>T1</td><td>字数（含空格）≤ 上限</td><td>超出</td></tr>
+  <tr><td>T2</td><td>加工痕迹 block 级为 0</td><td>命中交付清单 / 附件指向 / 路径外泄 / 敏感串</td></tr>
+  <tr><td>T3</td><td>加工痕迹 warn 级</td><td>命中 → WARN（不 FAIL）</td></tr>
+  <tr><td rowspan="7">HTML</td><td>H1</td><td>无 <code>&lt;table&gt;</code></td><td>存在</td></tr>
+  <tr><td>H2</td><td>无 <code>&lt;figcaption&gt;</code></td><td>存在</td></tr>
+  <tr><td>H3</td><td>恰 1 个 <code>&lt;h1&gt;</code></td><td>0 个或多个</td></tr>
+  <tr><td>H4</td><td>div / p 标签配平</td><td>开闭数量不等</td></tr>
+  <tr><td>H5</td><td>图片相对路径或内嵌</td><td>存在外链 src</td></tr>
+  <tr><td>H6</td><td>配图 ≥ 下限</td><td>不足</td></tr>
+  <tr><td>H7</td><td>配图 ≤ 上限</td><td>超出</td></tr>
+  <tr><td rowspan="8">规则</td><td>W1</td><td>标题「【征文】」前缀</td><td>无前缀</td></tr>
+  <tr><td>W2</td><td>正文与 WorkBuddy 强相关</td><td>提及 &lt; 2 次</td></tr>
+  <tr><td>W3</td><td>配图 ≥ 3 张</td><td>不足（未给 HTML → NA）</td></tr>
+  <tr><td>C1</td><td>六维度齐全</td><td>缺任一词</td></tr>
+  <tr><td>C2</td><td>三层口径齐全</td><td>缺任一层</td></tr>
+  <tr><td>C3</td><td>赛道标签每篇仅一个</td><td>标签 token &gt; 1</td></tr>
+  <tr><td>C4</td><td>标签在官方候选集合内</td><td>越界标签</td></tr>
+  <tr><td>S1</td><td>SKILL.md 元数据仅 name + description</td><td>多出字段</td></tr>
+  <tr><td rowspan="3">一致性</td><td>K1</td><td>目录树 = 实际文件</td><td>有缺/有多</td></tr>
+  <tr><td>K2</td><td>内嵌元数据逐字一致</td><td>不一致</td></tr>
+  <tr><td>K3</td><td>单测数与实跑一致</td><td>不一致或单测未通过</td></tr>
+</table>
+
+<h2 id="s8">本机实测输出</h2>
+
+<h3>8.1 单测：51 项全过</h3>
+<pre>Ran 51 tests in 0.136s
+OK</pre>
+
+<h3>8.2 一篇 1000 字符投稿版（WorkBuddy 赛道）</h3>
+<pre>== 字数与加工痕迹 ==
+  [PASS] 字数（含空格）≤ 1000     含空格 960，不含空格 893，中文 561，余量 40
+  [PASS] 加工痕迹（block 级）为 0  未命中
+  [PASS] 加工痕迹（warn 级）提示    未命中
+== HTML 结构（index.html） ==
+  [PASS] 无 &lt;table&gt;  · [PASS] 无 &lt;figcaption&gt; · [PASS] 恰有 1 个 &lt;h1&gt;
+  [PASS] div / p 标签配平  div 3/3，p 10/10
+  [PASS] 图片全部为相对路径或内嵌
+  [FAIL] 配图 ≥ 3 张       当前 0 张
+== 征文规则（track=workbuddy） ==
+  [PASS] 标题以「【征文】」开头
+  [PASS] 正文与 WorkBuddy 强相关  提及 WorkBuddy 2 次
+  [FAIL] 配图 ≥ 3 张       HTML 配图 0 张
+  [NA  ] 发布板块 =「实用文章」     平台侧动作，稿件无法自证
+结论：FAIL 2 项，需先修正</pre>
+  <div class="note">这条 FAIL 是真的：该稿在压缩到 1000 字符时把配图整段删了，而征文要求 ≥ 3 张。检查器如实报出来，不替稿件打圆场。</div>
+
+<h3>8.3 同一篇稿子清理前的痕迹命中</h3>
+<pre>== 字数与加工痕迹 ==
+  [FAIL] 加工痕迹（block 级）为 0  命中 11 处
+  [WARN] 加工痕迹（warn 级）提示    命中 10 处
+  -- 痕迹明细 --
+     [block] 交付清单｜本次实测还产出｜…本次实测还产出三类可复核文件：`operation-order…
+     [block] 交付清单｜可供二次开发｜…效率对照页。原型可供二次开发，不包含云密钥和自动部署功能。…
+     [block] 附件指向｜完整文件和检查脚本｜…完整文件和检查脚本放在文末附件里。…
+     [block] 文件路径外泄｜`report/baseline-report.html`｜…对照结果页面在 `report/baseline-report.html`，它把…
+     [block] 文件路径外泄｜`references/cloudq-integration-test.md`｜…完整的测试文档随 Skill 一起交付，放在…</pre>
+
+<h3>8.4 稿件 ↔ 技能源码一致性</h3>
+<pre>== 稿件 ↔ 技能源码一致性 ==
+  [PASS] 正文目录树与实际文件一致            树内 11 个文件 / 实际 11 个
+  [PASS] 正文内嵌元数据与 SKILL.md 逐字一致  一致
+  [PASS] 正文所述单测数与实跑一致            正文 36 项 / 实跑 36 项 / 退出码 0
+结论：FAIL 0 项，可以发布</pre>
+
+<h3>8.5 图片实测</h3>
+<pre>== 图片实测（article.html）==
+  加载成功 19/19
+  失败请求：无
+  结论：全部加载成功</pre>
+
+<h2 id="s9">已知边界</h2>
+<ul>
+  <li>不判行文流畅性、不判事实真伪、不判「像不像日记」——这些是人的判断，硬判会变成假阳性。</li>
+  <li>平台侧动作（发布板块、成员资格、投稿篇数、时间线）一律 <span class="s-NA">NA</span>，只提示不判定。</li>
+  <li>目录树比对只到 basename 粒度：<code>scripts/a.py</code> 与 <code>tests/a.py</code> 会被视作同一项，需人工确认。</li>
+  <li>字数默认按可见正文计，图片与其 alt 文本不计入；带外壳的预览页必须用 <code>--from/--to</code> 划区。</li>
+  <li><code>check_images.py</code> 依赖 <code>playwright</code> + <code>chromium</code>，未安装时返回 <code>2</code> 并提示安装命令。</li>
+  <li>本技能不改稿：发现 FAIL 后怎么改由人或宿主决定。</li>
+</ul>
+
+<div class="foot">
+  zw-check v1.0.0 · 仓库路径 <code>workbuddy/zw-check/</code> ·
+  技能规范入口 <code>SKILL.md</code> · 检查项与征文要求的映射见 <code>references/contest-rules.md</code>
+</div>
+
+</div>
+</body>
+</html>
