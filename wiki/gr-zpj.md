@@ -146,6 +146,8 @@ PASS: 全部检查通过
 
 三条的共同点：**不抛异常、不报错，只是页面悄悄错**。这也是为什么这个技能的测试里破图、分隔线数量、序号连续性都是硬断言。
 
+完整测试报告（56 项逐条明细、双路径 `verify.py` 原始输出、P0 bug 复盘、不可判定项清单）：[`TEST-REPORT.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/gr-zpj/TEST-REPORT.md)
+
 ## 判不了的部分（一律 NA，不写 PASS）
 
 1. **内容好不好**：文案是否打动人、项目是否够分量 —— 人的判断，脚本给不了；
@@ -173,5 +175,6 @@ PASS: 全部检查通过
 | `references/02-pitfalls.md` | 踩坑清单（P0 / P1 / P2） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、六步检查清单 |
+| `TEST-REPORT.md` | 测试报告：56 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
 
 相关技能：`jl-zpj`（「简历 PDF → 命令行流水线」的上一代版本，本技能的模板与构建器由它重构而来）、`aicheck`（交付前 D1–D12 闸门，本技能交付前同样要过）。

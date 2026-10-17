@@ -105,6 +105,7 @@ assets/form.html
 | `examples/content.json` | 完整示例（命令行用，图片走磁盘路径） |
 | `examples/demo-content.json` | 同一份内容的演示尺寸版（表单用，图片内联 data URI） |
 | `tests/` | 56 项单测：构建器 28 + 资产一致性 9 + 浏览器端 19 |
+| `TEST-REPORT.md` | 测试报告：56 项逐条明细、双路径 `verify.py` 原始输出、3 个 P0 bug 复盘、不可判定项清单 |
 | `references/01-workflow.md` | 两条路径 + 编码策略表 + 五端检查表 |
 | `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2，含本次开发中真实踩到的 3 个 P0） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |

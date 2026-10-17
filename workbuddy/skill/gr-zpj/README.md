@@ -140,3 +140,6 @@ PASS: 全部检查通过
 | `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、六步检查清单 |
+| `TEST-REPORT.md` | 测试报告：56 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
+
+完整测试报告见 [`TEST-REPORT.md`](./TEST-REPORT.md)。

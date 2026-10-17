@@ -39,7 +39,7 @@ python -m playwright install chromium
 # 1. 资产同步（改了模板或示例之后必须做）
 python scripts/sync_assets.py --check
 
-# 2. 单测（56 项，含 16 项浏览器端）
+# 2. 单测（56 项，含 19 项浏览器端）
 python -m unittest discover -s tests -t . -v
 
 # 3. 构建
