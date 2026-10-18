@@ -1,0 +1,4 @@
+interface:
+  display_name: "dhg｜活动读后感与听后感"
+  short_description: "从活动图片与转写提炼问答、作者判断和会后行动，写出有据可查的架构师创业思考"
+  default_prompt: "使用 $dhg，把活动素材整理成1500字以内的听后感，区分老师回答、老李思考与会后交流，并完成检查。"
