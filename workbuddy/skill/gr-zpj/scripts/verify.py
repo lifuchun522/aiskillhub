@@ -74,7 +74,7 @@ RESIDUE = [
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("html")
-    ap.add_argument("--expect", default="", help="期望的项目主图资源键，逗号分隔（顺序敏感）")
+    ap.add_argument("--expect", default="", help="期望的项目主图资源键，逗号分隔（顺序敏感；无主图的项目不占位）")
     ap.add_argument("--must", default="", help="页面文本里必须出现的关键词，逗号分隔")
     ap.add_argument("--absent", default="", help="页面文本里必须不出现的关键词，逗号分隔")
     ap.add_argument("--last-section", default="", help="要求排在最末的区块 id")
@@ -208,19 +208,25 @@ def main():
             const n = document.querySelector('.hero-card img');
             return {intro: !!i, introChars: i ? i.innerText.replace(/\\s+/g,'').length : 0,
                     namecard: !!n,
-                    namecardBytes: n ? (n.getAttribute('src') || '').length : 0};
+                    namecardW: n ? n.naturalWidth : 0,
+                    namecardH: n ? n.naturalHeight : 0,
+                    namecardInline: n ? (n.getAttribute('src') || '').startsWith('data:') : false};
         }""")
         if not opt["intro"] and not opt["namecard"]:
             print("      未配置自述 / 名片区块，跳过")
         if opt["intro"]:
             check("自述文本非空", opt["introChars"] > 60, "%d 字" % opt["introChars"])
         if opt["namecard"]:
-            check("名片已内嵌", opt["namecardBytes"] > 1000,
-                  "%.0f KB" % (opt["namecardBytes"] * 3 / 4 / 1024))
+            # 名片可能是内嵌 data URI，也可能是外置 img/ 相对路径 —— 判据统一为「解码出了像素」
+            check("名片已加载", opt["namecardW"] > 200,
+                  "%dx%d（%s）" % (opt["namecardW"], opt["namecardH"],
+                                  "内嵌" if opt["namecardInline"] else "外置"))
             pg.click(".hero-card img")
             pg.wait_for_timeout(600)
+            # 图可能是内嵌 data URI，也可能是外置 img/ 相对路径 —— 判据是「真的解码出了像素」
             check("名片可放大",
-                  pg.evaluate("document.getElementById('mImg').src.startsWith('data:image')"))
+                  pg.evaluate("(()=>{const i=document.getElementById('mImg');"
+                              "return !!i.getAttribute('src') && i.naturalWidth>0})()"))
             pg.keyboard.press("Escape")
             pg.wait_for_timeout(250)
 
@@ -238,7 +244,8 @@ def main():
             print("      %-46s %-24s -> %s" % (r["no"] + " " + r["title"][:42], r["meta"], r["fig"]))
         if args.expect:
             exp = [x.strip() for x in args.expect.split(",") if x.strip()]
-            got = [r["fig"] for r in rows]
+            # 只比「有主图的项目」—— 没配 fig 的项目渲染成纯文字卡，不占位
+            got = [r["fig"] for r in rows if r["fig"] != "(无)"]
             check("主图映射顺序", got == exp, "期望%s 实际%s" % (exp, got))
         periods = [r["meta"].split("—")[0].strip() for r in rows if "—" in r["meta"]]
         if periods:

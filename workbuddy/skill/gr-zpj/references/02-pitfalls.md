@@ -51,6 +51,25 @@ el.src = ASSETS[k];          // ASSETS[k] 是对象 → src 变成 "[object Obje
 
 ---
 
+### P0-4 · 外置图的扩展名必须跟着「实际编码结果」走
+
+图片外置时，文件名若直接沿用**源文件后缀**，会撞上这条：源图是 `main.png`，
+但它是照片类素材、被压成了 JPEG。文件叫 `main.png`、内容却是 JPEG 字节 ——
+构建不报错、页面文字全对、`src` 也指向真实存在的文件，**只有浏览器破图**。
+
+对策：扩展名从**编码后的 MIME** 反查，不从源后缀复制。
+
+```python
+mime = uri[5:uri.index(";")]            # data:image/jpeg;base64,…
+suf = {"image/png": "png", "image/jpeg": "jpg",
+       "image/webp": "webp", "image/gif": "gif"}.get(mime, "png")
+```
+
+回归断言：`TestExternalAssets::test_external_mode_writes_files_and_uses_relative_src`
+（引用路径 == 落盘路径，且落盘文件真实存在）。
+
+---
+
 ## P1 —— 报错 / 明显坏掉
 
 ### P1-1 · 分隔线归一必须限定在 `<main>` 内
@@ -171,3 +190,15 @@ JPEG 压缩会破坏定位图案导致扫不出来。`as_png: true` + 不设 `ma
 不接受「提升约 3 倍 / 200+ 关键指标」这类**无法证伪**的表述 ——
 要落到具体动作与技术名词（ELK 日志采集分析告警、xxl-job 调度、Apollo 配置中心）。
 表单的检查面板对「项目没写成果 / 没写关键动作 / 没写技术标签」直接给提示。
+
+### P2-8 · 外置模式下产物是「目录」，不是「文件」
+
+配了 `paths.external` 之后，`index.html` 里的 `src="img/…"` 是相对路径。
+最常见的翻车方式是**只把 HTML 拷走**发人 —— 在开发机上看没问题（同目录下有 `img/`），
+对方打开全页破图。
+
+三条处置：
+
+1. 交付走 `package.py`（它 `os.walk` 整个产物目录，`img/` 会连带打包）；
+2. `verify.py` 的破图断言用 `naturalWidth > 0`，在**解压后的目录里**跑一遍能拦住；
+3. 只想要「一个文件发出去」时**不要配 `external`** —— 内嵌模式才是单文件。

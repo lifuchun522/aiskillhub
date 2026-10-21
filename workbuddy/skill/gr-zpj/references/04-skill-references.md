@@ -39,7 +39,7 @@ python -m playwright install chromium
 # 1. 资产同步（改了模板或示例之后必须做）
 python scripts/sync_assets.py --check
 
-# 2. 单测（56 项，含 19 项浏览器端）
+# 2. 单测（62 项，含 19 项浏览器端）
 python -m unittest discover -s tests -t . -v
 
 # 3. 构建
@@ -57,4 +57,5 @@ python scripts/package.py "<out>"
 
 | 版本 | 变更 |
 |---|---|
+| v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 从 2.4 MB 降到 ~70 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 的名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端） |
 | v1.0.0 | 首个版本。表单驱动采集 → 即时生成单页作品集；声明式区块标记（`SEC/NAV/HR/N`）；表单与命令行两处渲染一致性由测试守护；56 项单测（37 项离线 + 19 项浏览器端） |

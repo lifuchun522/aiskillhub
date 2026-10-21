@@ -23,6 +23,11 @@
 |---|---|
 | `out_dir` | 产物目录（`index.html` 与 `archive` 归档都落在这里）。必填 |
 | `src_dir` | `images[].src` 写相对路径时的基准目录（缺省则按当前工作目录解析） |
+| `external` | 图片外置目录名，如 `"img"`。**留空 = 全部内嵌成单文件** |
+
+`external` 非空时，图片写到 `<out_dir>/<external>/…`，页面里存相对路径字符串而不是
+`data:` URI。代价是产物从「一个文件」变成「一个目录」，收益是 `index.html` 从数 MB
+降到几十 KB，且换图不必重新构建。
 
 ## texts
 
@@ -82,10 +87,25 @@
 | `as_png` | 按扩展名推断 | 强制输出 PNG |
 | `png8` | false | PNG 量化为 256 色（架构图适用） |
 | `passthrough` | true | 无需缩放且源格式 == 目标格式时直通原始字节 |
-| `archive` | 不归档 | 原分辨率副本的相对路径（相对 `out_dir`） |
+| `archive` | 不归档 | 原分辨率副本的相对路径（相对 `out_dir`）。**外置模式下跳过** |
+| `group` | `misc` | 外置模式的默认子目录：`<external>/<group>/<key>.<ext>` |
+| `file` | — | 外置模式的完整相对路径，优先于 `group` |
 
 **资源键必须被正文引用到，或至少存在**：正文引用了 `images` 里没有的键 → 构建报错
 （防「图永远加载不出来」）；`images` 里有没被引用的键 → 只是多占体积，不报错。
+
+### 外置模式的扩展名规则
+
+扩展名取的是**实际编码出的 MIME**，不是源文件后缀：
+
+| 场景 | 源 | 编码后 | 落盘名 |
+|---|---|---|---|
+| 照片类被压成 JPEG | `main.png` | `image/jpeg` | `main.jpg` ✅ |
+| 技术分层图量化 | `layer.png` | `image/png` | `layer.png` |
+| 二维码无损 | `qr.jpg`（`as_png`） | `image/png` | `qr.png` |
+
+写错这一步不会报错、文字也全对，只是浏览器按后缀猜 MIME 时**整页破图**。
+所以 `tests/test_build.py::TestExternalAssets` 里的第一条断言就是「引用路径 == 落盘路径」。
 
 ## content
 
@@ -167,9 +187,14 @@
 
 ## 输出形状
 
-| 键 | 含义 |
+| 配置 | 产物 |
 |---|---|
-| `paths.out_dir/index.html` | 自包含单页（图片全内联） |
-| `images[].archive` 指定的路径 | 原分辨率归档副本 |
+| 不写 `paths.external`（默认） | `paths.out_dir/index.html` —— 自包含单页，图片全内联 |
+| 写了 `paths.external` | `paths.out_dir/index.html`（只有几万字节）+ `<external>/<group\|file>` 下每张图一个文件 |
 
-`--stats` 会把结构计数打印成一行 `STATS:{…}`，可直接喂给 CI 比对。
+两种模式下 `images[].archive` 指定的原分辨率归档副本都会生成；**外置模式例外**——
+同一份字节已经在 `<external>/` 落过一份，不再往 `diagrams/` 重复归档。
+
+`--stats` 会把结构计数打印成一行 `STATS:{…}`，可直接喂给 CI 比对。外置模式下额外多三个键：
+`external`（目录名）、`external_files`（`[{key, file, bytes}]`）、`assets_bytes`（字节合计）。
+

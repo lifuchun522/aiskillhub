@@ -258,11 +258,13 @@ def render_project(p, no):
     o.append('<div class="blk"><div class="lb">KEY ACTIONS</div><ul class="ach">%s</ul></div>' % steps)
     o.append('<div class="chips">%s</div>' % chips)
     o.append("</div>")
-    o.append('<div class="figure" data-zoom="%s" data-title="%s" data-sub="%s">'
-             '<div class="hint"><span>架构图 · %s</span><em>点击放大 ↗</em></div>'
-             '<img data-asset="%s" alt="%s" decoding="async"></div>'
-             % (p["fig"], esc(p["fig_title"]), esc(p["fig_sub"]),
-                p["fig_title"], p["fig"], esc(p["fig_title"])))
+    # fig 可以为空：早期项目没有留存架构图，就只出文字卡，不留空图占位
+    if p.get("fig"):
+        o.append('<div class="figure" data-zoom="%s" data-title="%s" data-sub="%s">'
+                 '<div class="hint"><span>架构图 · %s</span><em>点击放大 ↗</em></div>'
+                 '<img data-asset="%s" alt="%s" decoding="async"></div>'
+                 % (p["fig"], esc(p["fig_title"]), esc(p["fig_sub"]),
+                    p["fig_title"], p["fig"], esc(p["fig_title"])))
     if p.get("extra"):
         cells = "".join(
             '<div class="gitem" data-zoom="%s" data-title="%s" data-sub="%s">'
@@ -424,8 +426,12 @@ def build(cfg, skill_dir):
         "projects": truthy(projects),
     }
 
-    # ---- 资源内嵌
-    assets, archived = {}, []
+    # ---- 资源：默认内嵌 data URI；paths.external 非空时改写文件到指定目录（相对路径引用）
+    # 外置形态用于「页面要长期维护 / 图片要能单独替换」的场景，index.html 可降到几十 KB。
+    ext_dir = P.get("external") or ""
+    if isinstance(ext_dir, dict):
+        ext_dir = ext_dir.get("dir") or "img"
+    assets, archived, external, raw_bytes = {}, [], [], 0
     referenced = set()
     for p in projects:
         if p.get("fig"):
@@ -456,6 +462,22 @@ def build(cfg, skill_dir):
             uri, raw = to_data_uri(src, **kw)
         except FileNotFoundError:
             sys.exit("[构建失败] 素材缺失：%s（资源键 %s）" % (src, key))
+        raw_bytes += len(raw)
+        if ext_dir:
+            # 扩展名以「实际编码出的格式」为准 —— 源图可能是 png 但被压成 jpeg
+            mime = uri[5:uri.index(";")] if uri.startswith("data:") else "image/png"
+            suf = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp",
+                   "image/gif": "gif"}.get(mime, "png")
+            rel = spec.get("file") or "%s/%s/%s.%s" % (
+                ext_dir, spec.get("group") or "misc", key, suf)
+            rel = rel.replace("\\", "/")
+            dest = os.path.join(P.get("out_dir") or ".", rel)
+            os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+            with open(dest, "wb") as fh:
+                fh.write(raw)
+            assets[key] = rel
+            external.append((key, rel, len(raw)))
+            continue                       # 已外置，archive 不再重复落一份
         assets[key] = uri
         arc = spec.get("archive")
         if arc:
@@ -574,7 +596,9 @@ def build(cfg, skill_dir):
         "kept": [k for k in ("capability", "stack", "career", "credential", "projects")
                  if keep[k]],
         "bytes": len(html.encode("utf-8")),
-        "assets_bytes": sum(len(v.encode("utf-8")) * 3 // 4 for v in assets.values()),
+        "assets_bytes": raw_bytes,
+        "external": ext_dir,
+        "external_files": [{"key": k, "file": f, "bytes": n} for k, f, n in external],
     }
     return html, stats, archived
 
@@ -600,11 +624,18 @@ def main():
 
     for key, arc, n in archived:
         print("归档 %-16s %7.1f KB -> %s" % (key, n / 1024, arc))
-    print("\n内嵌资源 %.2f MB ｜ index.html %.2f MB ｜ 区块 %s"
-          % (stats["assets_bytes"] / 1024 / 1024, stats["bytes"] / 1024 / 1024,
-             "+".join(stats["kept"])))
-    if stats["assets_bytes"] > 5 * 1024 * 1024:
-        print("  警告：内嵌资源超过 5MB，手机端打开会卡 —— 建议对架构图开 png8 / 降低 max_w")
+    if stats["external"]:
+        for f in stats["external_files"]:
+            print("外置 %-16s %7.1f KB -> %s" % (f["key"], f["bytes"] / 1024, f["file"]))
+        print("\n外置资源 %.2f MB ｜ index.html %.2f MB ｜ 区块 %s"
+              % (stats["assets_bytes"] / 1024 / 1024, stats["bytes"] / 1024 / 1024,
+                 "+".join(stats["kept"])))
+    else:
+        print("\n内嵌资源 %.2f MB ｜ index.html %.2f MB ｜ 区块 %s"
+              % (stats["assets_bytes"] / 1024 / 1024, stats["bytes"] / 1024 / 1024,
+                 "+".join(stats["kept"])))
+        if stats["assets_bytes"] > 5 * 1024 * 1024:
+            print("  警告：内嵌资源超过 5MB，手机端打开会卡 —— 建议对架构图开 png8 / 降低 max_w")
     if args.stats:
         print("STATS:" + json.dumps(stats, ensure_ascii=False))
     print("\nOK ->", out)

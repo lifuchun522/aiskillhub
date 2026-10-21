@@ -2,7 +2,8 @@
   "paths": {
     "out_dir": "D:/doc/workbuddy/2026-10-14-22-12-33/gr-out/李福春-架构师作品集",
     "src_dir": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/src",
-    "extract_dir": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract"
+    "extract_dir": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract",
+    "external": "img"
   },
   "texts": {
     "NAME": "李福春",
@@ -28,122 +29,152 @@
   "images": {
     "namecard": {
       "src": "C:/Users/Carter.li/.workbuddy/assets/author-lfc-card.jpg",
-      "archive": "assets/名片.jpg"
+      "group": "card",
+      "file": "img/card/namecard.jpg"
+    },
+
+    "nh_digitalhuman": {
+      "src": "02-digitalhuman-handdrawn.jpg",
+      "max_w": 1440,
+      "quality": 80,
+      "group": "p01-digital-human",
+      "file": "img/p01-digital-human/main.jpg"
+    },
+    "digitalhuman": {
+      "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p8_i0_1318x841.png",
+      "png8": true,
+      "group": "p01-digital-human",
+      "file": "img/p01-digital-human/layer.png"
     },
     "nh_agentx": {
       "src": "01-agentx-handdrawn.jpg",
       "max_w": 1440,
       "quality": 80,
-      "archive": "diagrams/手绘版/01-AgentX-智能体与工作流平台.jpg"
-    },
-    "nh_digitalhuman": {
-      "src": "02-digitalhuman-handdrawn.jpg",
-      "max_w": 1440,
-      "quality": 80,
-      "archive": "diagrams/手绘版/02-DigitalHuman-数字员工与实时交互平台.jpg"
-    },
-    "nh_gfs": {
-      "src": "03-cs-handdrawn.jpg",
-      "max_w": 1440,
-      "quality": 80,
-      "archive": "diagrams/手绘版/03-GFS-海外末端配送与运营协同平台.jpg"
-    },
-    "nh_herodash": {
-      "src": "04-gfs-handdrawn.jpg",
-      "max_w": 1440,
-      "quality": 80,
-      "archive": "diagrams/手绘版/04-全球AI客服平台.jpg"
-    },
-    "nh_game": {
-      "src": "06-game-handdrawn.jpg",
-      "max_w": 1440,
-      "quality": 80,
-      "archive": "diagrams/手绘版/05-禅游发行平台-多渠道游戏服务与运营体系.jpg"
-    },
-    "nh_lowcode": {
-      "src": "05-lowcode-handdrawn.jpg",
-      "max_w": 1440,
-      "quality": 80,
-      "archive": "diagrams/手绘版/06-云枢与魔方-企业低代码及系统集成平台.jpg"
+      "group": "p01-digital-human",
+      "file": "img/p01-digital-human/agentx-main.jpg"
     },
     "agentx": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p7_i0_1578x1007.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/01-AgentX-技术分层架构图.png"
+      "group": "p01-digital-human",
+      "file": "img/p01-digital-human/agentx-layer.png"
     },
-    "digitalhuman": {
-      "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p8_i0_1318x841.png",
-      "png8": true,
-      "archive": "diagrams/技术分层版/02-数字员工平台-技术分层架构图.png"
+
+    "nh_gfs": {
+      "src": "03-cs-handdrawn.jpg",
+      "max_w": 1440,
+      "quality": 80,
+      "group": "p02-gfs",
+      "file": "img/p02-gfs/main.jpg"
+    },
+
+    "nh_herodash": {
+      "src": "04-gfs-handdrawn.jpg",
+      "max_w": 1440,
+      "quality": 80,
+      "group": "p03-ai-cs",
+      "file": "img/p03-ai-cs/main.jpg"
     },
     "herodash": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p9_i0_1154x622.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/03-全球全渠道AI智能客服平台-技术分层架构图.png"
+      "group": "p03-ai-cs",
+      "file": "img/p03-ai-cs/layer.png"
+    },
+
+    "nh_game": {
+      "src": "06-game-handdrawn.jpg",
+      "max_w": 1440,
+      "quality": 80,
+      "group": "p04-chanyou",
+      "file": "img/p04-chanyou/main.jpg"
     },
     "chanyou": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p10_i0_1132x562.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/04-禅游发行平台-金箍棒-技术分层架构图.png"
+      "group": "p04-chanyou",
+      "file": "img/p04-chanyou/layer.png"
+    },
+
+    "nh_lowcode": {
+      "src": "05-lowcode-handdrawn.jpg",
+      "max_w": 1440,
+      "quality": 80,
+      "group": "p05-mofang",
+      "file": "img/p05-mofang/main.jpg"
     },
     "mofang": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p11_i0_858x516.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/05-低代码平台魔方-技术分层架构图.png"
+      "group": "p05-mofang",
+      "file": "img/p05-mofang/layer.png"
     },
+
     "yunshu_tech": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p12_i0_1240x769.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/06-低代码平台云枢-技术架构v4.png"
+      "group": "p06-yunshu",
+      "file": "img/p06-yunshu/main.png"
     },
     "yunshu_biz": {
       "src": "D:/doc/workbuddy/2026-10-14-22-12-33/portfolio/_extract/imgs/pf_p13_i0_860x242.png",
       "png8": true,
-      "archive": "diagrams/技术分层版/07-低代码平台云枢-业务架构图.png"
+      "group": "p06-yunshu",
+      "file": "img/p06-yunshu/biz.png"
     },
+
     "cert_lecturer": {
       "src": "cert-lecturer.jpg",
       "max_w": 620,
       "quality": 84,
-      "archive": "assets/证书-腾讯云合作讲师.jpg"
+      "group": "certs",
+      "file": "img/certs/cert-lecturer.jpg"
     },
     "cert_star": {
       "src": "cert-creator-star.jpg",
       "max_w": 620,
       "quality": 84,
-      "archive": "assets/证书-腾讯云创作之星.jpg"
+      "group": "certs",
+      "file": "img/certs/cert-creator-star.jpg"
     },
     "cert_hall": {
       "src": "cert-architect-hall.jpg",
       "max_w": 620,
       "quality": 84,
-      "archive": "assets/证书-腾讯云架构师名人堂.jpg"
+      "group": "certs",
+      "file": "img/certs/cert-architect-hall.jpg"
     },
     "cert_expert": {
       "src": "cert-expert.jpg",
       "max_w": 620,
       "quality": 84,
-      "archive": "assets/证书-腾讯云认证架构师.jpg"
+      "group": "certs",
+      "file": "img/certs/cert-expert.jpg"
     },
+
     "qr_wechat": {
       "src": "qr-wechat.jpg",
       "as_png": true,
-      "archive": "assets/个人主页/qr-微信公众号.png"
+      "group": "qr",
+      "file": "img/qr/wechat.png"
     },
     "qr_csdn": {
       "src": "qr-csdn.png",
       "as_png": true,
-      "archive": "assets/个人主页/qr-CSDN.png"
+      "group": "qr",
+      "file": "img/qr/csdn.png"
     },
     "qr_cnblogs": {
       "src": "qr-cnblogs.png",
       "as_png": true,
-      "archive": "assets/个人主页/qr-博客园.png"
+      "group": "qr",
+      "file": "img/qr/cnblogs.png"
     },
     "qr_tencent": {
       "src": "qr-tencent.png",
       "as_png": true,
-      "archive": "assets/个人主页/qr-腾讯云开发者社区.png"
+      "group": "qr",
+      "file": "img/qr/tencent.png"
     }
   },
   "content": {
@@ -180,173 +211,233 @@
     ],
     "projects": [
       {
-        "title": "AgentX 企业级智能体与工作流平台",
+        "title": "数字员工平台（AIAgent 项目）",
         "period": "2025.07 — 2026.07",
-        "sub": "企业智能体 · 多模型调度 · MCP 工具协议 · DAG 工作流",
-        "desc": "企业应用需要把知识检索、模型调用、业务工具操作和长流程任务串起来，由统一平台承接多模型和跨系统执行。",
-        "result": "核心接口 <b>P99 下降 60%</b>，<b>数据库负载下降 40%</b>；沉淀可复用的 Java 智能体执行引擎与 Python DAG 工作流。",
+        "sub": "数字人生产与运营 · 实时交互链路 · 私有化与信创交付",
+        "desc": "面向企业的数字人生产与运营平台，可制作音频播客、视频播客与实时交互数字人，快速搭建企业数字人分身。功能覆盖数字员工的声音与形象入驻、播报音频 / 播报视频创作、实时交互、知识库 RAG 问答、TTS 与 ASR、素材模型管理、权益资源管理、运营监控报表、SDK 接入、数字人运营，以及用户企业与权限。",
+        "result": "实时音视频通话可用性提升至 <b>99.9%</b>，支撑万级用户量下的平稳运行；产线平均故障恢复时间降低 <b>70%</b>。",
         "steps": [
-          "模型与工具统一接入：主导 <b>Java Agent Runtime</b>、Function Calling / MCP 适配，统一多模型调用、上下文及业务工具协议；协调算法与应用团队明确接入边界和联调责任。",
-          "跨系统长任务编排：推动 <b>Python DAG / Celery</b> 工作流与企业应用衔接，规范节点输入输出、任务状态、异常恢复；组织核心节点评审及集成验收。",
-          "线上性能与交付治理：推进 Caffeine / Redis 缓存与异步执行优化，建设执行追踪、压测和交付复核机制。"
+          "实时音视频通话链路建设：主导 <b>LiveKit 2.0</b> 接入与深度优化，解决「无响应 / 播放卡顿 / 只有声音无画面」等核心链路问题；补齐并发连接数监控、修复资源泄漏、优化拉流链路，保障万人级并发下的稳定交互。",
+          "多引擎 TTS 聚合与智能调度：针对火山引擎、Azure 等多源 TTS，设计 <b>SSE 流式接口</b>的拆词与响应聚合策略，实现「按句子回复」的拟人化交互节奏；自研 TTS 服务监控告警体系，解决语音回复顺序错乱、发音中断等问题。",
+          "交互全链路问题定位体系：作为产线问题一号位，累计攻坚 <b>12 项</b>数字人交互疑难问题（AgentX 内核无响应、开场白语言切换异常、自定义模型调用失败等），沉淀《数字人交互问题排查 SOP》与自动化诊断工具，把同类问题排查从小时级缩短至分钟级。",
+          "私有化标准版与信创全栈适配：输出部署架构图、服务依赖与资源规划文档；完成信创数据库（达梦 / 人大金仓）、信创文件存储（MinIO 国产化替代 / OBS）的适配方案与组件封装，覆盖 RTC、Website 等核心服务；搭建覆盖前端、后端、算法、中间件的 <b>CI/CD</b> 流水线，支撑兴业、国泰、瑞众等项目在国产化环境落地。"
         ],
-        "chips": "Java / Spring Boot / Python / FastAPI / SQLAlchemy / Celery / MCP / RabbitMQ / Redis / Elasticsearch / Docker / Kubernetes",
-        "fig": "nh_agentx",
-        "fig_title": "AgentX 企业级智能体与工作流平台 · 架构图",
-        "fig_sub": "企业用户 / 运营配置人员 → Web 管理台 · 工作流设计器 → API Gateway → Java Agent 推理编排引擎 + Python DAG 工作流执行引擎 → 中间件与数据存储",
+        "chips": "Spring Boot / MySQL / Redis / RabbitMQ / Elasticsearch / Nacos / MinIO / Docker / Kubernetes / LiveKit / ASR / TTS / RAG / SSE / 大模型",
+        "fig": "nh_digitalhuman",
+        "fig_title": "数字员工平台（AIAgent 项目）· 架构图",
+        "fig_sub": "客户端层 → 接入层 → 加载管理层 → 应用层 → 算法服务层（ASR / LLM / TTS / 数字人推理）→ 中间件与数据存储",
         "extra": [
+          ["digitalhuman", "技术分层版：数字员工平台架构图", "客户端层 → 接入层 → 加载管理层 → 应用层 → 算法服务层 → 中间件 & 数据存储"],
+          ["nh_agentx", "AgentX 企业级智能体与工作流平台 · 架构图", "企业用户 / 运营配置人员 → Web 管理台 · 工作流设计器 → API Gateway → Java Agent 推理编排引擎 + Python DAG 工作流执行引擎 → 中间件与数据存储"],
           ["agentx", "技术分层版：AgentX 系统架构图", "客户端层 → API 网关层 → 应用服务层 → AI 能力层 → 中间件"]
         ]
       },
       {
-        "title": "DigitalHuman 企业数字员工与实时交互平台",
-        "period": "2025.07 — 2026.07",
-        "sub": "数字员工 · 实时交互链路 · 私有化与信创交付",
-        "desc": "企业数字员工面向客服及业务咨询，串接知识检索、语音识别、模型推理、合成语音与实时音视频，支持独立部署及大客户集成。",
-        "result": "数字人响应延迟由约 <b>2 秒降至 500 毫秒</b>，交互链路可用性 <b>99.9%</b>；支撑金融保险大客户私有化交付。",
-        "steps": [
-          "实时交互链路优化：组织 ASR、LLM / RAG、TTS 与 <b>LiveKit</b> 联调，优化 SSE 流式调度与语音聚合，收敛端到端响应链路。",
-          "金融客户私有化落地：作为 <b>KA 项目负责人</b>，协调研发、算法和客户实施团队进行麒麟 / 鲲鹏 / 达梦等适配，统筹接口测试与阶段验收。",
-          "故障定位与质量闭环：推进音视频链路监控、异常告警与回归验证，协同解决拉流卡顿、资源泄漏、模型调用异常，保障交互链路稳定可用。"
-        ],
-        "chips": "Spring Boot / LiveKit / ASR / TTS / LLM / RAG / SSE / MySQL / Redis / MinIO / Docker / Kubernetes",
-        "fig": "nh_digitalhuman",
-        "fig_title": "DigitalHuman 企业数字员工与实时交互平台 · 架构图",
-        "fig_sub": "客户端层 → 接入层 → 加载管理层 → 应用层 → 算法服务层（ASR / LLM / TTS / 数字人推理）→ 中间件与数据存储",
-        "extra": [
-          ["digitalhuman", "技术分层版：数字员工平台架构图", "客户端层 → 接入层 → 加载管理层 → 应用层 → 算法服务层 → 中间件 & 数据存储"]
-        ]
-      },
-      {
-        "title": "GFS 海外末端配送与运营协同平台",
+        "title": "跨境物流配送系统 GFS",
         "period": "2024.11 — 2025.06",
-        "sub": "海外末端物流 · 多模式任务调度 · 实时数仓",
-        "desc": "海外多国末端物流需协同运单、站点、路区、派件签收、异常件和通知服务，并持续跟踪运营状态。",
-        "result": "派送相关业务日均运单由约 <b>10 万增长至 100 万</b>；消息中心支持 <b>日均千万级</b>发送，运营指标达到<b>分钟级</b>可见。",
+        "sub": "海外末端派送 · 多模式任务调度 · 流批一体实时数仓",
+        "desc": "纵腾集团在美国本土打造的末端配送与揽收系统，覆盖订单接收、运单生成、中心操作、派件调度、路径优化、签收履约、问题件处理与业务实时监控全流程。系统支持灵活的派区模式，结合大数据、地图路径规划、电子围栏与智能调度算法，提升配送效率与揽收作业准确率。",
+        "result": "日均运单从 <b>10 万增长到 100 万</b>，合作站点从 <b>100 增长到 500</b>，快递员从 <b>1000 增长到 5000</b>；消息触达率 <b>99.99%</b>，支撑日均千万条消息推送。",
         "steps": [
-          "海外多模式任务调度：负责末端派送核心模块架构与设计评审，拆分运单、路区、派件和签收业务，协同多国站点与研发团队推进联调。",
-          "运营数据治理和报表：推动 <b>Canal / ClickHouse 向 Flink / StarRocks 演进</b>，梳理运单与站点指标口径，建设运营监控及异常件分析能力。",
-          "消息中心与生产稳定性：推进 RocketMQ / Redis 异步解耦及统一消息中心，组织消息积压、慢 SQL 等线上治理。"
+          "派送任务多业务模式开发与微服务拆分：设计并实现灵活的派送任务调度，支持亚马逊模式与派区模式落地；梳理派送任务业务流程，输出完整的服务拆分里程碑与技术方案，搭建开发框架，分迭代迁移替换老接口，最终实现数据库拆分独立。",
+          "运营监控架构演进与研发提效：充分利用 <b>Canal</b> 解耦业务系统对数据库的依赖，用 <b>ClickHouse</b> 解决海量数据下多指标查询的性能问题，最终以 <b>Flink + StarRocks</b> 实现流批一体化数仓，满足分钟级监控与离线指标体系建设；封装报表底层能力，简化研发流程。",
+          "统一消息中心与触达能力：覆盖短信（阿里 / 腾讯 / AWS）、邮件（阿里 / AWS / SMTP）、站内信（Firebase）、WhatsApp、飞书、语音等渠道，支撑日均千万条推送。",
+          "产线问题定位与协同运维：定位并解决消息积压、CPU 飙升、内存泄漏、数据库慢 SQL、高 CPU / 高 IO 等生产问题并推动落地；同时推动团队实施 Java 代码规范、数据库规范、需求技术方案评审与 Code Review 机制。"
         ],
-        "chips": "Spring Boot / MyBatisPlus / MySQL / Redis / RocketMQ / Flink / StarRocks / ClickHouse / Docker",
+        "chips": "Java 8 / Spring Boot / MyBatis-Plus / Vue3 / MySQL / Redis / Canal / ClickHouse / Flink / StarRocks / RocketMQ",
         "fig": "nh_gfs",
-        "fig_title": "GFS 海外末端配送与运营协同平台 · 架构图",
-        "fig_sub": "运营管理 / 站点分拣中心 / 快递员 → 运营管理后台 · 快递员 App → 订单运单接入 · 派送任务 · 路区路径规划 · 消息中心 → 实时数仓链路（Canal → Flink → StarRocks → ClickHouse）",
+        "fig_title": "跨境物流配送系统 GFS · 架构图",
+        "fig_sub": "运营管理 / 站点分拣中心 / 快递员 → 运营管理后台 · 快递员 App → 订单运单接入 · 派送任务 · 派区路径规划 · 消息中心 → 实时数仓链路（Canal → Flink → StarRocks → ClickHouse）",
         "extra": []
       },
       {
-        "title": "全球 AI 客服平台",
+        "title": "全球 AI 智能客服平台",
         "period": "2023.05 — 2024.11",
-        "sub": "全球客服 SaaS · 知识库 RAG · 多租户与 GDPR 合规",
-        "desc": "面向跨境出海商户，统一电话、邮件、IM 和工单；企业知识库及 RAG 为跨渠道客服提供知识问答和运营分析。",
-        "result": "平台支撑 <b>600+ 并发</b>、累计 <b>500 万+ 用户</b>；通过资源优化与自动化交付降低运维成本 <b>50%+</b>。",
+        "sub": "混合云客服 SaaS · 知识库 AI 客服 · FusionPBX 集群化",
+        "desc": "部署在混合云上的客服服务 SaaS 软件，覆盖电话、邮件、IM、工单等多渠道，通过 AI 技术与微服务架构打通跨系统、跨渠道的数据壁垒，应用于客服语音质检、智能调度与自助服务等场景。",
+        "result": "新功能迭代周期缩短 <b>50%</b>、系统建设效率提升 <b>30%</b>；试点阶段客户响应效率提升 <b>40%</b>、在线服务并发处理能力提升 <b>60%</b>；故障恢复时间减少 <b>70%</b>、问题识别率 <b>90%</b>；FusionPBX 集群化改造后稳定性提升至 <b>99.99%</b>，支撑业务量 <b>200%</b> 增长。",
         "steps": [
-          "跨境商户全渠道工作台：负责全球 SaaS 核心架构及接口开发，整合 <b>FusionPBX、EmailEngine、Twilio</b> 与工单业务；协调产品与渠道团队统一事件与服务接口。",
-          "知识问答与租户合规：推进 <b>RAG / Milvus</b> 企业知识服务、租户权限隔离和 <b>GDPR 数据合规</b>处理，组织业务与研发联调，服务多项目出海商户。",
-          "多租户交付与运维治理：推动 Docker / Kubernetes、GitOps / CI/CD 和资源弹性治理，规范版本发布和故障处置流程。"
+          "工程体系建设：基于业务架构搭建 <b>Spring Cloud</b> 工程体系，为平台的迭代升级提供支撑，统一服务分层、依赖治理与发布规范。",
+          "企业知识库 AI 客服落地：主导产品知识库 AI 客服的预研与实际落地，打通知识检索与坐席工作流，在试点阶段提升客户响应效率与在线并发处理能力。",
+          "线上问题闭环：与技术支持团队协作定位并解决业务问题，缩短故障恢复时间、提高问题识别准确率。",
+          "FusionPBX 中间件改造：深入研究 FusionPBX，完成其运维、扩展与集群化改造，提升系统整体稳定性以承接业务量增长。"
         ],
-        "chips": "Spring Cloud / RAG / Milvus / FusionPBX / EmailEngine / Twilio / Docker / Kubernetes / GitOps / CI/CD",
+        "chips": "Spring Cloud / FusionPBX / 知识库 RAG / MySQL / Redis / Docker / Kubernetes / CI/CD",
         "fig": "nh_herodash",
-        "fig_title": "全球 AI 客服平台 · 架构图",
+        "fig_title": "全球 AI 智能客服平台 · 架构图",
         "fig_sub": "客服坐席 / 运营管理 / 企业客户 / 最终用户 → 统一客服工作台 · 认证与权限 · 系统集成 OpenAPI → 工单路由 · AI 智能客服 · RAG 知识库 → 渠道接入（电话 / 邮件 / 聊天）",
         "extra": [
           ["herodash", "技术分层版：全球全渠道 AI 智能客服平台", "业务治理 & 中间件 → 接入层 → 应用服务 → 数据与存储 → CI/CD 配套"]
         ]
       },
       {
-        "title": "禅游发行平台：多渠道游戏服务与运营体系",
-        "period": "2021.11 — 2023.04",
-        "sub": "高并发发行网关 · 多渠道运营 · 容器化与故障治理",
-        "desc": "面向禅游多款游戏的渠道发行和运营，贯通渠道登录、支付、入游、广告投放及运营工作台，为商务、运营和工作室提供统一服务入口。",
-        "result": "发行平台支持 <b>800 万+ 日活、峰值 3 万 QPS</b>；资源成本降低 <b>30%</b>。",
+        "title": "禅游发行系统（金箍棒）",
+        "period": "2021.12 — 2023.04",
+        "sub": "游戏发行现金流核心系统 · 高并发网关 · 容器化与故障治理",
+        "desc": "金箍棒是禅游游戏体系的核心现金流系统，为卡牌、小游戏提供联运渠道（OVH、小程序、苹果）的登录、支付、进游戏、广告投放功能对接，并提供统一管理门户供运营、商务与工作室日常使用。",
+        "result": "服务容器化至腾讯云，具备弹性伸缩与故障自愈能力；基于 <b>WebFlux</b> 网关完成异步化改造，服务调用相互隔离容灾，排错难度下降、可视化监控指标补齐。",
         "steps": [
-          "高峰渠道请求稳定接入：主导 <b>WebFlux 网关异步化</b>、Dubbo 服务调用隔离及缓存治理，协调登录、支付和渠道接入的高峰容量评估与演练，提升核心链路韧性。",
-          "运营工作台与接口整合：参与统一门户、运营报表及后台接口交付，在游戏平台项目中应用 <b>Vue3 前端与 Python Django / DRF 后端</b>，提升渠道运营配置和数据管理的协同效率。",
-          "容器化发布和故障治理：推进腾讯云容器化、GitLab CI/CD、可视化监控与告警；规范灰度发布、问题复盘和接口性能检查，实现分钟级部署与快速故障定位。"
+          "容器化与弹性伸缩：完成腾讯云容器化，抹平运行环境差异，让服务具备弹性伸缩与故障自愈能力，节约运维成本。",
+          "研发效能：搭建基于 <b>GitLab</b> 的 CI/CD，提高研发与发布效率。",
+          "网关异步化改造：基于 <b>WebFlux</b> 改造网关，服务调用异步化并互相隔离容灾；补充可视化监控指标，降低排错难度。",
+          "稳定性治理：增加重试与熔断机制、去除单点，解决边界报错并优化慢接口，增强代码健壮性。",
+          "业务与架构规划：梳理发行架构体系痛点并输出技术建议，推动业务流程优化与 SDK 访问次数降低。"
         ],
-        "chips": "Java / WebFlux / Dubbo3 / Vue3 / Django / DRF / Redis / MySQL / ZooKeeper / Apollo / Docker / Kubernetes / CI/CD",
+        "chips": "DubboX / Spring WebFlux / MySQL / Redis / ZooKeeper / Apollo / Docker / Kubernetes / GitLab CI",
         "fig": "nh_game",
-        "fig_title": "禅游发行平台：多渠道游戏服务与运营体系 · 架构图",
+        "fig_title": "禅游发行系统（金箍棒）· 架构图",
         "fig_sub": "游戏工作室 / 运营部门 / 第三方系统 → 统一管理门户 → API Gateway / WebFlux 网关 → 渠道登录 · 支付 · 入游 · 广告投放 · 运营服务 → 基础服务 PaaS 与数据存储",
         "extra": [
           ["chanyou", "补充：发行系统 API 服务「金箍棒」技术分层图", "业务来源 → 发行平台 SaaS → 基础服务 PaaS → 基础设施 IaaS"]
         ]
       },
       {
-        "title": "云枢与魔方：企业低代码及系统集成平台",
-        "period": "2020.04 — 2023.04",
-        "sub": "低代码 PaaS · 表单 / 流程 / BI 引擎 · 金融规模化实施",
-        "desc": "金融与企业内部系统需要统一表单、业务流程、审批、报表和第三方系统接口，减少重复建设和多项目定制成本。",
-        "result": "魔方 <b>10 个月交付 7 个内部应用与 20+ 核心模块</b>；建行项目支持 <b>37 家分行</b>推广落地。",
+        "title": "低代码平台魔方",
+        "period": "2021.12 — 2022.10",
+        "sub": "自研低代码 · 表单 / 流程 / BI 引擎 · 内部应用规模化交付",
+        "desc": "面向业务与研发人员的自研低代码平台，提供可视化表单、流程与 BI 设计能力，支持 PC 与移动端，专注业务敏捷，为软件研发团队降本增效。",
+        "result": "成功交付 <b>合同 / 招聘 / 人事 / 考勤 / 绩效 / 主播加豆</b> 等内部应用，并为游戏发行领域的新媒体运营与游戏数据分析赋能。",
         "steps": [
-          "业务表单与流程产品化：围绕表单、审批、流程和 BI 的企业需求，主导引擎架构及核心模块编码，沉淀通用组件与标准接口以减少重复定制。",
-          "低代码团队交付：带领 <b>10 人团队</b>规划模块分工、方案评审和迭代里程碑，沉淀标准交付节奏，<b>开发周期缩短 70%</b>。",
-          "金融客户规模化实施：在云枢项目组织 <b>15 人团队</b>，协同客户、实施和研发推进部署、系统集成及验收，保障多分行推广按期落地。"
+          "从 0 到 1 设计产品蓝图，完成表单引擎、流程引擎、BI 引擎的设计与核心代码编写。",
+          "整体架构设计与技术选型，输出业务技术方案，负责高可用、高性能与安全性设计。",
+          "腾讯云容器化部署、维护与监控体系搭建。",
+          "引入接口自动化测试，保证并提升软件质量。"
         ],
-        "chips": "Spring Cloud / DDD / 表单引擎 / 工作流 / BI / MySQL / Redis / Nacos / COS / Docker / Kubernetes / Istio",
+        "chips": "DDD / Spring Boot / Spring Cloud / Kubernetes / COS / MySQL / Redis / Nacos / CLS / OnlyOffice",
         "fig": "nh_lowcode",
-        "fig_title": "云枢与魔方：企业低代码及系统集成平台 · 架构图",
+        "fig_title": "低代码平台（魔方 / 云枢）· 架构图",
         "fig_sub": "业务人员 / 研发人员 / 平台管理员 → 低代码设计器前端 · 运行门户 → 表单引擎 · 流程引擎 · BI 引擎 · 元数据管理 · 应用运行时 → 容器化部署 / K8s",
         "extra": [
-          ["yunshu_tech", "补充：云枢 · 技术架构 v4", "服务进程 · 可选 · 后期规划 · 中间件"],
-          ["yunshu_biz", "补充：云枢 · 业务架构图", "设计平台 → 资产复用平台 → 运行平台 → 技术中台 → IaaS"],
           ["mofang", "补充：魔方 · 技术分层架构图", "软件 → 业务 → 应用 → 服务 → 资源 五层架构"]
         ]
+      },
+      {
+        "title": "奥哲云枢",
+        "period": "2020.04 — 2021.11",
+        "sub": "领域模型驱动低代码 · 云原生 PaaS · 六大设计器",
+        "desc": "以领域模型驱动设计实现业务与技术敏捷的低代码产品，技术上采用云原生满足企业新技术与新业态诉求。功能包含 4 个平台、2 大市场，核心是 6 大设计器（模型 / UI / 流程 / 集成 / 逻辑 / 报表），通过元数据驱动实现应用的快速搭建与运行。",
+        "result": "完成从 0 到 1 的架构设计与低代码平台非功能性建设，输出并评审核心技术方案，封装核心业务与技术 SDK。",
+        "steps": [
+          "低代码平台整体架构设计：技术选型、技术规范建立、非功能性建设，并承担项目售前支持与文档输出。",
+          "PaaS 产品架构设计与核心代码落地：物理 / 容器化部署、平滑升级、监控、多云支持。",
+          "云原生技术引入：容器化、微服务拆分、核心组件封装、CI/CD 平台与 PaaS 平台建设。",
+          "团队框架封装与技术攻坚：封装团队开发框架，编写核心代码，攻克技术难点并输出技术方案，推进 CI/CD、DevOps 与容器化在团队落地。",
+          "北京研发团队从 0 到 1：建立运作机制，交付 3 次里程碑迭代版本，输出技术托底方案。"
+        ],
+        "chips": "领域模型驱动 / 元数据引擎 / Spring Cloud / Docker / Kubernetes / MySQL / Redis",
+        "fig": "yunshu_tech",
+        "fig_title": "奥哲云枢 · 技术架构 v4",
+        "fig_sub": "服务进程 · 可选 · 后期规划 · 中间件",
+        "extra": [
+          ["yunshu_biz", "补充：云枢 · 业务架构图", "设计平台 → 资产复用平台 → 运行平台 → 技术中台 → IaaS"]
+        ]
+      },
+      {
+        "title": "乐心健康云",
+        "period": "2018.09 — 2020.03",
+        "sub": "医疗物联网 · 分布式微服务 + 容器化 + 多租户",
+        "desc": "乐心健康 APP 的云端，采用分布式微服务 + 容器化 + 多租户架构，承接 <b>3KW</b> 用户的海量健康数据（日请求量 2 亿）。数据传输链路为：硬件 → 蓝牙数据协议 → App → 数据帧汇聚（protobuf）→ 云端。",
+        "result": "掌控全局技术架构，优化并引入新的基础组件，提升整体性能；平台承载千万级用户与亿级日请求。",
+        "steps": [
+          "业务分层：B 端聚合（开放平台、医疗、交通安全、保险）、C 端聚合（社群、内容、积分、活动、商城、运营数据分析、小程序、公众号）、中台原子服务（用户、设备、步数、锻炼、心率、睡眠、血压、血糖、心电、轨迹、微信触达等）。",
+          "网关层：<b>easyKong</b> 服务网关，承担灰度发布与动态域名解析。",
+          "应用层：单微服务工程分 rest / soa / api 模块，用 Maven archetype 统一生成；Spring 做基础组件封装，Jersey 统一返回格式与异常处理，<b>Dubbo</b> 通过 SPI 与过滤器跨服务透传 requestId，并封装一致性哈希负载均衡算法。",
+          "存储与中间件：MyBatis 自动生成代码并封装冷热分离，MongoDB 存低频变更数据，<b>MySQL + Zebra</b> 支持读写分离与分库分表；Kafka 做微服务异步通知，Redis 封装分布式锁；ELK 采集日志并基于 requestId 做调用链跟踪，CAT 负责监控告警。",
+          "容器化与持续集成：Docker 发布微服务并调优镜像，K8s + Rancher 做编排与可视化运维，Jenkins + Nexus + GitLab 组成持续集成工具链。"
+        ],
+        "chips": "EasyKong / Spring / Jersey / Dubbo / MyBatis / MySQL + Zebra / MongoDB / Kafka / Redis / ELK / CAT / Docker / Kubernetes / Rancher",
+        "fig": "",
+        "extra": []
+      },
+      {
+        "title": "跨境电商供应链平台",
+        "period": "2015.01 — 2018.09",
+        "sub": "COD 履约闭环 · Dubbo 微服务解耦 · 工程化工具引入",
+        "desc": "在 Facebook 通过单品站获取订单，经 RabbitMQ 异步传输到国内供应链平台，完成订单审核、采购、仓储、物流、财务等后续处理，加快公司 COD 业务的流转速度。",
+        "result": "完成供应链平台微服务拆分与高可用研发架构搭建，形成跨系统履约闭环；订单查询由 <b>2.3 秒优化至 0.7 秒</b>，并发处理能力提升约 <b>3 倍</b>。",
+        "steps": [
+          "微服务拆分与高可用架构：后端基于 <b>Dubbo</b> 微服务技术体系解耦子系统，统一技术栈 SpringMVC + MyBatis + RabbitMQ + Redis + OSS + Apollo + XXL-Job。",
+          "服务间通信与削峰：子系统间通过 Dubbo 做 RPC 通信，访问频繁时用 MQ 削峰填谷，用 Redis 做缓存加速；持久化业务数据统一经 MyBatis 落 MySQL，文件类数据（图片、xls 文档）落阿里云 OSS。",
+          "可观测与审计：日志按业务运行日志、SQL 执行日志、敏感操作审计日志分三类，由 ELK 组件自动采集到日志分析服务器。",
+          "研发效能：研发自研 SQL 模板代码生成工具，基础增删改查可自动生成；约定百万数据级别下查询响应不超过 50ms。",
+          "生产性能调优与监控告警：负责生产环境性能调优与监控报警；同时负责后端团队建设，做技术点分享与 Code Review，引入经过验证的新技术。"
+        ],
+        "chips": "Spring MVC / MyBatis / Dubbo / RabbitMQ / Redis / OSS / Apollo / XXL-Job / ELK / LayUI",
+        "fig": "",
+        "extra": []
+      },
+      {
+        "title": "第七大道网页游戏平台",
+        "period": "2011.07 — 2014.12",
+        "sub": "游戏发行 RPC 系统 · 多端官网与活动 · 高可用后台服务",
+        "desc": "典型的 RPC 系统，为业务提供高可用、稳定、高效率的后台接口服务：用户登录、注册、进游戏、充值、找回密码、客服，以及为运营人员提供专题广告推广与游戏服务器管理接口，内置微信、微博、短信、邮件、第三方账号等外联模块。",
+        "result": "峰值并发 <b>1000</b>，年流水超过 <b>2 亿人民币</b>，注册用户超过 <b>5000 万</b>；支撑神曲、弹弹堂、天龙八部的运营推广与精细化运营。",
+        "steps": [
+          "《第七大道页游平台》的设计、开发与维护。",
+          "《神曲官网》《弹弹堂官网》《第七大道公司官网》的 PC 版本与微信公众号版本设计、开发、部署与维护。",
+          "技术选型与部署：往简单了设计采用 GuiceServlet + MySQL + DBUtils + Redis 三层架构，按访问压力增加实例做负载均衡；复杂形态可采用 Dubbo 分布式框架；部署环境为 Linux + Nginx + Tomcat + MySQL + Redis。"
+        ],
+        "chips": "Java / GuiceServlet / MySQL / DBUtils / Redis / Dubbo / Nginx / Tomcat / Maven",
+        "fig": "",
+        "extra": []
       }
     ],
     "stack": [
       ["AI 应用与编排", "Java / Python / LLM / RAG / Agent Runtime / Function Calling / MCP / DAG Workflow / Celery / LiveKit / ASR / TTS / Milvus / SSE"],
       ["微服务与企业集成", "Spring Boot / Spring Cloud / Spring WebFlux / Dubbo / REST API / RabbitMQ / Redis / Elasticsearch / Nacos / Apollo / 权限与多租户"],
-      ["IoT / 数据与调度", "设备接入 / 运单·路区·站点调度 / Flink / StarRocks / ClickHouse / Canal / RocketMQ / XXL-Job / 实时运营监控"],
+      ["IoT / 数据与调度", "设备接入 / 运单·派区·站点调度 / Flink / StarRocks / ClickHouse / Canal / RocketMQ / XXL-Job / 实时运营监控"],
       ["云原生与信创", "Docker / Kubernetes / GitOps / CI/CD / 可观测性 / 麒麟 OS / 鲲鹏 ARM / 达梦 / 人大金仓 / 昇腾 / MinIO"],
       ["研发与交付管理", "架构评审 / 需求澄清 / 跨团队联调 / 质量门禁 / 上线复盘 / 10–15 人团队建设 / KA 私有化交付"],
-      ["架构与性能治理", "DDD / COLA / 高并发设计 / JVM 与线程池调优 / 多级缓存 / 分库分表与读写分离 / 熔断降级 / Prometheus+Grafana / CAT / ELK"]
+      ["架构与性能治理", "DDD / 领域建模 / 高并发设计 / JVM 与线程池调优 / 多级缓存 / 分库分表与读写分离 / 熔断降级 / Prometheus+Grafana / CAT / ELK"]
     ],
     "timeline": [
-      ["2025.07 — 2026.07", "KA 项目负责人", "北京红棉小冰科技有限公司", true, [
-        "担任重点客户 KA 项目负责人，统筹数字员工与 AgentX 方案设计、核心研发、跨团队集成及企业私有化交付，覆盖金融保险大客户。",
-        "协调 Java / Python 与算法团队建设推理编排和多模态实时链路，推动数字人响应由约 2 秒优化至 500 毫秒、实时链路可用性达到 99.9%。",
-        "组织方案评审、性能治理及交付验证，推进多级缓存和异步任务改造，Agent 核心接口 P99 降低 60%、数据库负载下降 40%。"
+      ["2025.07 — 2026.07", "Java 高级开发", "北京红棉小冰科技有限公司（AI 数字人）", true, [
+        "AI 数字员工平台全栈开发：负责声音、视频、交互及大屏数字人平台核心开发，覆盖组织权限、数字人管理、监控报表与开放接口；集成 ASR、TTS、LLM、RAG、唇形推理及 LiveKit 实时音视频，承担需求分析、功能开发与上线维护。",
+        "AgentX 架构与核心引擎开发：基于 Java / Python 构建 Agent 推理引擎与 DAG 工作流，支持多模型调度、MCP 工具调用及可视化编排；通过 Redis、RabbitMQ、Elasticsearch 实现会话缓存、异步任务与知识检索，设计网关流量隔离、负载均衡及水平扩展方案。",
+        "大客户项目管理与交付：主导标准产品私有化改造、客户定制与信创适配，统筹需求、方案、开发、测试及部署，建设覆盖前后端与 AI 服务的 CI/CD 流水线，推动交付方案标准化。"
       ]],
-      ["2024.11 — 2025.06", "后端 Leader", "纵腾集团", false, [
-        "负责海外末端配送任务与运营系统核心模块的研发及架构评审，支持多国站点和不同派送模式，相关业务日均运单从约 10 万增长至 100 万。",
-        "推动任务微服务拆分与 Canal / ClickHouse 向 Flink / StarRocks 演进，建设分钟级运营指标和报表能力，支持异常件及站点问题追踪。",
-        "组织跨站点接口联调和生产排障，建设日均千万级消息中心，治理消息积压、慢 SQL 与故障恢复流程。"
+      ["2024.12 — 2025.06", "研发主管", "纵腾集团（跨境物流派送）", false, [
+        "技术管理与研发交付：负责海外末端派送系统的派送任务、消息中心、基础信息及运营报表等模块，制定技术方案评审、Code Review、Java 编码及 SQL 规范，协调跨团队排期与研发资源，推动需求迭代和生产问题闭环。",
+        "核心开发与架构演进：负责多业务模式派送任务开发、微服务拆分及数据库解耦；推进运营数据平台架构演进，建设统一消息中心，支持短信、邮件、App 推送、WhatsApp、飞书及语音等渠道。",
+        "海外部署与稳定性治理：主导美国、法国、荷兰、意大利、摩尔多瓦的系统部署架构规划，覆盖高可用、性能优化与安全合规；承担消息积压、CPU 飙升、内存泄漏及数据库性能问题排查。"
       ]],
-      ["2023.05 — 2024.11", "架构师", "深圳客诺信息技术有限公司", false, [
-        "负责跨境出海商户全球客服 SaaS 的架构设计与核心开发，整合电话、邮件、IM、工单与运营后台，累计服务 500 万+ 用户。",
-        "引入 RAG / Milvus 构建企业知识库问答，推进租户权限隔离、GDPR 合规和多项目系统集成，支撑 600+ 并发业务。",
-        "组织容器化、弹性伸缩与 GitOps / CI/CD 流程改造，持续提升系统可用性，运维成本下降 50%+。"
+      ["2023.05 — 2024.11", "Java 架构师", "深圳客诺信息技术有限公司（AI 智能客服）", false, [
+        "基于业务架构搭建 Spring Cloud 工程体系，统一服务分层、依赖治理与发布规范，为全球客服平台的迭代升级提供支撑。",
+        "主导企业产品知识库 AI 智能客服的预研与落地，在试点阶段提升客户响应效率与在线服务并发处理能力。",
+        "深入研究 FusionPBX 中间件，完成其运维、扩展及集群化改造，提升系统稳定性以承接业务量增长。",
+        "与技术支持团队协作快速定位并解决业务问题，缩短故障恢复时间、提高问题识别准确率。"
       ]],
-      ["2021.11 — 2023.04", "架构师", "深圳市禅游科技股份有限公司", false, [
-        "主导「魔方」低代码平台从 0 到 1 的架构与核心开发，带领 10 人团队 10 个月交付 7 个内部应用与 20+ 业务模块，开发周期缩短 70%。",
-        "负责表单 / 流程 / BI 引擎设计及复用组件建设，在游戏平台开展 Vue3 前端和 Django / DRF 后端生产项目开发。",
-        "推动游戏发行 WebFlux / Dubbo3 服务与 K8s 弹性治理，支撑平台 800 万+ DAU、峰值 3 万 QPS。"
+      ["2021.12 — 2023.04", "Java 架构师", "深圳市禅游科技股份有限公司（低代码 / 游戏发行）", false, [
+        "低代码产品魔方的整体架构设计、技术选型、技术规范建立与非功能建设，输出并落地核心业务技术方案。",
+        "低代码 CI/CD 体系建设与容器化，建立迭代规范和机制，稳定输出版本。",
+        "低代码产品蓝图设计，低代码核心表单、流程、BI 引擎设计与编码，成功还原 7 个核心内部应用。",
+        "发行后端系统金箍棒广告（并发量 20k）和业务（并发量 5k）的高可用弹性架构演进、容器化与 CI/CD 体系建设。",
+        "高并发系统框架（WebFlux + Dubbo3）沉淀并输出。"
       ]],
-      ["2020.04 — 2021.11", "架构师", "深圳奥哲网络信息有限公司", false, [
-        "负责云枢低代码 PaaS 及金融客户交付，从 0 到 1 组建建行北京项目 15 人团队，完成关键里程碑并支持 37 家分行推广。",
-        "围绕企业表单、流程、设计中台推进 DDD 与 Spring Cloud 服务架构，建设多云容器部署、资源治理及平台集成能力。",
-        "建立自动化发布、线上监控和风险跟踪机制，自动部署比例提升至 90%、发布频率提升 3 倍。"
+      ["2020.04 — 2021.11", "Java 架构师", "深圳奥哲网络信息有限公司（低代码）", false, [
+        "低代码平台奥哲云枢的整体架构设计、技术选型、技术规范建立与非功能建设；项目售前支持与文档输出。",
+        "PaaS 产品架构设计，承担核心代码与落地：物理 / 容器化部署、平滑升级、监控、多云支持。",
+        "云原生技术引入：容器化、微服务拆分、核心组件封装、CI/CD 平台建设、PaaS 平台建设。",
+        "团队开发框架封装、核心代码编写、技术难点攻克与技术方案输出，团队技术分享和培训，并推进 CI/CD、DevOps、容器化建设在团队落地。",
+        "从 0 到 1 建立北京研发团队，建立运作机制，交付 3 次里程碑迭代版本，输出技术托底方案。"
       ]],
-      ["2018.09 — 2020.04", "资深工程师", "深圳乐心医疗科技有限公司", false, [
-        "负责健康云关键服务与可穿戴设备数据接入，面向设备、医生端及健康数据处理开展稳定性建设，平台日均承载 1 亿+ 请求。",
-        "建设医生 App / 小程序后端、权限及消息能力，支撑医生业务平台日活约 30 万。",
-        "实施 Dubbo 服务治理、数据库分片 / 读写分离和 CAT 监控，保障平台可用性 99.99%。"
+      ["2018.09 — 2020.03", "Java 资深工程师", "深圳乐心医疗科技有限公司（医疗物联网）", false, [
+        "乐心健康云的架构演进、项目管理与业务研发，产品入口为乐心健康 APP。",
+        "乐心医生 SaaS 平台的架构设计、项目管理与研发，产品入口为乐心医生 APP、乐心医生助手小程序。",
+        "乐心保险中台的架构设计、项目管理与研发，已对接天安保险。"
       ]],
-      ["2015.01 — 2018.09", "Java 高级工程师", "深圳前海映像科技有限公司", false, [
-        "参与跨境电商供应链从 0 到 1 建设，串联 COD 订单、采购、仓储、物流及财务业务，形成跨系统履约闭环。",
-        "推进 Dubbo / RabbitMQ 模块拆分与异步解耦，优化 SQL 索引、Redis 缓存及线程池，订单查询由 2.3 秒优化至 0.7 秒、并发处理能力提升约 3 倍。",
-        "建设生产可观测与故障处置：设计业务运行日志、SQL 执行日志与敏感操作审计日志，接入 ELK 做日志采集、分析与实时告警，配合 xxl-job 调度与 Apollo 配置中心统一变更发布。"
+      ["2015.01 — 2018.09", "Java 高级工程师", "深圳市前海映像科技有限公司（跨境电商）", false, [
+        "跨境电商供应链平台的微服务拆分、高可用研发架构搭建与核心代码编写；生产环境的性能调优与监控报警。",
+        "后端团队建设：基于开发技术栈做技术点分享与 Code Review，引入经过验证的新技术点。"
       ]],
-      ["2011.07 — 2015.01", "Java 工程师", "深圳第七大道科技有限公司", false, [
-        "参与网页游戏平台核心开发，覆盖账号登录、充值、客服、运营活动和开服管理，支撑多款页游运营。",
-        "建设《神曲》《弹弹堂》官网及推广活动能力，采用 Java / MySQL / Redis、Nginx / Tomcat 支撑业务访问。",
-        "参与高流量业务的性能与稳定性治理，平台累计用户约 2 亿、月流水峰值约 2000 万元。"
+      ["2011.07 — 2014.12", "Java 工程师", "深圳第七大道科技有限公司（游戏发行）", false, [
+        "《第七大道页游平台》的设计、开发与维护。",
+        "《神曲官网》《弹弹堂官网》《第七大道公司官网》PC 版本与微信公众号版本的设计、开发、部署和维护。"
       ]]
     ],
     "edu": {
       "label": "教育背景",
-      "tags": ["北华大学 · 软件工程 · 本科", "2007 — 2011", "英语 CET-4", "校园计算机实验室队员", "多次一等奖学金"]
+      "tags": ["北华大学 · 软件工程 · 统招本科", "2011 年毕业", "英语 CET-4（515 分）", "校园计算机实验室队员", "多次一等奖学金"]
     },
     "cert_label": [
       ["cert_lecturer", "腾讯云合作讲师", "WorkBuddy 开发者沙龙 · 深圳站"],

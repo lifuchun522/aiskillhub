@@ -1,8 +1,8 @@
 ---
 name: gr-zpj
-description: 用一张离线表单采集结构化个人信息（基础信息 / 首屏数据条 / 名片 / 自述 / 能力支柱 / 技术栈 / 工作经历 / 教育认证主页 / 项目），当场生成离线可用、手机·微信·企业 IM 都能正常打开的单页 HTML 作品集；也支持「content.json → 命令行构建」的完整流水线。适用于：用户想「填个表就能生成作品集 / 个人主页 / 简历网页 / portfolio」；给了一份零散材料（简历文本、项目清单、架构图、证书图片）要求整理成个人主页；要求把作品集做成自包含单文件 HTML 并能在手机上打开；要求按数据自动增删区块（没填的整块不出现、不留死链与孤立分隔线）；要求把表单填好的内容导出成 JSON 再交给脚本渲染；要求在既有作品集上压体积、多端适配、内容断言。含 2 个入口（表单 / 命令行）、5 个脚本、56 项自动化测试（含两处渲染一致性比对与五端渲染自检）。触发词：表单生成作品集、作品集表单、采集信息生成网页、个人主页生成器、portfolio、作品集 HTML、填表出作品集、gr-zpj。
-description_zh: 表单采集 → 即时生成离线单页作品集（手机/微信/企业 IM 可用），亦支持 content.json 命令行构建；区块按数据自动增删，含 56 项自动化测试。触发词：表单生成作品集、采集信息生成网页、个人主页生成器、gr-zpj。
-description_en: Collect structured profile data with an offline HTML form, then instantly generate a self-contained single-page portfolio that renders correctly on mobile, WeChat and enterprise IM browsers. Also supports a content.json CLI pipeline. Sections appear only when they have data (no dead nav links, no orphan separators); 56 automated tests including form-vs-CLI render parity and a five-profile render check.
+description: 用一张离线表单采集结构化个人信息（基础信息 / 首屏数据条 / 名片 / 自述 / 能力支柱 / 技术栈 / 工作经历 / 教育认证主页 / 项目），当场生成离线可用、手机·微信·企业 IM 都能正常打开的单页 HTML 作品集；也支持「content.json → 命令行构建」的完整流水线。适用于：用户想「填个表就能生成作品集 / 个人主页 / 简历网页 / portfolio」；给了一份零散材料（简历文本、项目清单、架构图、证书图片）要求整理成个人主页；要求把作品集做成自包含单文件 HTML 并能在手机上打开；要求按数据自动增删区块（没填的整块不出现、不留死链与孤立分隔线）；要求把表单填好的内容导出成 JSON 再交给脚本渲染；要求在既有作品集上压体积、多端适配、内容断言。含 2 个入口（表单 / 命令行）、5 个脚本、62 项自动化测试（含两处渲染一致性比对与五端渲染自检）。触发词：表单生成作品集、作品集表单、采集信息生成网页、个人主页生成器、portfolio、作品集 HTML、填表出作品集、gr-zpj。
+description_zh: 表单采集 → 即时生成离线单页作品集（手机/微信/企业 IM 可用），亦支持 content.json 命令行构建；区块按数据自动增删，含 62 项自动化测试。触发词：表单生成作品集、采集信息生成网页、个人主页生成器、gr-zpj。
+description_en: Collect structured profile data with an offline HTML form, then instantly generate a self-contained single-page portfolio that renders correctly on mobile, WeChat and enterprise IM browsers. Also supports a content.json CLI pipeline. Sections appear only when they have data (no dead nav links, no orphan separators); 62 automated tests including form-vs-CLI render parity and a five-profile render check.
 agent_created: true
 ---
 
@@ -20,7 +20,9 @@ agent_created: true
 - 「页面上那条数字写错了（说 8 段实际 7 段）」 → 记数文案由数据生成，不会脱节
 - 「要能反复改，改完重出」 → 导出 / 导入 JSON 往返，命令行可重复构建
 - 「成品发我要能在微信里看」 → 单文件自包含 + 五端渲染自检
-- 「顺便把架构图归档出来，我要拖进 PPT」 → `images[].archive`
+- 「图片要能单独换，别每次都重新构建整页」 → `paths.external`，图落 `img/<项目>/`、页面存相对路径
+- 「页面上有几个项目没留架构图」 → `fig` 留空即只出文字卡，编号仍连续、不留空图位
+- 「顺便把架构图归档出来，我要拖进 PPT」 → `images[].archive`（外置模式下自动跳过，避免重复落盘）
 
 不适用：在线站点（服务端渲染）、纯文字简历排版（走 `workbuddy-docx`）、
 PPT 制作（走 `workbuddy-pptx`）。需要从**简历 PDF 抽素材**时先走 `jl-zpj` 的抽取阶段。
@@ -92,7 +94,7 @@ assets/form.html
 |---|---|
 | `scripts/sync_assets.py` | 把 `assets/template.html` + `examples/demo-content.json` 注入 `assets/form.html`；`--check` 只校验 |
 | `scripts/make_demo.py` | 从 `examples/content.json` 生成演示尺寸的内联版 `demo-content.json` |
-| `scripts/build_portfolio.py` | `content.json` → 自包含单页 `index.html`（+ 归档图） |
+| `scripts/build_portfolio.py` | `content.json` → `index.html`（默认自包含单页；配 `paths.external` 则图片外置） |
 | `scripts/verify.py` | 五端渲染 + 结构与内容断言（可用作 CI 门禁，退出码非 0 即不过） |
 | `scripts/package.py` | 稳定排序打包 zip + CRC 校验 |
 
@@ -104,8 +106,8 @@ assets/form.html
 | `assets/template.html` | 作品集模板骨架（**单一事实来源**；深色专业风、灯箱、滚动动效、老内核兜底） |
 | `examples/content.json` | 完整示例（命令行用，图片走磁盘路径） |
 | `examples/demo-content.json` | 同一份内容的演示尺寸版（表单用，图片内联 data URI） |
-| `tests/` | 56 项单测：构建器 28 + 资产一致性 9 + 浏览器端 19 |
-| `TEST-REPORT.md` | 测试报告：56 项逐条明细、双路径 `verify.py` 原始输出、3 个 P0 bug 复盘、不可判定项清单 |
+| `tests/` | 62 项单测：构建器 34 + 资产一致性 9 + 浏览器端 19 |
+| `TEST-REPORT.md` | 测试报告：62 项逐条明细、双路径 `verify.py` 原始输出、3 个 P0 bug 复盘、不可判定项清单 |
 | `references/01-workflow.md` | 两条路径 + 编码策略表 + 五端检查表 |
 | `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2，含本次开发中真实踩到的 3 个 P0） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |

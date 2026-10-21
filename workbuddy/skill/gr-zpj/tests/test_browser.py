@@ -34,6 +34,24 @@ except ImportError:                                     # pragma: no cover
 
 FORM = os.path.join(SKILL, "assets", "form.html")
 DEMO = os.path.join(SKILL, "examples", "demo-content.json")
+EXAMPLE = os.path.join(SKILL, "examples", "content.json")
+
+
+def expected_counts():
+    """示例数据的真实条数 —— 不写死数字，改 content.json 后测试自动跟上。"""
+    with open(EXAMPLE, encoding="utf-8") as fh:
+        cfg = json.load(fh)
+    C = cfg["content"]
+    return {
+        "metrics": len(cfg.get("metrics") or []),
+        "pillars": len(C.get("pillars") or []),
+        "stack": len(C.get("stack") or []),
+        "timeline": len(C.get("timeline") or []),
+        "projects": len(C.get("projects") or []),
+        "cert_label": len(C.get("cert_label") or []),
+        "qrs": len(C.get("qrs") or []),
+        "images": len(cfg.get("images") or {}),
+    }
 
 PROBE = """() => ({
   counts: {
@@ -124,17 +142,18 @@ class TestFormUI(BrowserBase):
         self.assertIn("姓名", txt)
 
     def test_load_demo_fills_every_block(self):
+        exp = expected_counts()
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
         pay = self.page.evaluate("() => __grzpj.payload()")
-        self.assertEqual(len(pay["metrics"]), 6)
-        self.assertEqual(len(pay["content"]["pillars"]), 3)
-        self.assertEqual(len(pay["content"]["stack"]), 6)
-        self.assertEqual(len(pay["content"]["timeline"]), 8)
-        self.assertEqual(len(pay["content"]["projects"]), 6)
-        self.assertEqual(len(pay["content"]["cert_label"]), 4)
-        self.assertEqual(len(pay["content"]["qrs"]), 4)
-        self.assertEqual(len(pay["images"]), 22)
+        self.assertEqual(len(pay["metrics"]), exp["metrics"])
+        self.assertEqual(len(pay["content"]["pillars"]), exp["pillars"])
+        self.assertEqual(len(pay["content"]["stack"]), exp["stack"])
+        self.assertEqual(len(pay["content"]["timeline"]), exp["timeline"])
+        self.assertEqual(len(pay["content"]["projects"]), exp["projects"])
+        self.assertEqual(len(pay["content"]["cert_label"]), exp["cert_label"])
+        self.assertEqual(len(pay["content"]["qrs"]), exp["qrs"])
+        self.assertEqual(len(pay["images"]), exp["images"])
         # 图片必须是内联 data URI（浏览器里能直接显示）
         for k, v in pay["images"].items():
             self.assertTrue(v["src"].startswith("data:image/"), k)
@@ -168,7 +187,8 @@ class TestFormUI(BrowserBase):
         self.page.click('#list-projects .row:first-child .rm')
         self.page.wait_for_timeout(150)
         html = self.page.evaluate("() => __grzpj.render(__grzpj.payload())")
-        self.assertIn('<span class="no">01</span>DigitalHuman', html)
+        second = self.page.evaluate("() => __grzpj.payload().content.projects[0].title")
+        self.assertIn('<span class="no">01</span>' + second, html)
 
     def test_export_shape_is_buildable(self):
         """表单导出的 JSON 必须能直接被命令行构建器吃下（离线互通）。"""
@@ -178,8 +198,9 @@ class TestFormUI(BrowserBase):
         pay["paths"] = {"out_dir": tempfile.mkdtemp(prefix="grzpj-x-")}
         try:
             html, stats, _a = B.build(pay, SKILL)
-            self.assertEqual(stats["projects"], 6)
-            self.assertEqual(stats["images"], 22)
+            exp = expected_counts()
+            self.assertEqual(stats["projects"], exp["projects"])
+            self.assertEqual(stats["images"], exp["images"])
             self.assertNotIn("{{", html)
         finally:
             shutil.rmtree(pay["paths"]["out_dir"], ignore_errors=True)
@@ -213,11 +234,12 @@ class TestFormUI(BrowserBase):
         self.assertEqual(self.errors, [])
 
     def test_summary_reflects_counts(self):
+        exp = expected_counts()
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
         txt = self.page.inner_text("#sumBox")
-        self.assertIn("我的项目 · 6 个", txt)
-        self.assertIn("工作经历 · 8 段", txt)
+        self.assertIn("我的项目 · %d 个" % exp["projects"], txt)
+        self.assertIn("工作经历 · %d 段" % exp["timeline"], txt)
         self.assertIn("填写进度", txt)
 
 

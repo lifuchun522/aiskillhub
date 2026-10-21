@@ -26,7 +26,9 @@
 | 我删掉第一个项目，剩下的编号要重排吗？ | 编号由数组顺序生成，删完仍从 01 开始 |
 | 改完模板，表单预览还是旧的？ | `sync_assets.py --check` + 单测守着「两处必须是同一份」 |
 | 「手机上打开对不对」怎么证明？ | 真实 UA 起 5 个 profile，每端查四件事，退出码非 0 即不过 |
-| 改文案后旧词真的清干净了吗？ | `verify.py --must / --absent`，2.4MB 单页肉眼扫不出来 |
+| 改文案后旧词真的清干净了吗？ | `verify.py --must / --absent`，整页肉眼扫不出来 |
+| 图片要能单独替换，不想每次都重新构建整页？ | 配 `paths.external`，图落到 `img/<项目>/<名>.<ext>`，页面只存相对路径 |
+| 早期项目没留架构图，会不会占一个空图位？ | `fig` 留空即只出文字卡，编号仍连续，不留空占位 |
 
 ## 安装
 
@@ -34,7 +36,7 @@
 cp -r workbuddy/skill/gr-zpj ~/.workbuddy/skills/gr-zpj
 
 cd ~/.workbuddy/skills/gr-zpj
-python -m unittest discover -s tests -t . -v      # 56 项，全绿
+python -m unittest discover -s tests -t . -v      # 62 项，全绿
 
 # 可选：命令行路径与自检需要
 pip install pillow playwright
@@ -83,34 +85,53 @@ python scripts/package.py "<out>"
 
 无需缩放且源格式 == 目标格式时**直通原始字节**，不做重编码（避免画质累积损失）。
 
+### 4 · 图片内嵌还是外置
+
+| 模式 | 配置 | 产物 | 适用 |
+|---|---|---|---|
+| 内嵌（默认） | 不写 `paths.external` | 单文件，图全在 `data:` URI 里 | 要发一份文件给别人的场合 |
+| 外置 | `"paths": {"external": "img"}` | `img/<分组>/<名>.<ext>` + 只存相对路径的 `index.html` | 要换图、要进 CDN、要页面瘦身 |
+
+外置模式的三条硬规矩：
+
+1. **扩展名按实际编码出的 MIME 决定** —— 源图 png 被压成 jpeg 时文件必须叫 `.jpg`，
+   否则浏览器按后缀猜类型，静默破图；
+2. **外置即跳过 `archive`** —— 同一份字节不在 `img/` 和 `diagrams/` 各落一份；
+3. **外置产物不再是单文件** —— 交付时要整个目录一起发，`package.py` 会连 `img/` 一起打包。
+
 ## 本机实测
 
 ### 单测
 
 ```
-Ran 56 tests in 33.8s
+Ran 62 tests in 67.7s
 OK
 ```
-构建器 28 + 资产一致性 9 + 浏览器端 19。浏览器端含**两处渲染一致性**（表单生成的页面
+（浏览器端 19 项要起 Chromium，耗时随机器负载在 65–100s 间浮动，项数恒为 62。）
+构建器 34 + 资产一致性 9 + 浏览器端 19。浏览器端含**两处渲染一致性**（表单生成的页面
 与命令行构建的页面：结构计数、章节序号、导航、缩放元素类型序列、可见文本、`<title>`
 逐项相等）与**破图断言**。
 
-### 一份 6 项目 / 8 段履历的完整作品集
+### 一份 9 项目 / 8 段履历的完整作品集（外置图）
 
 ```
-内嵌资源 1.77 MB ｜ index.html 2.41 MB ｜ 区块 capability+stack+career+credential+projects
-计数 pillars 3 ｜ metrics 6 ｜ cards 6 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 18
+外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
+计数 pillars 3 ｜ metrics 6 ｜ cards 9 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 18
 导航无死链 ✓   无遗留页脚 ✓   body 无游离区块 ✓   末尾非孤立分隔线 ✓
 末区块为 projects ✓   章节序号按 DOM 顺序连续 ['01','02','03','04','05'] ✓
 名片占屏宽比 77% (1108x624) ✓
-主图映射顺序 ✓   项目按时间降序 ✓   项目编号连续 ✓
+主图映射顺序 ✓   项目按时间降序 ✓   项目编号连续 01–09 ✓
 五端（1440/820/390/360/320）无横向溢出 ✓   关键区块不超宽 ✓   触摸端正文字号 ≥14.5px ✓
 PASS: 全部检查通过
 ```
 
+22 张图按项目分成九组落在 `img/` 下（`p01-digital-human` / `p02-gfs` / `p03-ai-cs` /
+`p04-chanyou` / `p05-mofang` / `p06-yunshu` / `card` / `certs` / `qr`），
+`index.html` 从 2.41 MB 降到 68 KB —— 换一张架构图不用碰页面。
+
 ### 表单路径产物体积
 
-演示尺寸的完整作品集（22 张图内联）**0.65 MB** —— 表单路径不做 PNG8 量化，
+演示尺寸的完整作品集（22 张图内联）**0.66 MB** —— 表单路径不做 PNG8 量化，
 体积会大于命令行产物；检查面板在超过 5MB 时直接给出改用命令行的建议。
 
 ## 判不了的部分（一律不写 PASS）
@@ -130,16 +151,16 @@ PASS: 全部检查通过
 | `assets/template.html` | 作品集模板骨架（**单一事实来源**） |
 | `scripts/sync_assets.py` | 模板 / 示例 → 表单 的注入与一致性校验 |
 | `scripts/make_demo.py` | 生成演示尺寸的内联示例数据 |
-| `scripts/build_portfolio.py` | `content.json` → 自包含单页 HTML + 归档图 |
+| `scripts/build_portfolio.py` | `content.json` → 作品集 HTML（内嵌单文件 / 图片外置两种模式） |
 | `scripts/verify.py` | 五端渲染自检 + 结构与内容断言（CI 门禁） |
-| `scripts/package.py` | 稳定排序打包 zip + CRC 校验 |
-| `tests/test_build.py` | 28 项：结构 / 区块裁减 / 配置门禁 / 编码工具 |
+| `scripts/package.py` | 稳定排序打包 zip + CRC 校验（含 `img/` 外置图） |
+| `tests/test_build.py` | 34 项：结构 / 区块裁减 / 配置门禁 / 编码工具 / 图片外置 / 无图项目 |
 | `tests/test_sync.py` | 9 项：资产一致性、离线自包含、示例与生产内容同源 |
 | `tests/test_browser.py` | 19 项：表单交互 + 两处渲染一致性 |
 | `references/01-workflow.md` | 两条路径、编码策略表、五端检查表 |
 | `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、六步检查清单 |
-| `TEST-REPORT.md` | 测试报告：56 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
+| `TEST-REPORT.md` | 测试报告：62 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
 
 完整测试报告见 [`TEST-REPORT.md`](./TEST-REPORT.md)。

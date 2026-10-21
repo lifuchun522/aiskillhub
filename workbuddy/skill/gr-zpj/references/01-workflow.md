@@ -5,9 +5,11 @@
 | 路径 | 入口 | 适合 | 产物 |
 |---|---|---|---|
 | **A 表单路径（快）** | 浏览器打开 `assets/form.html` | 手上只有零散材料，想边填边看效果；不装 Python 环境 | 一个自包含 `index.html`（图片内联） |
-| **B 命令行路径（稳）** | `python scripts/build_portfolio.py content.json` | 有素材目录 / 要 PNG8 量化压体积 / 要进 CI | `index.html` + `dist/diagrams` 归档图 |
+| **B 命令行路径（稳）** | `python scripts/build_portfolio.py content.json` | 有素材目录 / 要 PNG8 量化压体积 / 要进 CI | `index.html`（默认内嵌）或 `index.html` + `img/`（配了 `paths.external`） |
+| **B′ 命令行 + 图片外置** | 同上，`"paths": {"external": "img"}` | 要单独换图 / 要进 CDN / 要页面从几 MB 瘦到几十 KB | 68 KB 的 `index.html` + `img/<项目>/<名>.<ext>` |
 
 两条路径产出的页面**结构等价**（`tests/test_browser.py` 里逐字比对），差别只在图片编码强度。
+B′ 不是第三条路径，只是 B 的一个开关：渲染规则完全相同，只是图不再塞进 HTML。
 
 ---
 

@@ -358,5 +358,86 @@ class TestEncoding(Base):
         self.assertEqual(B.col_class(1), "")
 
 
+# =============================================================== E. 图片外置
+class TestExternalAssets(Base):
+    """paths.external 非空时：图片落盘到 img/，页面改用相对路径引用。
+
+    这是「index.html 能不能瘦下来」的关键开关 —— 内嵌形态下 22 张图会把页面顶到
+    2.4 MB，外置后只剩几十 KB。判据必须是「文件真的写出来了且引用能对上」，
+    只看 html 里有没有 img/ 字样是不够的（写错目录同样是死链）。
+    """
+
+    def ex_cfg(self, **over):
+        c = self.cfg()
+        c["paths"] = {"out_dir": self.tmp, "external": "img"}
+        for k, v in over.items():
+            c[k] = v
+        return c
+
+    def test_external_mode_writes_files_and_uses_relative_src(self):
+        html, stats, _arch = self.build(self.ex_cfg())
+        self.assertNotIn("data:image", html)              # 页面里不该再有内联图
+        self.assertEqual(stats["external"], "img")
+        self.assertTrue(stats["external_files"])
+        for f in stats["external_files"]:
+            path = os.path.join(self.tmp, f["file"])
+            self.assertTrue(os.path.isfile(path), f["file"])
+            self.assertEqual(os.path.getsize(path), f["bytes"], f["file"])
+            self.assertIn(f["file"], html)                # 引用与落盘必须一致
+            self.assertFalse(os.path.isabs(f["file"]))     # 必须是相对路径
+
+    def test_external_respects_file_and_group_fields(self):
+        c = self.ex_cfg()
+        c["images"]["fig_1"] = {"src": self.img, "group": "p9", "file": "img/p9/main.png"}
+        _html, stats, _arch = self.build(c)
+        names = {f["key"]: f["file"] for f in stats["external_files"]}
+        self.assertEqual(names["fig_1"], "img/p9/main.png")
+        self.assertTrue(os.path.isfile(os.path.join(self.tmp, "img/p9/main.png")))
+        # 没写 file 的图，按 <external>/<group>/<key>.<ext> 自动命名
+        self.assertEqual(names["namecard"], "img/misc/namecard.png")
+
+    def test_external_skips_archive(self):
+        c = self.ex_cfg()
+        c["images"]["fig_1"] = {"src": self.img, "archive": "diagrams/dup.png"}
+        _html, _stats, arch = self.build(c)
+        self.assertEqual(arch, [])                        # 已外置，不再重复归档
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "diagrams/dup.png")))
+
+    def test_inline_remains_default(self):
+        html, stats, _arch = self.build(self.cfg())        # 没写 external
+        self.assertEqual(stats["external"], "")
+        self.assertIn("data:image/png;base64,", html)
+
+
+# =============================================================== F. 无图项目
+class TestProjectWithoutFigure(Base):
+    """早期项目没有留存架构图 —— 只出文字卡，不留空图占位，也不报错。"""
+
+    def test_project_without_fig_renders_text_only(self):
+        c = self.cfg()
+        p = dict(c["content"]["projects"][0])
+        for k in ("fig", "fig_title", "fig_sub", "extra"):
+            p.pop(k, None)
+        c["content"]["projects"] = [p]
+        html, stats, _arch = self.build(c)
+        self.assertNotIn('class="figure"', html)
+        self.assertIn("项目一", html)
+        self.assertEqual(stats["images"], len(c["images"]))   # 图没被误删
+        self.assertEqual(stats["projects"], 1)
+
+    def test_mixed_projects_keep_numbering_continuous(self):
+        c = self.cfg()
+        full = dict(c["content"]["projects"][0])
+        full.pop("extra", None)                            # 只留主图，便于数 figure
+        bare = {k: v for k, v in full.items()
+                if k not in ("fig", "fig_title", "fig_sub")}
+        bare["title"] = "项目二"
+        c["content"]["projects"] = [bare, full]            # 无图的排在最前
+        html, _stats, _arch = self.build(c)
+        self.assertIn('<span class="no">01</span>项目二', html)
+        self.assertIn('<span class="no">02</span>项目一', html)
+        self.assertEqual(html.count('class="figure"'), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
