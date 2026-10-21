@@ -32,7 +32,7 @@
 | Python | 3.13.14（WorkBuddy 隔离环境 `envs/default`） |
 | Pillow | 12.3.0（图片编码 / PNG8 量化） |
 | Playwright | 1.62.0 + Chromium（浏览器端单测与五端渲染） |
-| 被测产物 | `index.html` 68,490 B + `img/` 1.77 MB（命令行路径，外置）<br>`index.html` 0.66 MB 全内联（表单路径） |
+| 被测产物 | `index.html` 69,111 B + `img/` 22 张图 1.77 MB（命令行路径，外置；`STATS.bytes` 记 68,490 —— 差 621 字节是 Windows 落盘的行尾 CRLF，每行 +1）<br>`index.html` 0.66 MB 全内联（表单路径） |
 
 表单路径**零第三方依赖**：只用浏览器原生 API（`FileReader` / `canvas` / `iframe`）。
 
@@ -175,7 +175,7 @@
 
 ## 5. 端到端：双路径 `verify.py`
 
-### 5.1 命令行路径（`index.html` 68,490 B + `img/` 22 张图 1.77 MB）
+### 5.1 命令行路径（`index.html` 69,111 B + `img/` 22 张图 1.77 MB）
 
 ```
 外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
