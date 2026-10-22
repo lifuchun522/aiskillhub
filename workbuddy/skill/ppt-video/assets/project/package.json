@@ -1,0 +1,22 @@
+{
+  "name": "koubo-remotion-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "口播成片模板 - 音频 + 逐字稿 -> 字幕同步的 1920x1080 视频 (Remotion)",
+  "scripts": {
+    "start": "remotion studio",
+    "render": "remotion render src/index.ts KouboVideo",
+    "still": "remotion still src/index.ts KouboVideo"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.471",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.471"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.6.3"
+  }
+}
