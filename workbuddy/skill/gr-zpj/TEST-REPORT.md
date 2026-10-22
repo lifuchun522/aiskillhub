@@ -3,7 +3,7 @@
 > **结论先行**：62 项自动化测试全绿；两条入口（表单 / 命令行）的产物**各自**跑完整 `verify.py` 均 `PASS`；开发期抓到 3 个「不报错、文字全对」的真 bug，已全部修掉并转为硬断言。
 
 日期：2026-10-21　｜　被测版本：`gr-zpj` v1.1.0　｜　基线提交：`8ca9f76`（v1.0.0）
-　｜　v1.1.0 变更：图片外置到 `img/`、按既有简历重建 9 个项目与 8 段履历
+　｜　v1.1.0 变更：图片外置到 `img/`、按既有简历重建 13 个项目与 8 段履历
 
 ---
 
@@ -17,7 +17,7 @@
 | 4 | 两条入口渲染一致性（parity，逐项比对） | **6 项断言全过**（结构计数 / 序号 / 导航 / 文本 / 标题 / 破图） |
 | 5 | 五端渲染（1440 / 820 / 390 / 360 / 320） | **19 / 19 通过**，无横向溢出、正文字号 ≥14.5px |
 | 6 | 资产一致性（模板 / 示例 ↔ 表单内联） | `--check` 通过，`md5 34116dbe6797` |
-| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（68490）＋ 22 张外置图字节相同 |
+| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（74036）＋ 22 张外置图字节相同 |
 | 8 | 仓库副本独立运行（`git archive` 导出后） | `--check` 通过 + 62 项单测 OK |
 | 9 | 开发期发现的真 bug | **3 个 P0**，全部已修并加断言 |
 | 10 | 未覆盖 / 判不了 | 4 类，见 §8（一律记 NA，不写 PASS） |
@@ -32,7 +32,7 @@
 | Python | 3.13.14（WorkBuddy 隔离环境 `envs/default`） |
 | Pillow | 12.3.0（图片编码 / PNG8 量化） |
 | Playwright | 1.62.0 + Chromium（浏览器端单测与五端渲染） |
-| 被测产物 | `index.html` 69,111 B + `img/` 22 张图 1.77 MB（命令行路径，外置；`STATS.bytes` 记 68,490 —— 差 621 字节是 Windows 落盘的行尾 CRLF，每行 +1）<br>`index.html` 0.66 MB 全内联（表单路径） |
+| 被测产物 | `index.html` 74,693 B + `img/` 22 张图 1.77 MB（命令行路径，外置；`STATS.bytes` 记 74,036 —— 差 657 字节是 Windows 落盘的行尾 CRLF，每行 +1）<br>`index.html` 0.66 MB 全内联（表单路径） |
 
 表单路径**零第三方依赖**：只用浏览器原生 API（`FileReader` / `canvas` / `iframe`）。
 
@@ -175,19 +175,19 @@
 
 ## 5. 端到端：双路径 `verify.py`
 
-### 5.1 命令行路径（`index.html` 69,111 B + `img/` 22 张图 1.77 MB）
+### 5.1 命令行路径（`index.html` 74,693 B + `img/` 22 张图 1.77 MB）
 
 ```
 外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
-STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
+STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":13,"stack":6,
         "timeline":8,"certs":4,"qrs":4,"images":22,
         "kept":["capability","stack","career","credential","projects"],
-        "bytes":68490,"assets_bytes":1854370,"external":"img"}
+        "bytes":74036,"assets_bytes":1854370,"external":"img"}
 
 [0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS []
 [1] 运行时     JS 错误                                          PASS []
 [2] 资源      破图 PASS []        图片总数>0 PASS imgs=23
-[3] 结构      计数 pillars 3 / herocard 1 / metrics 6 / cards 9 / zoom 18 / certs 4
+[3] 结构      计数 pillars 3 / herocard 1 / metrics 6 / cards 13 / zoom 18 / certs 4
               qrs 4 / tl 8 / stack 6 / navlinks 6 / anchors 6        PASS
               数据条列数=条数 PASS --mc=6 条数=6
               导航无死链 PASS []   无遗留页脚 PASS footer=0
@@ -199,16 +199,17 @@ STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
 [3b] 自述名片  自述文本非空 PASS 184 字   名片已加载 PASS 1672x941（外置）   名片可放大 PASS
 [5] 数据映射  主图映射顺序 PASS（6 项，与 --expect 逐项相等）
               项目按时间降序 PASS ['2025.07','2024.11','2023.05','2021.12','2021.12',
-                                   '2020.04','2018.09','2015.01','2011.07']
-              项目编号连续 PASS ['01'…'09']
+                                   '2020.04','2020.04','2018.09','2018.09','2018.09',
+                                   '2015.01','2011.07','2011.07']
+              项目编号连续 PASS ['01'…'13']
 [6] 交互      灯箱打开 / 灯箱 ESC 关闭 / 二维码链接 4 个            PASS
 [7] 多端渲染  见 §5.3
 PASS: 全部检查通过
 ```
 
-> 项目 07 / 08 / 09 没有留存架构图（`fig: ""`），因此 `cards 9` 但 `主图映射` 只有 6 项、
+> 仅 01–06 六个项目留存了架构图，其余 7 个（`fig: ""`）只出文字卡，因此 `cards 13` 但 `主图映射` 只有 6 项、
 > `zoom 18`（6 组主图 + 3 组补充图 + 名片 + 4 张证书 + 4 张二维码）。**无图项目不占图位**，
-> 编号仍然连续到 `09`。
+> 编号仍然连续到 `13`。
 
 ### 5.2 表单路径（`index.html` 0.66 MB，内联 22 张演示尺寸图）
 
@@ -218,7 +219,7 @@ PASS: 全部检查通过
 [0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS []
 [1] 运行时     JS 错误                                          PASS []
 [2] 资源      破图 PASS []        图片总数>0 PASS imgs=23
-[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 6 / cards 9 / zoom 18 /
+[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 6 / cards 13 / zoom 18 /
               certs 4 / qrs 4 / tl 8 / stack 6 / navlinks 6 / anchors 6）
               导航无死链 PASS   末尾非孤立分隔线 PASS
               末区块为 projects PASS   章节序号 ['01','02','03','04','05'] PASS
@@ -288,7 +289,7 @@ PASS: 全部检查通过
 
 | # | 复核方式 | 结果 |
 |---|---|---|
-| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 22 张外置图的字节 | 两次均 `68490` + 外置合计 `1854370`，逐字节相同 |
+| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 22 张外置图的字节 | 两次均 `74036` + 外置合计 `1854370`，逐字节相同 |
 | 2 | 把技能目录整份拷到临时目录（模拟「解压后独立运行」）跑 `sync_assets.py --check` + 62 项单测 | `PASS` ／ `Ran 62 tests ... OK` |
 | 3 | 用 `git archive HEAD` 导出**提交后的字节**（经 `.gitattributes` 的 LF 归一）再跑 `--check` + 62 项单测 | `PASS`（`md5 34116dbe6797`）／ `Ran 62 tests ... OK` |
 
