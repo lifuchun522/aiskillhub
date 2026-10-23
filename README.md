@@ -21,6 +21,7 @@ aiskillhub/
 │       ├── d12/                  # 交付前十二项门禁（宿主无关版 v1.0.0）
 │       ├── cdpfetch/
 │       ├── cleanc/               # Windows C 盘可清理目录扫描与安全清理（v1.0.0）
+│       ├── eli5a/                # ELI5 微信图文：1000 字以内 + 配图 + 单文件 HTML（v1.0.0）
 │       ├── gr-zpj/               # 表单驱动作品集生成（v1.0.0）
 │       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
 ├── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
@@ -50,6 +51,32 @@ aiskillhub/
 - 技能入口：[`workbuddy/skill/wechat-article-workflow/SKILL.md`](./workbuddy/skill/wechat-article-workflow/SKILL.md)
 
 **它包含什么**：完整的 10 步 SOP、微信兼容 HTML 规则（纯内联 `<section>` 方案）、自研的三种 Markdown 扩展语法（GFM 表格 / `> [!card]` 卡片 / 可点击链接）、双预览产物机制、系列文章连贯性七条铁律，以及 15 个可直接调用的 Python 脚本。
+
+---
+
+### ELI5 微信图文（eli5a）
+
+把一件刚发生的技术事件，写成 **500 字（上限 1000）**、配 3-6 张图、**能直接粘进公众号源码模式**的单文件 HTML 图文。写法是 ELI5，篇幅是纪律，微信兼容性靠实测。
+
+它解决的不是「怎么让 AI 写出好文章」——那是内容本身。它解决的是**发出去之后才发现是废的**那些工程问题：`<style>` 块被微信吃掉导致版式全塌、`radio + :checked` 做的 tab 在编辑器里失效后两个面板同时亮、base64 图微信正文不接收、图注写在页面上把 1000 字配额啃掉 40-70 字、标题用 `<br>` 换行在微信端渲染不一致。
+
+五条硬约束全部可验证：
+
+- **篇幅**：页面正文 ≤1000 中文字（目标 500），`[\u4e00-\u9fff]` 正则计数，先写 1000 再砍到 500
+- **标题**：单行 ≤12 字，爆炸点是反常识/反差/数字冲突，渲染后量 `h1` 高度 / 行高 = 1
+- **章节**：编号徽章 01 + 论点式短名（≤10 字），固定四幕递进：是什么 → 变了什么 → 卡在哪 → 一句话带走
+- **图注**：画进图片底部 84px 深蓝条**左侧**，品牌水印在**右侧**同一行；页面无图注 div、无「图一/图二」
+- **结尾**：无品牌口号行，最后一幕「一句话带走」给全文唯一要记住的那句
+
+最有价值的一条踩坑：占位符写成 `<img {{IMG1}}>` 而不是 `<img src="{{IMG1}}">`，替换后 data URI 变成一个无值属性，`src` 根本不存在——图不是破图，而是变成**一条 2px 带描边的细线**，肉眼像分隔线。`img` 计数、`data:` 计数、外链布尔全部正常，**只有实渲染截图能抓到**。这条现在已经是 `build.py` 的固定检查项。
+
+- 技能目录：[`workbuddy/skill/eli5a/`](./workbuddy/skill/eli5a/)
+- 使用说明：[`workbuddy/skill/eli5a/README.md`](./workbuddy/skill/eli5a/README.md)
+- 技能入口：[`workbuddy/skill/eli5a/SKILL.md`](./workbuddy/skill/eli5a/SKILL.md)
+- 踩坑清单：[`workbuddy/skill/eli5a/references/pitfalls.md`](./workbuddy/skill/eli5a/references/pitfalls.md)
+- Wiki 摘要：[`wiki/eli5a.md`](./wiki/eli5a.md)
+
+**它包含什么**：`SKILL.md`（交付标准 + 七步流程 + 四条排版铁律）、4 份 references（风格速查 / 微信红线 / 流水线与校验 / 踩坑清单）、一个 677px 天蓝纸感模板、一个 `build.py`（水印+图注 → 压缩 → base64 内联 → 独立 JPG → 13 项字符级校验），以及三篇成稿拆解加一份可运行样例（`qiyuan-demo.html`，572 字 / 4 图 / 384 KB）。
 
 ---
 
