@@ -22,7 +22,7 @@ aiskillhub/
 │       ├── cdpfetch/
 │       ├── cleanc/               # Windows C 盘可清理目录扫描与安全清理（v1.0.0）
 │       ├── eli5a/                # ELI5 微信图文：1000 字以内 + 配图 + 单文件 HTML（v1.0.0）
-│       ├── gr-zpj/               # 表单驱动作品集生成（v1.0.0）
+│       ├── zpj/                  # 表单驱动作品集生成（v2.0.0）
 │       └── zaobao/               # 早报三问（hy3 出图版 v6.2）
 ├── gpt/                          # 面向 GPT / ChatGPT 自定义 Skill 的技能
 │   └── skill/
@@ -165,7 +165,7 @@ aiskillhub/
 
 ---
 
-### 表单驱动作品集生成（gr-zpj）
+### 表单驱动作品集生成（zpj）
 
 填一张**离线表单**，当场得到一个离线可用、零依赖的单页作品集 HTML —— 手机、微信、企业微信、钉钉里打开都正常；也可以只用一份 `content.json` 走命令行流水线，进 CI。**两条入口，一份模板**，产出的页面结构逐项等价，这一点由测试断言。
 
@@ -178,13 +178,13 @@ aiskillhub/
 - `<!--HR-->` —— 区块间分隔线，渲染后归一（限定在 `<main>` 内，首尾与重复的一律去掉）；
 - `<!--N-->` —— 章节序号按 DOM 顺序自动编号，不可能与顺序脱钩。
 
-- 技能目录：[`workbuddy/skill/gr-zpj/`](./workbuddy/skill/gr-zpj/)
-- 采集表单：[`workbuddy/skill/gr-zpj/assets/form.html`](./workbuddy/skill/gr-zpj/assets/form.html)
-- 使用说明：[`workbuddy/skill/gr-zpj/README.md`](./workbuddy/skill/gr-zpj/README.md)
-- 技能入口：[`workbuddy/skill/gr-zpj/SKILL.md`](./workbuddy/skill/gr-zpj/SKILL.md)
-- Wiki 摘要：[`wiki/gr-zpj.md`](./wiki/gr-zpj.md)
+- 技能目录：[`workbuddy/skill/zpj/`](./workbuddy/skill/zpj/)
+- 采集表单：[`workbuddy/skill/zpj/assets/form.html`](./workbuddy/skill/zpj/assets/form.html)
+- 使用说明：[`workbuddy/skill/zpj/README.md`](./workbuddy/skill/zpj/README.md)
+- 技能入口：[`workbuddy/skill/zpj/SKILL.md`](./workbuddy/skill/zpj/SKILL.md)
+- Wiki 摘要：[`wiki/zpj.md`](./wiki/zpj.md)
 
-**它包含什么**：一张 711 KB 的离线采集表单（九个区块 + 内嵌模板与示例 + 浏览器端渲染引擎 + 进度/检查面板）、一份 519 行的模板骨架（单一事实来源）、5 个脚本（注入校验 / 演示数据 / 构建 / 五端渲染自检 / 打包）、56 项自动化测试（含「表单生成的页面 vs 命令行构建的页面」逐项比对），以及 4 份 references。开发期抓到三个**不报错、文字全对**的真 bug（资源字典形状错位导致图全破、动态列表行只写 `placeholder` 导致导出全空、分隔线归一未限定 `<main>` 导致删首块后多一条线），三条都已变成硬断言。
+**它包含什么**：一张 723 KB 的离线采集表单（九个区块 + 内嵌模板与示例 + 浏览器端渲染引擎 + 进度/检查面板）、一份 519 行的模板骨架（单一事实来源）、5 个脚本（注入校验 / 演示数据 / 构建 / 五端渲染自检 / 打包）、3 个示例（3 KB 最小可用 / 13 项目满配 / 表单内联版）、62 项自动化测试（含「表单生成的页面 vs 命令行构建的页面」逐项比对），以及 4 份 references。开发期抓到四个**不报错、文字全对**的真 bug（资源字典形状错位导致图全破、动态列表行只写 `placeholder` 导致导出全空、分隔线归一未限定 `<main>` 导致删首块后多一条线、自检把「未配证书 / 二维码」判成失败），四条都已变成硬断言。
 
 ---
 
