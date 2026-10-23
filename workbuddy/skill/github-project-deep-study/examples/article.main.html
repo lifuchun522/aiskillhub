@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>示例文章 · 最小骨架</title>
+<style>
+  :root{--bg:#f6f8fb;--paper:#fff;--ink:#1f2733;--muted:#5b6776;--line:#e4e9f0;
+        --brand:#2f6df6;--feat:#e8590c;--feat-soft:#fff1e6;--code-bg:#0f172a;--code-ink:#e2e8f0}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;font-size:15px;counter-reset:slide;
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  a{color:var(--brand);text-decoration:none}
+  header.hero{max-width:1120px;margin:24px auto;border-radius:20px;padding:46px 42px 38px;
+    background:linear-gradient(135deg,#7c5cff,#2f6df6);color:#fff;box-shadow:0 16px 38px rgba(47,109,246,.30)}
+  header.hero h1{margin:0 0 6px;font-size:30px}
+  header.hero p{margin:4px 0;opacity:.94}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .chip{background:rgba(255,255,255,.18);padding:4px 12px;border-radius:999px;font-size:12.5px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 40px}
+  .toc{position:sticky;top:10px;z-index:60;background:rgba(255,255,255,.94);border:1px solid var(--line);
+    border-radius:14px;padding:10px 12px;margin:0 0 24px;display:flex;gap:8px;flex-wrap:wrap;
+    box-shadow:0 6px 18px rgba(16,24,40,.07)}
+  .toc b{font-size:12.5px;color:var(--muted);align-self:center;padding:0 6px}
+  .toc a{font-size:12.5px;color:#42506b;background:#f7f9fd;border:1px solid #dfe5f0;
+    border-radius:999px;padding:5px 12px;white-space:nowrap}
+  section{position:relative;background:var(--paper);border:1px solid #e4e9f2;border-radius:20px;
+    padding:40px 42px 34px;margin:0 0 30px;overflow:hidden;scroll-margin-top:96px;
+    box-shadow:0 14px 36px rgba(16,24,40,.10),0 2px 6px rgba(16,24,40,.04)}
+  section::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--bar)}
+  section::before{content:counter(slide,decimal-leading-zero);counter-increment:slide;position:absolute;
+    right:28px;top:14px;font-size:62px;font-weight:800;line-height:1;color:#eef2f8;letter-spacing:-3px;
+    pointer-events:none;user-select:none}
+  section>*{position:relative;z-index:1}
+  section:nth-of-type(1){--bar:linear-gradient(90deg,#7c5cff,#2f6df6);--ac:#5b6bd8}
+  section:nth-of-type(2){--bar:linear-gradient(90deg,#7c5cff,#a855f7);--ac:#7c5cff}
+  section:nth-of-type(3){--bar:linear-gradient(90deg,#e8590c,#f59e0b);--ac:#e8590c}
+  section:nth-of-type(4){--bar:linear-gradient(90deg,#0ea5e9,#6366f1);--ac:#0369a1}
+  section h2{font-size:24px;margin:4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px}
+  section h3{font-size:17px;margin:28px 0 10px;padding-left:12px;border-left:4px solid var(--ac,var(--brand))}
+  section h4{font-size:15px;color:#33415c;margin:20px 0 8px}
+  .tag{font-size:11.5px;padding:2px 9px;border-radius:6px;font-weight:600;white-space:nowrap}
+  .tag.prac{background:#e6f7f1;color:#10a37f}
+  .tag.feat{background:var(--feat-soft);color:var(--feat)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f3f6fb;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;
+    overflow:auto;font-size:13px;font-family:Consolas,monospace}
+  .shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0;background:#0b1220}
+  .shot img{display:block;width:100%;height:auto}
+  .shot .cap{background:#0b1220;color:#9fb3c8;font-size:12.5px;padding:8px 12px}
+  .flow{display:flex;flex-direction:column;gap:22px;margin:18px 0 8px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+  .step .no{width:44px;height:44px;border-radius:50%;background:#e8f0fe;border:1.5px solid #4f7fd4;
+    color:#2b6cb0;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .step .act{display:inline-block;background:#eef4ff;border:1px solid #c3d7f2;color:#2b6cb0;
+    border-radius:6px;padding:2px 8px;font-size:12.5px;margin-right:6px}
+  .mindmap-wrap{margin:18px 0 10px;border:1px solid #d8e0ee;border-radius:14px;overflow:hidden;background:#0d1220}
+  .mindmap{display:block;width:100%;height:auto}
+  details.deet{margin:14px 0 6px;border:1px solid #dbe3f0;border-radius:10px;background:#f7f9fd;padding:10px 14px}
+  .mmzoom-t{position:absolute;left:-9999px;opacity:0;width:1px;height:1px;pointer-events:none}
+  .mmzoom-l{display:inline-block;margin:12px 0 2px;cursor:zoom-in;font-size:13px;color:#2b6cb0;
+    border:1px solid #c3d7f2;background:#eef4ff;border-radius:999px;padding:6px 14px}
+  .mmzoom-t:checked ~ .mindmap-wrap{position:fixed;inset:0;z-index:999;margin:0;border-radius:0;
+    border:none;padding:18px 18px 70px;overflow:auto;display:block;background:#0b0f19}
+  .mmzoom-t:checked ~ .mindmap-wrap .mindmap{min-width:1440px;max-width:none;width:100%}
+  .mmzoom-t:checked ~ .mmzoom-l{position:fixed;top:14px;right:18px;z-index:1000;cursor:zoom-out;
+    background:#1b2742;color:#e8eefc}
+  footer{max-width:1120px;margin:0 auto;text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>示例文章 · 最小骨架</h1>
+  <p>演示 build_article.py 如何把章节片段插入、把图片压成 base64 内嵌</p>
+  <div class="meta">
+    <span class="chip">examples/demo-repo</span>
+    <span class="chip">8 域特性树</span>
+    <span class="chip">4 章卡片</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toc">
+    <b>目录</b>
+    <a href="#s1">速览</a><a href="#s2">实战</a><a href="#s5">特性树</a><a href="#s6">三专题</a>
+  </div>
+
+  <section id="s1">
+    <h2>项目速览</h2>
+    <table>
+      <tr><th>项</th><th>值</th></tr>
+      <tr><td>示例仓库</td><td>examples/demo-repo</td></tr>
+      <tr><td>用途</td><td>技能自带夹具，用于验证枚举与构建脚本</td></tr>
+      <tr><td>技术栈</td><td>FastAPI + Streamlit（声明式，不实际启动）</td></tr>
+    </table>
+  </section>
+
+  <section id="s2">
+    <h2><span class="tag prac">实战</span> 枚举与构建</h2>
+    <p>三源枚举从源码拿到 2 组注册表、6 条方法级路由、1 个 UI 入口文件。</p>
+    <pre>python scripts/enum_features.py examples/demo-repo --depth 3</pre>
+  </section>
+
+  <section id="s6">
+    <h2><span class="tag feat">专题</span> 应用场景 / 边界 / 内核</h2>
+    <p>这一段是锚点所在章节，片段会插到它之前。</p>
+  </section>
+</div>
+
+<footer>示例文章 · 结构复用《GitHub 项目学习结构大纲模型》</footer>
+</body>
+</html>

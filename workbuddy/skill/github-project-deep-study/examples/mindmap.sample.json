@@ -1,0 +1,131 @@
+{
+  "title": "特性树 · 思维导图",
+  "subtitle": "8 个域 · 条目全部来自源码枚举与界面实测",
+  "center": {
+    "title": "DemoClip",
+    "sub": "特性树 · 8 域",
+    "foot": "v0.1.0 · 示例数据"
+  },
+  "domains": [
+    {
+      "letter": "A",
+      "name": "文案生成",
+      "sub": "LLM · 3 通道",
+      "needkey": "部分免 Key",
+      "color": "#60a5fa",
+      "children": [
+        "ProviderSpec 注册表 3 项",
+        "openai / deepseek 需 Key",
+        "ollama 本地免 Key",
+        "手填脚本即跳过调用",
+        "关键词自动生成",
+        "统一 OpenAI 兼容适配"
+      ]
+    },
+    {
+      "letter": "B",
+      "name": "配音合成",
+      "sub": "TTS · 3 通道",
+      "needkey": "部分免 Key",
+      "color": "#f472b6",
+      "children": [
+        "edge 系统 TTS（免费）",
+        "azure 语音服务",
+        "elevenlabs 克隆音色",
+        "语速 · 音量可调",
+        "音量归一化",
+        "多语言音色"
+      ]
+    },
+    {
+      "letter": "C",
+      "name": "素材来源",
+      "sub": "2 源可切换",
+      "needkey": "部分免 Key",
+      "color": "#34d399",
+      "children": [
+        "本地素材 local（免 Key）",
+        "pexels 检索需 Key",
+        "路径白名单校验",
+        "并发下载",
+        "时长与分辨率过滤",
+        "缺素材用 ffmpeg 自造"
+      ]
+    },
+    {
+      "letter": "D",
+      "name": "字幕",
+      "sub": "ASR + 断句",
+      "needkey": "免 Key",
+      "color": "#fbbf24",
+      "children": [
+        "本地 ASR 识别",
+        "整句 / 逐词显示",
+        "相似度断句",
+        "字号 · 描边 · 位置",
+        "字体可选",
+        "时间轴对齐配音"
+      ]
+    },
+    {
+      "letter": "E",
+      "name": "背景音乐",
+      "sub": "内置曲库",
+      "needkey": "免 Key",
+      "color": "#a78bfa",
+      "children": [
+        "内置曲库随机取",
+        "指定单曲",
+        "关闭 BGM",
+        "音量独立调节",
+        "原声保留开关",
+        "自定义文件"
+      ]
+    },
+    {
+      "letter": "F",
+      "name": "视频合成",
+      "sub": "ffmpeg 渲染",
+      "needkey": "免 Key",
+      "color": "#22d3ee",
+      "children": [
+        "ffmpeg 拼接渲染",
+        "9:16 / 16:9 / 1:1",
+        "片段时长与转场",
+        "并发渲染",
+        "编码器可选",
+        "产物抽帧验证"
+      ]
+    },
+    {
+      "letter": "G",
+      "name": "接口层",
+      "sub": "5 路径 / 7 端点",
+      "needkey": "免 Key",
+      "color": "#fb923c",
+      "children": [
+        "FastAPI · OpenAPI 3.1",
+        "任务异步提交",
+        "状态查询",
+        "文件下载与流式播放",
+        "Swagger 在线调试",
+        "WebUI 走同一套 API"
+      ]
+    },
+    {
+      "letter": "H",
+      "name": "工程与部署",
+      "sub": "配置 · 存储 · i18n",
+      "needkey": "免 Key",
+      "color": "#94a3b8",
+      "children": [
+        "config.toml 集中配置",
+        "任务目录隔离",
+        "配置备份与恢复",
+        "多语言界面",
+        "Dockerfile + compose",
+        "日志与错误分级"
+      ]
+    }
+  ]
+}

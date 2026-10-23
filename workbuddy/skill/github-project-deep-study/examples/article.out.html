@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>示例文章 · 最小骨架</title>
+<style>
+  :root{--bg:#f6f8fb;--paper:#fff;--ink:#1f2733;--muted:#5b6776;--line:#e4e9f0;
+        --brand:#2f6df6;--feat:#e8590c;--feat-soft:#fff1e6;--code-bg:#0f172a;--code-ink:#e2e8f0}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;font-size:15px;counter-reset:slide;
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  a{color:var(--brand);text-decoration:none}
+  header.hero{max-width:1120px;margin:24px auto;border-radius:20px;padding:46px 42px 38px;
+    background:linear-gradient(135deg,#7c5cff,#2f6df6);color:#fff;box-shadow:0 16px 38px rgba(47,109,246,.30)}
+  header.hero h1{margin:0 0 6px;font-size:30px}
+  header.hero p{margin:4px 0;opacity:.94}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .chip{background:rgba(255,255,255,.18);padding:4px 12px;border-radius:999px;font-size:12.5px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px 40px}
+  .toc{position:sticky;top:10px;z-index:60;background:rgba(255,255,255,.94);border:1px solid var(--line);
+    border-radius:14px;padding:10px 12px;margin:0 0 24px;display:flex;gap:8px;flex-wrap:wrap;
+    box-shadow:0 6px 18px rgba(16,24,40,.07)}
+  .toc b{font-size:12.5px;color:var(--muted);align-self:center;padding:0 6px}
+  .toc a{font-size:12.5px;color:#42506b;background:#f7f9fd;border:1px solid #dfe5f0;
+    border-radius:999px;padding:5px 12px;white-space:nowrap}
+  section{position:relative;background:var(--paper);border:1px solid #e4e9f2;border-radius:20px;
+    padding:40px 42px 34px;margin:0 0 30px;overflow:hidden;scroll-margin-top:96px;
+    box-shadow:0 14px 36px rgba(16,24,40,.10),0 2px 6px rgba(16,24,40,.04)}
+  section::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--bar)}
+  section::before{content:counter(slide,decimal-leading-zero);counter-increment:slide;position:absolute;
+    right:28px;top:14px;font-size:62px;font-weight:800;line-height:1;color:#eef2f8;letter-spacing:-3px;
+    pointer-events:none;user-select:none}
+  section>*{position:relative;z-index:1}
+  section:nth-of-type(1){--bar:linear-gradient(90deg,#7c5cff,#2f6df6);--ac:#5b6bd8}
+  section:nth-of-type(2){--bar:linear-gradient(90deg,#7c5cff,#a855f7);--ac:#7c5cff}
+  section:nth-of-type(3){--bar:linear-gradient(90deg,#e8590c,#f59e0b);--ac:#e8590c}
+  section:nth-of-type(4){--bar:linear-gradient(90deg,#0ea5e9,#6366f1);--ac:#0369a1}
+  section h2{font-size:24px;margin:4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px}
+  section h3{font-size:17px;margin:28px 0 10px;padding-left:12px;border-left:4px solid var(--ac,var(--brand))}
+  section h4{font-size:15px;color:#33415c;margin:20px 0 8px}
+  .tag{font-size:11.5px;padding:2px 9px;border-radius:6px;font-weight:600;white-space:nowrap}
+  .tag.prac{background:#e6f7f1;color:#10a37f}
+  .tag.feat{background:var(--feat-soft);color:var(--feat)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f3f6fb;font-weight:600}
+  tr:nth-child(even) td{background:#fafbfd}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:10px;
+    overflow:auto;font-size:13px;font-family:Consolas,monospace}
+  .shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0;background:#0b1220}
+  .shot img{display:block;width:100%;height:auto}
+  .shot .cap{background:#0b1220;color:#9fb3c8;font-size:12.5px;padding:8px 12px}
+  .flow{display:flex;flex-direction:column;gap:22px;margin:18px 0 8px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+  .step .no{width:44px;height:44px;border-radius:50%;background:#e8f0fe;border:1.5px solid #4f7fd4;
+    color:#2b6cb0;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .step .act{display:inline-block;background:#eef4ff;border:1px solid #c3d7f2;color:#2b6cb0;
+    border-radius:6px;padding:2px 8px;font-size:12.5px;margin-right:6px}
+  .mindmap-wrap{margin:18px 0 10px;border:1px solid #d8e0ee;border-radius:14px;overflow:hidden;background:#0d1220}
+  .mindmap{display:block;width:100%;height:auto}
+  details.deet{margin:14px 0 6px;border:1px solid #dbe3f0;border-radius:10px;background:#f7f9fd;padding:10px 14px}
+  .mmzoom-t{position:absolute;left:-9999px;opacity:0;width:1px;height:1px;pointer-events:none}
+  .mmzoom-l{display:inline-block;margin:12px 0 2px;cursor:zoom-in;font-size:13px;color:#2b6cb0;
+    border:1px solid #c3d7f2;background:#eef4ff;border-radius:999px;padding:6px 14px}
+  .mmzoom-t:checked ~ .mindmap-wrap{position:fixed;inset:0;z-index:999;margin:0;border-radius:0;
+    border:none;padding:18px 18px 70px;overflow:auto;display:block;background:#0b0f19}
+  .mmzoom-t:checked ~ .mindmap-wrap .mindmap{min-width:1440px;max-width:none;width:100%}
+  .mmzoom-t:checked ~ .mmzoom-l{position:fixed;top:14px;right:18px;z-index:1000;cursor:zoom-out;
+    background:#1b2742;color:#e8eefc}
+  footer{max-width:1120px;margin:0 auto;text-align:center;color:var(--muted);font-size:12.5px;padding:20px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>示例文章 · 最小骨架</h1>
+  <p>演示 build_article.py 如何把章节片段插入、把图片压成 base64 内嵌</p>
+  <div class="meta">
+    <span class="chip">examples/demo-repo</span>
+    <span class="chip">8 域特性树</span>
+    <span class="chip">4 章卡片</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toc">
+    <b>目录</b>
+    <a href="#s1">速览</a><a href="#s2">实战</a><a href="#s5">特性树</a><a href="#s6">三专题</a>
+  </div>
+
+  <section id="s1">
+    <h2>项目速览</h2>
+    <table>
+      <tr><th>项</th><th>值</th></tr>
+      <tr><td>示例仓库</td><td>examples/demo-repo</td></tr>
+      <tr><td>用途</td><td>技能自带夹具，用于验证枚举与构建脚本</td></tr>
+      <tr><td>技术栈</td><td>FastAPI + Streamlit（声明式，不实际启动）</td></tr>
+    </table>
+  </section>
+
+  <section id="s2">
+    <h2><span class="tag prac">实战</span> 枚举与构建</h2>
+    <p>三源枚举从源码拿到 2 组注册表、6 条方法级路由、1 个 UI 入口文件。</p>
+    <pre>python scripts/enum_features.py examples/demo-repo --depth 3</pre>
+  </section>
+
+<!-- 章节片段示例：复制进写文章流程，由 build_article.py 插入主 HTML。
+     要点：① section 不加内联样式，配色由 nth-of-type 决定 ② 图片用 IMG_* 占位符
+     ③ 图注写清来源 ④ 面向最终读者，不写「本次实测」这类自述 -->
+<section id="s5">
+  <h2><span class="tag feat">特性探索</span> 4. 特性树：八域全景</h2>
+
+  <p>把项目能力按固定八域切开，每域只回答三件事：<b>有哪些选项</b>、<b>哪些要外部 Key</b>、<b>哪些纯本地可跑</b>。
+  绿色条目代表不需要任何付费凭据即可使用。</p>
+
+  <input type="checkbox" id="mmzoom" class="mmzoom-t">
+  <label for="mmzoom" class="mmzoom-l">🔍 点击放大查看导图</label>
+  <div class="mindmap-wrap">
+    <!-- 由 scripts/gen_mindmap.py 生成的 SVG 原样内联到这里 -->
+    <svg class="mindmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 862" width="100%" style="max-width:1800px;height:auto;display:block;margin:0 auto" font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif">
+  <rect width="1800" height="862" fill="#0d1220" rx="16"/>
+  <text x="900.0" y="54.0" fill="#e8eefc" font-size="30" font-weight="700" text-anchor="middle">特性树 · 思维导图</text>
+  <text x="900.0" y="84.0" fill="#8fa0bf" font-size="15.5" font-weight="400" text-anchor="middle">8 个域 · 条目全部来自源码枚举与界面实测</text>
+  <rect x="717.0" y="421.0" width="366.0" height="96.0" rx="18" fill="#1b2742" stroke="#4f7fd4" stroke-width="2.0"/>
+  <text x="900.0" y="456.0" fill="#e8eefc" font-size="23.5" font-weight="700" text-anchor="middle">DemoClip</text>
+  <text x="900.0" y="488.0" fill="#7fb0ff" font-size="15.5" font-weight="400" text-anchor="middle">特性树 · 8 域</text>
+  <text x="900.0" y="539.0" fill="#8fa0bf" font-size="12.5" font-weight="400" text-anchor="middle">v0.1.0 · 示例数据</text>
+  <path d="M 717.0 469.0 C 669.0 469.0 669.0 153.0 621.0 153.0" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="40.0" y="116.0" width="581.0" height="190.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="48.0" y="130.0" width="6.0" height="162.0" rx="3" fill="#60a5fa"/>
+  <rect x="66.0" y="138.0" width="34.0" height="34.0" rx="17" fill="#60a5fa"/>
+  <text x="83.0" y="156.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">A</text>
+  <text x="114.0" y="152.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">文案生成</text>
+  <text x="208.7" y="153.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">LLM · 3 通道</text>
+  <rect x="508.2" y="142.0" width="88.8" height="24.0" rx="12" fill="#0f1626" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="552.6" y="154.0" fill="#fbbf24" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">部分免 Key</text>
+  <rect x="66.0" y="192.0" width="208.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="203.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">ProviderSpec 注册表 3 项</text>
+  <rect x="283.5" y="192.0" width="212.6" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="295.5" y="203.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">openai / deepseek 需 Key</text>
+  <rect x="66.0" y="224.0" width="155.1" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="235.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">ollama 本地免 Key</text>
+  <rect x="230.1" y="224.0" width="154.8" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="242.1" y="235.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">手填脚本即跳过调用</text>
+  <rect x="393.9" y="224.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="405.9" y="235.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">关键词自动生成</text>
+  <rect x="66.0" y="256.0" width="174.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="267.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">统一 OpenAI 兼容适配</text>
+  <path d="M 717.0 469.0 C 669.0 469.0 669.0 357.0 621.0 357.0" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="40.0" y="320.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="48.0" y="334.0" width="6.0" height="130.0" rx="3" fill="#f472b6"/>
+  <rect x="66.0" y="342.0" width="34.0" height="34.0" rx="17" fill="#f472b6"/>
+  <text x="83.0" y="360.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">B</text>
+  <text x="114.0" y="356.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">配音合成</text>
+  <text x="208.7" y="357.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">TTS · 3 通道</text>
+  <rect x="508.2" y="346.0" width="88.8" height="24.0" rx="12" fill="#0f1626" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="552.6" y="358.0" fill="#fbbf24" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">部分免 Key</text>
+  <rect x="66.0" y="396.0" width="182.3" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="407.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">edge 系统 TTS（免费）</text>
+  <rect x="257.3" y="396.0" width="130.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="269.3" y="407.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">azure 语音服务</text>
+  <rect x="396.5" y="396.0" width="169.4" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="408.5" y="407.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">elevenlabs 克隆音色</text>
+  <rect x="66.0" y="428.0" width="135.3" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="439.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">语速 · 音量可调</text>
+  <rect x="210.3" y="428.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="222.3" y="439.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">音量归一化</text>
+  <rect x="316.9" y="428.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="328.9" y="439.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">多语言音色</text>
+  <path d="M 717.0 469.0 C 669.0 469.0 669.0 529.0 621.0 529.0" fill="none" stroke="#34d399" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="40.0" y="492.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="48.0" y="506.0" width="6.0" height="130.0" rx="3" fill="#34d399"/>
+  <rect x="66.0" y="514.0" width="34.0" height="34.0" rx="17" fill="#34d399"/>
+  <text x="83.0" y="532.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">C</text>
+  <text x="114.0" y="528.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">素材来源</text>
+  <text x="208.7" y="529.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">2 源可切换</text>
+  <rect x="508.2" y="518.0" width="88.8" height="24.0" rx="12" fill="#0f1626" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="552.6" y="530.0" fill="#fbbf24" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">部分免 Key</text>
+  <rect x="66.0" y="568.0" width="204.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="579.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">本地素材 local（免 Key）</text>
+  <rect x="279.5" y="568.0" width="155.1" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="291.5" y="579.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">pexels 检索需 Key</text>
+  <rect x="443.5" y="568.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="455.5" y="579.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">路径白名单校验</text>
+  <rect x="66.0" y="600.0" width="83.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="611.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">并发下载</text>
+  <rect x="158.2" y="600.0" width="140.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="170.2" y="611.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">时长与分辨率过滤</text>
+  <rect x="307.7" y="600.0" width="174.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="319.7" y="611.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">缺素材用 ffmpeg 自造</text>
+  <path d="M 717.0 469.0 C 669.0 469.0 669.0 701.0 621.0 701.0" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="40.0" y="664.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="48.0" y="678.0" width="6.0" height="130.0" rx="3" fill="#fbbf24"/>
+  <rect x="66.0" y="686.0" width="34.0" height="34.0" rx="17" fill="#fbbf24"/>
+  <text x="83.0" y="704.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">D</text>
+  <text x="114.0" y="700.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">字幕</text>
+  <text x="167.3" y="701.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">ASR + 断句</text>
+  <rect x="534.8" y="690.0" width="62.2" height="24.0" rx="12" fill="#0f1626" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="565.9" y="702.0" fill="#4ade80" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">免 Key</text>
+  <rect x="66.0" y="740.0" width="122.4" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="751.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">本地 ASR 识别</text>
+  <rect x="197.4" y="740.0" width="135.3" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="209.4" y="751.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">整句 / 逐词显示</text>
+  <rect x="341.7" y="740.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="353.7" y="751.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">相似度断句</text>
+  <rect x="66.0" y="772.0" width="158.8" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="78.0" y="783.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">字号 · 描边 · 位置</text>
+  <rect x="233.8" y="772.0" width="83.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="245.8" y="783.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">字体可选</text>
+  <rect x="326.1" y="772.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="338.1" y="783.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">时间轴对齐配音</text>
+  <path d="M 1083.0 469.0 C 1131.0 469.0 1131.0 169.0 1179.0 169.0" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="1179.0" y="132.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="1746.0" y="146.0" width="6.0" height="130.0" rx="3" fill="#a78bfa"/>
+  <rect x="1205.0" y="154.0" width="34.0" height="34.0" rx="17" fill="#a78bfa"/>
+  <text x="1222.0" y="172.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">E</text>
+  <text x="1253.0" y="168.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">背景音乐</text>
+  <text x="1347.7" y="169.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">内置曲库</text>
+  <rect x="1673.8" y="158.0" width="62.2" height="24.0" rx="12" fill="#0f1626" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="1704.9" y="170.0" fill="#4ade80" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">免 Key</text>
+  <rect x="1205.0" y="208.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="219.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">内置曲库随机取</text>
+  <rect x="1340.2" y="208.0" width="83.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1352.2" y="219.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">指定单曲</text>
+  <rect x="1432.4" y="208.0" width="85.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1444.4" y="219.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">关闭 BGM</text>
+  <rect x="1527.4" y="208.0" width="111.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1539.4" y="219.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">音量独立调节</text>
+  <rect x="1205.0" y="240.0" width="111.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="251.5" fill="#4ade80" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">原声保留开关</text>
+  <rect x="1325.9" y="240.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1337.9" y="251.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">自定义文件</text>
+  <path d="M 1083.0 469.0 C 1131.0 469.0 1131.0 341.0 1179.0 341.0" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="1179.0" y="304.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="1746.0" y="318.0" width="6.0" height="130.0" rx="3" fill="#22d3ee"/>
+  <rect x="1205.0" y="326.0" width="34.0" height="34.0" rx="17" fill="#22d3ee"/>
+  <text x="1222.0" y="344.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">F</text>
+  <text x="1253.0" y="340.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">视频合成</text>
+  <text x="1347.7" y="341.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">ffmpeg 渲染</text>
+  <rect x="1673.8" y="330.0" width="62.2" height="24.0" rx="12" fill="#0f1626" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="1704.9" y="342.0" fill="#4ade80" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">免 Key</text>
+  <rect x="1205.0" y="380.0" width="138.1" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="391.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">ffmpeg 拼接渲染</text>
+  <rect x="1352.0" y="380.0" width="159.1" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1364.0" y="391.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">9:16 / 16:9 / 1:1</text>
+  <rect x="1520.2" y="380.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1532.2" y="391.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">片段时长与转场</text>
+  <rect x="1205.0" y="412.0" width="83.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="423.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">并发渲染</text>
+  <rect x="1297.2" y="412.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1309.2" y="423.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">编码器可选</text>
+  <rect x="1403.8" y="412.0" width="111.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1415.8" y="423.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">产物抽帧验证</text>
+  <path d="M 1083.0 469.0 C 1131.0 469.0 1131.0 513.0 1179.0 513.0" fill="none" stroke="#fb923c" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="1179.0" y="476.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="1746.0" y="490.0" width="6.0" height="130.0" rx="3" fill="#fb923c"/>
+  <rect x="1205.0" y="498.0" width="34.0" height="34.0" rx="17" fill="#fb923c"/>
+  <text x="1222.0" y="516.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">G</text>
+  <text x="1253.0" y="512.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">接口层</text>
+  <text x="1327.0" y="513.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">5 路径 / 7 端点</text>
+  <rect x="1673.8" y="502.0" width="62.2" height="24.0" rx="12" fill="#0f1626" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="1704.9" y="514.0" fill="#4ade80" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">免 Key</text>
+  <rect x="1205.0" y="552.0" width="190.4" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="563.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">FastAPI · OpenAPI 3.1</text>
+  <rect x="1404.4" y="552.0" width="111.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1416.4" y="563.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">任务异步提交</text>
+  <rect x="1525.3" y="552.0" width="83.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1537.3" y="563.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">状态查询</text>
+  <rect x="1205.0" y="584.0" width="154.8" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="595.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">文件下载与流式播放</text>
+  <rect x="1368.8" y="584.0" width="145.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1380.8" y="595.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">Swagger 在线调试</text>
+  <rect x="1523.7" y="584.0" width="161.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1535.7" y="595.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">WebUI 走同一套 API</text>
+  <path d="M 1083.0 469.0 C 1131.0 469.0 1131.0 685.0 1179.0 685.0" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-opacity="0.62"/>
+  <rect x="1179.0" y="648.0" width="581.0" height="158.0" rx="14" fill="#161d2e" stroke="#263048" stroke-width="1.2"/>
+  <rect x="1746.0" y="662.0" width="6.0" height="130.0" rx="3" fill="#94a3b8"/>
+  <rect x="1205.0" y="670.0" width="34.0" height="34.0" rx="17" fill="#94a3b8"/>
+  <text x="1222.0" y="688.0" fill="#0d1220" font-size="19" font-weight="700" text-anchor="middle" dominant-baseline="central">H</text>
+  <text x="1253.0" y="684.0" fill="#e8eefc" font-size="19.5" font-weight="700" text-anchor="start" dominant-baseline="central">工程与部署</text>
+  <text x="1368.3" y="685.0" fill="#8fa0bf" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">配置 · 存储 · i18n</text>
+  <rect x="1673.8" y="674.0" width="62.2" height="24.0" rx="12" fill="#0f1626" stroke="#4ade80" stroke-width="1.2"/>
+  <text x="1704.9" y="686.0" fill="#4ade80" font-size="12.5" font-weight="400" text-anchor="middle" dominant-baseline="central">免 Key</text>
+  <rect x="1205.0" y="724.0" width="177.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="735.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">config.toml 集中配置</text>
+  <rect x="1391.2" y="724.0" width="111.9" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1403.2" y="735.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">任务目录隔离</text>
+  <rect x="1512.1" y="724.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1524.1" y="735.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">配置备份与恢复</text>
+  <rect x="1205.0" y="756.0" width="97.5" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1217.0" y="767.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">多语言界面</text>
+  <rect x="1311.5" y="756.0" width="182.6" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1323.5" y="767.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">Dockerfile + compose</text>
+  <rect x="1503.1" y="756.0" width="126.2" height="23.0" rx="11" fill="#1e2740" stroke="#2f3a56" stroke-width="1.0"/>
+  <text x="1515.1" y="767.5" fill="#c7d2e8" font-size="13.5" font-weight="400" text-anchor="start" dominant-baseline="central">日志与错误分级</text>
+</svg>
+  </div>
+
+  <h3>4.1 特性矩阵</h3>
+  <table>
+    <tr><th>域</th><th>能力</th><th>需外部 Key</th><th>实测结果</th></tr>
+    <tr><td>A 文案</td><td>手填脚本跳过 LLM</td><td>否</td><td>通过</td></tr>
+    <tr><td>B 配音</td><td>edge 系统 TTS</td><td>否</td><td>通过</td></tr>
+    <tr><td>C 素材</td><td>本地素材目录</td><td>否</td><td>通过</td></tr>
+  </table>
+
+  <h3>4.2 用户视角操作步骤</h3>
+  <div class="flow">
+    <div class="step">
+      <div class="no">1</div>
+      <div class="body">
+        <h4>填主题与脚本</h4>
+        <p><span class="act">操作</span>在「视频主题」填入一句话，在「视频脚本」粘贴 4 句口播稿。</p>
+        <div class="shot">
+          <img src="data:image/png;base64,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" alt="表单填写完成">
+          <div class="cap">图 4-1 脚本与关键词填写完成后的界面状态（来源：本地 WebUI 首屏）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <details class="deet">
+    <summary>展开完整枚举明细（共 43 条）</summary>
+    <pre>A 文案生成 · 6 条
+B 配音合成 · 6 条
+...</pre>
+  </details>
+</section>
+
+  <section id="s6">
+    <h2><span class="tag feat">专题</span> 应用场景 / 边界 / 内核</h2>
+    <p>这一段是锚点所在章节，片段会插到它之前。</p>
+  </section>
+</div>
+
+<footer>示例文章 · 结构复用《GitHub 项目学习结构大纲模型》</footer>
+</body>
+</html>

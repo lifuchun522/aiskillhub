@@ -1,0 +1,21 @@
+# DemoClip 配置示例 —— Key 问题单里的字段名必须从这里的注释抄，不能自己编
+# 复制为 config.toml 后生效；config.toml 必须在 .gitignore 内
+
+[app]
+video_source = "local"        # local | pexels | pixabay
+voice_name = "edge-zh-CN-Xiaoxiao"   # edge-* 免 Key
+
+[llm]
+# 官方申请地址：https://platform.openai.com/api-keys
+openai_api_key = ""
+# 本地 Ollama 可完全跳过 Key：base_url = "http://127.0.0.1:11434/v1"
+llm_provider = "openai"
+
+[tts]
+# Azure 语音申请地址：https://portal.azure.com → 语音服务 → 密钥
+azure_speech_key = ""
+azure_speech_region = ""
+
+[material]
+# Pexels 申请地址：https://www.pexels.com/api/
+pexels_api_keys = []
