@@ -18,6 +18,7 @@ aiskillhub/
 │   └── skill/                    # 通用 Skill（标准 SKILL.md 规范）
 │       ├── wechat-article-workflow/
 │       ├── aicheck/
+│       ├── d12/                  # 交付前十二项门禁（宿主无关版 v1.0.0）
 │       ├── cdpfetch/
 │       ├── cleanc/               # Windows C 盘可清理目录扫描与安全清理（v1.0.0）
 │       ├── gr-zpj/               # 表单驱动作品集生成（v1.0.0）
@@ -68,6 +69,28 @@ aiskillhub/
 - 使用说明：[`workbuddy/skill/aicheck/README.md`](./workbuddy/skill/aicheck/README.md)
 - 技能入口：[`workbuddy/skill/aicheck/SKILL.md`](./workbuddy/skill/aicheck/SKILL.md)
 - 可视化导读：[`workbuddy/skill/aicheck/aicheck-guide.html`](./workbuddy/skill/aicheck/aicheck-guide.html)
+
+---
+
+### 交付前十二项门禁（d12）
+
+同一套 D1–D12 门禁的**宿主无关可移植版**：不绑定任何平台的工具名，措辞里不出现「调用 Skill 工具」这类专属表述。四个宿主（WorkBuddy / Cursor / Claude Code / Codex）共用同一份 `SKILL.md`，差别只在两件事——**怎么算真加载**、**常开规则写在哪**。
+
+它解决的是**能力足够却主动降级**：四起真实返工里没有一起报错，全是「做不到却写成做完了」。最危险的不是「忘了做」，是**用一句合规声明掩盖没做**：
+
+- **D5 尾巴豁免** —— 正文审过，最后一句写「这两步不阻塞当前」；而「已过门禁」的声明只覆盖正文，尾巴被发了免检通行证
+- **D12 先盖章后干活** —— 回合开头先加载技能，干活，再宣称已审。那是盖章，不是拦截：审的是「计划要发的内容」，不是「实际要发的最终内容」
+- **D11 语言后门** —— 写规则时预埋「不得为某目的而…」这类动机条件式禁止，等于给自己留一个「我目的不是 X」的开脱钩子
+
+配套三份 references（逐项手册 / 四宿主接线 / 四起事故复盘）与三份 examples（合格快照 ×3 / 命中→返工→重跑全过程）。
+
+- 技能目录：[`workbuddy/skill/d12/`](./workbuddy/skill/d12/)
+- 使用说明：[`workbuddy/skill/d12/README.md`](./workbuddy/skill/d12/README.md)
+- 技能入口：[`workbuddy/skill/d12/SKILL.md`](./workbuddy/skill/d12/SKILL.md)
+- 逐项手册：[`workbuddy/skill/d12/references/gates.md`](./workbuddy/skill/d12/references/gates.md)
+- Wiki 摘要：[`wiki/d12.md`](./wiki/d12.md)
+
+**它包含什么**：一份宿主无关的 `SKILL.md`（加载契约 + 十二门禁 + 快照格式 + 返工四步 + 五条常见误用）、逐项检查手册（查什么/命中信号/证据要求/常见误判）、四宿主可直接粘贴的常开规则片段与五个接线陷阱、四起真实返工复盘，以及三份可直接照抄的快照样例。
 
 ---
 
