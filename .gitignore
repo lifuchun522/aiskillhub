@@ -19,3 +19,5 @@ Thumbs.db
 
 # 产物（技能运行时生成）
 *.log
+# 例外：cleanc 技能 examples 下的样例日志是文档，需要随仓库提交
+!workbuddy/skill/cleanc/examples/*.log

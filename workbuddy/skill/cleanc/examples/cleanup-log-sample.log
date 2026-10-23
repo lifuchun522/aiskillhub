@@ -1,0 +1,58 @@
+========================================================================================
+ cleanc APPLY（实际清理）   任务 20261021_123447_ffe701   开始 2026-10-21 12:34:47
+ 主机 C:\Users\Carter.li
+ 执行权限：普通用户（ProgramData/受保护目录会失败，需提权）
+ 待处理 4 个目录，清理前合计 20101.6 MB
+ C 盘可用（清理前）1625.4 MB
+========================================================================================
+
+▶ 目录：C:\Users\Carter.li\AppData\Local\Temp
+  执行指令：Get-ChildItem -LiteralPath "C:\Users\Carter.li\AppData\Local\Temp" -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+  清理前：17978.1 MB（256 个文件）
+  清理后：12.3 MB    释放：17965.8 MB    状态：OK
+
+▶ 目录：C:\Users\Carter.li\AppData\Local\uv\cache
+  执行指令：Get-ChildItem -LiteralPath "C:\Users\Carter.li\AppData\Local\uv\cache" -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+  清理前：891.1 MB（182 个文件）
+  清理后：0.0 MB    释放：891.1 MB    状态：OK
+
+▶ 目录：C:\Users\Carter.li\AppData\Roaming\Cursor\logs
+  执行指令：Get-ChildItem -LiteralPath "C:\Users\Carter.li\AppData\Roaming\Cursor\logs" -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+  清理前：24.5 MB（84 个文件）
+  清理后：24.5 MB    释放：0.0 MB    状态：BLOCKED(删除未生效)
+  未生效：删除调用正常返回，但复核发现仍有 84 个文件、24.5 MB 未下降 —— 操作被本机批量删除保护静默忽略。
+  处置方式 —— 二选一：
+   A. 用你自己的终端执行（推荐，一定可行）：
+        PowerShell: Remove-Item -LiteralPath "C:\Users\Carter.li\AppData\Roaming\Cursor\logs" -Recurse -Force
+        cmd:        rmdir /s /q "C:\Users\Carter.li\AppData\Roaming\Cursor\logs" && mkdir "C:\Users\Carter.li\AppData\Roaming\Cursor\logs"
+   B. 双击运行 启动cleanc服务.bat，让服务在你自己的会话中启动，再回到页面点击清理。
+
+▶ 目录：C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log
+  执行指令：Get-ChildItem -LiteralPath "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log" -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+  清理前：91.2 MB（12 个文件）
+  清理后：88.0 MB    释放：3.2 MB    状态：PARTIAL
+  未能删除 1 项，示例：C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log\idea.log
+  原因：文件被其他进程占用，或当前账户无删除权限
+  处置方式（自行选择其一，复制到 【管理员 PowerShell】 执行）：
+   A. 先提权接管再重试本页清理：
+        takeown /f "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log" /r /d y
+        icacls "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log" /grant "Carter.li":F /t
+   B. 直接强制删除等价指令：
+        PowerShell: Remove-Item -LiteralPath "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log" -Recurse -Force
+        cmd:        rmdir /s /q "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log" && mkdir "C:\Users\Carter.li\AppData\Local\JetBrains\IntelliJIdea2025.3\log"
+   C. 若为进程占用：先关闭对应程序（浏览器 / IDE / 钉钉 / 飞书 / Docker），再重试。
+
+----------------------------------------------------------------------------------------
+ 汇总：清理前 20101.6 MB → 清理后 2118.8 MB，节约 17982.8 MB（17.56 GB）
+ C 盘可用：1625.4 MB → 19408.2 MB（增加 17782.8 MB）
+ 需人工处理 2 项，见上方各项的处置命令。
+========================================================================================
+
+# 状态速查（出现在每行「状态：」之后）
+#   OK                          删除成功且删后复查体积下降
+#   DRY-RUN                     预演，未删除（clean 不加 --apply）
+#   PARTIAL                     部分文件被占用/无权限，其余已删
+#   FAIL                        整体失败（目录不可列 / 单文件删失败）
+#   BLOCKED(删除未生效)         调用成功返回但复查体积未降 —— 被批量删除保护静默忽略
+#   TIMEOUT(批量删除被拦截)     删除调用超过看门狗时限未返回
+#   SKIP(安全拦截)              命中 NO_GO 或不在本次授权集合内

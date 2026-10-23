@@ -160,5 +160,6 @@ python selftest.py --port 8848
 | `scripts/selftest.py` | 端到端自检 37 断言，全 dry-run |
 | `scripts/启动cleanc服务.bat` | 推荐启动方式（CRLF 换行） |
 | `tests/verify_browser.py` | 可选：真实浏览器实跑验证（需 playwright） |
+| `examples/` | 样例：扫描 JSON / 清理日志 / CLI 菜谱，含字段速查与复现方法 |
 
 更多细节以仓库内 `SKILL.md` 与 `references/usage-windows.md` 为准。

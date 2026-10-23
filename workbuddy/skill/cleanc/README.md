@@ -119,7 +119,22 @@ cleanc/
 └── references/
     ├── safety.md               # 安全边界与逐条允许/禁止清单
     └── usage-windows.md        # 完整使用文档：页面 / CLI / 失败处置 / FAQ
+└── examples/                   # 样例：扫描 JSON / 清理日志 / CLI 菜谱
+    ├── README.md               # 样例索引与字段速查
+    ├── scan-sample.json        # 真实结构的扫描结果样例（12 项）
+    ├── cleanup-log-sample.log  # 覆盖 OK/DRY-RUN/PARTIAL/BLOCKED 的清理日志样例
+    └── cli-cookbook.md         # CLI 命令菜谱，每条带预期输出
 ```
+
+## 例子（examples）
+
+不想真删文件也能看懂输入输出，直接看 `examples/`：
+
+- [`examples/scan-sample.json`](examples/scan-sample.json) — `scan --json out.json` 的产物样例，字段与线上一致。
+- [`examples/cleanup-log-sample.log`](examples/cleanup-log-sample.log) — 一份清理任务日志，覆盖 `OK` / `DRY-RUN` / `PARTIAL` / `BLOCKED(删除未生效)` 等状态，以及命中批量删除保护、进程占用时的处置命令。
+- [`examples/cli-cookbook.md`](examples/cli-cookbook.md) — 扫描 / 发现新目录 / dry-run / 真删 / 网页自检 / 中风险命令，每条带预期输出。
+
+字段速查与复现方法见 [`examples/README.md`](examples/README.md)。
 
 ## 验证
 
