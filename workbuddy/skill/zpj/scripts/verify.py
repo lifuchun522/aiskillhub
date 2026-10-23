@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 端到端自检（Playwright）
+"""zpj · 端到端自检（Playwright）
 
 对构建产物做**程序化**校验，不靠人眼看截图：
 
@@ -57,11 +57,17 @@ PROFILES = [
     ("iPhone 企业微信 320", 320, 568, UA_WECOM_IOS, True),
 ]
 
+# (标签, 子元素选择器, 容器选择器)。第三个非空 = 可选区块：容器里一个子项都没有时，
+# 这块本来就不该出现（没配证书 / 二维码），跳过而非判缺。
 KEY_BLOCKS = [
-    ("导航", ".nav"), ("名片", ".hero-card img"), ("数据指标", ".metrics div"),
-    ("自述", ".intro"), ("能力支柱", ".pillar"), ("项目卡", ".p-card"),
-    ("技术栈", "#stack .st"), ("时间线", ".tl-item"), ("证书", ".cert"), ("二维码", ".qr"),
+    ("导航", ".nav", None), ("名片", ".hero-card img", None), ("数据指标", ".metrics div", None),
+    ("自述", ".intro", None), ("能力支柱", ".pillar", None), ("项目卡", ".p-card", None),
+    ("技术栈", "#stack .st", None), ("时间线", ".tl-item", None),
+    ("证书", ".cert", ".certs"), ("二维码", ".qr", ".qrs"),
 ]
+
+# 这两个计数允许为 0：没配证书 / 二维码时，对应网格整块不渲染
+OPTIONAL_STATS = ("certs", "qrs")
 
 RESIDUE = [
     ("模板 token", re.compile(r"\{\{[A-Z0-9_]+\}\}")),
@@ -132,6 +138,9 @@ def main():
             anchors:document.querySelectorAll('main section[id], header [id]').length
         })""")
         for k, v in stats.items():
+            if k in OPTIONAL_STATS and not v:
+                print("  %-34s SKIP 0（未配，区块整块不出现）" % ("计数 " + k))
+                continue
             check("计数 " + k, v > 0, str(v))
         # 数据条列数必须等于条数，否则末尾会留空列
         mc = pg.evaluate("""()=>{const m=document.querySelector('.metrics');
@@ -292,9 +301,13 @@ def main():
                       "scrollW=%d clientW=%d%s" % (sw, cw, (" err=" + str(merrs[:1])) if merrs else ""))
                 probe = mp.evaluate("""(blocks)=>{
                     const bad = [];
-                    for (const [label, sel] of blocks){
+                    for (const [label, sel, box] of blocks){
                         const el = document.querySelector(sel);
-                        if (!el){ bad.push(label + ':缺'); continue; }
+                        if (!el){
+                            // 可选区块：容器在但没有任何子项 —— 没配数据，本就该没有
+                            if (box && !(document.querySelector(box + ' > *'))) continue;
+                            bad.push(label + ':缺'); continue;
+                        }
                         const r = el.getBoundingClientRect();
                         if (r.width > document.documentElement.clientWidth + 1)
                             bad.push(label + ':溢出' + Math.round(r.width));

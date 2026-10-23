@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 资产一致性单测
+"""zpj · 资产一致性单测
 
 「表单里内联的模板 / 示例数据」与「命令行用的 assets/template.html /
 examples/demo-content.json」是同一份东西的两处存放 —— 这个文件守着它们不许漂移。

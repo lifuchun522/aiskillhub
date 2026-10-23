@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 把 assets/template.html 与 examples/demo-content.json 注入 assets/form.html
+"""zpj · 把 assets/template.html 与 examples/demo-content.json 注入 assets/form.html
 
 为什么要同步而不是让表单去读文件？
   表单必须在 file:// 下双击可用 —— fetch/XHR 读本地文件会被浏览器的同源策略拦掉。

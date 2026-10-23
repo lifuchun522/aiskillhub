@@ -1,12 +1,12 @@
-# gr-zpj｜表单驱动作品集生成（v1.1.0）
+# zpj｜表单驱动作品集生成（v2.0.0）
 
 > 填一张表，当场得到一个**离线可用、零依赖**的单页作品集 HTML —— 手机、微信、企业微信、钉钉里打开都正常；也可以只用一份 `content.json` 走命令行流水线，进 CI。
 
-仓库路径：[`workbuddy/skill/gr-zpj/`](https://github.com/lifuchun522/aiskillhub/tree/main/workbuddy/skill/gr-zpj)
+仓库路径：[`workbuddy/skill/zpj/`](https://github.com/lifuchun522/aiskillhub/tree/main/workbuddy/skill/zpj)
 
-采集表单（离线单文件，可直接双击）：[`assets/form.html`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/gr-zpj/assets/form.html)
+采集表单（离线单文件，可直接双击）：[`assets/form.html`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/assets/form.html)
 
-技能规范入口：[`SKILL.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/gr-zpj/SKILL.md) ｜ 概览：[`README.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/gr-zpj/README.md)
+技能规范入口：[`SKILL.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/SKILL.md) ｜ 概览：[`README.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/README.md)
 
 ## 一句话
 
@@ -18,7 +18,7 @@
 
 上一代作品集技能（`jl-zpj`）走的是「简历 PDF → 命令行流水线」，改一次版要按人工纪律同步九处（模板 DOM / 区块占位符 / token 段 / CSS / 手机断点 / 兜底层 / 白名单 / 渲染函数 / 导航与校验计数）。漏一处不报错，只是页面悄悄坏掉。
 
-`gr-zpj` 把这件事换成**声明式标记**，让「删掉一块」不再需要连带改任何地方：
+`zpj` 把这件事换成**声明式标记**，让「删掉一块」不再需要连带改任何地方：
 
 | 每次改版都要问自己的问题 | 本技能的做法 |
 |---|---|
@@ -32,13 +32,14 @@
 | 改文案后旧词真的清干净了吗？ | `verify.py --must / --absent` —— 整页肉眼扫不出来 |
 | 图片要能单独替换，不想每次都重新构建整页？ | 配 `paths.external`，图落到 `img/<项目>/<名>.<ext>`，页面只存相对路径 |
 | 早期项目没留架构图，会不会占一个空图位？ | `fig` 留空即只出文字卡，编号仍连续，不留空占位 |
+| 没配证书 / 二维码，会不会留两个空网格？ | `CREDENTIAL` 区块连同导航项一起下线，序号自动重排（实测 `01…04`） |
 
 ## 安装
 
 ```bash
-cp -r workbuddy/skill/gr-zpj ~/.workbuddy/skills/gr-zpj
+cp -r workbuddy/skill/zpj ~/.workbuddy/skills/zpj
 
-cd ~/.workbuddy/skills/gr-zpj
+cd ~/.workbuddy/skills/zpj
 python -m unittest discover -s tests -t . -v      # 62 项，全绿
 
 # 只有命令行路径与自检需要
@@ -49,6 +50,16 @@ python -m playwright install chromium
 **只走表单路径的话，一个第三方依赖都不用装** —— 双击 `assets/form.html` 就能用。
 
 ## 使用步骤
+
+### 0 · 最小验证（先跑这个）
+
+```bash
+python scripts/build_portfolio.py examples/minimal-content.json --skill-dir . --stats
+python scripts/verify.py "dist/minimal-demo/index.html" --last-section projects
+```
+
+`examples/minimal-content.json` 是 3 KB 的最小可用输入（1 个项目 / 2 段履历 / 2 个能力支柱），
+产物 31 KB HTML + 30 KB 占位名片，用来先确认环境没问题；跑满配再看 `examples/content.json`。
 
 ### 1 · 表单路径（双击就能用）
 
@@ -138,12 +149,12 @@ img/
 ### 单测
 
 ```
-Ran 62 tests in 67.7s
+Ran 62 tests in 43.5s
 
 OK
 ```
 
-分布：构建器 `test_build.py` 34 项 + 资产一致性 `test_sync.py` 9 项 + 浏览器端 `test_browser.py` 19 项。浏览器端 19 项要起 Chromium，耗时随机器负载在 65–100s 间浮动，项数恒为 62。
+分布：构建器 `test_build.py` 34 项 + 资产一致性 `test_sync.py` 9 项 + 浏览器端 `test_browser.py` 19 项。浏览器端 19 项要起 Chromium，耗时随机器负载在 35–100s 间浮动，项数恒为 62。
 
 浏览器端 19 项里最要紧的是**两处渲染一致性（parity）**：把表单生成的页面与命令行构建的页面都灌进浏览器，逐项比对结构计数、章节序号、导航、缩放元素类型序列、可见文本、`<title>`、破图列表。「表单和命令行会不会漂移」从「但愿不会」变成一条可复算的断言。
 
@@ -164,7 +175,7 @@ PASS: 全部检查通过
 
 `cards 13` 但 `主图映射` 只比 6 项 —— 只有 01–06 六个项目留存了架构图；云枢 PaaS、乐心健康云、乐心医生 SaaS、乐心保险中台、跨境电商供应链、第七大道页游平台、游戏官网群这 7 个 `fig` 留空走文字卡，编号仍然连续到 `13`。
 
-`index.html` 从 v1.0.0 的 **2.41 MB 降到 68 KB**，22 张图按项目分到九组落在 `img/` 下。
+`index.html` 从 v1.0.0 的 **2.41 MB 降到 74,690 B（`STATS.bytes` 记 74,033，差 657 = Windows 每行 CRLF +1）**，22 张图按项目分到九组落在 `img/` 下。
 
 ### 同一次运行里，表单路径产物也过同一套自检
 
@@ -184,12 +195,12 @@ PASS: 全部检查通过
 | 现象 | 真根因 | 是靠什么暴露的 |
 |---|---|---|
 | 表单生成的页面**全是破图**，文字与计数全对 | 资源字典形状错位：配置里是 `{key:{src:…}}`，运行时要字符串 `ASSETS[key]`，`el.src` 变成了 `"[object Object]"` | 截图肉眼看出来的；随后补了 `test_form_output_images_all_load` 断言 |
-| 表单看着填满，导出的 JSON 全是空数组 | 动态生成的列表行**只写 `placeholder`、从不写 `value`**，且回填发生在行创建之前 | `window.__grzpj.payload()` 打出来看到 `[['','','']]` |
+| 表单看着填满，导出的 JSON 全是空数组 | 动态生成的列表行**只写 `placeholder`、从不写 `value`**，且回填发生在行创建之前 | `window.__zpj.payload()` 打出来看到 `[['','','']]` |
 | 删掉首个区块后，页面开头凭空多一条分隔线 | 分隔线归一在**整篇 HTML** 上切分，页面前缀（nav / hero）被当成第一个非空片段 | 单测断言 `hr == 区块数 - 1` |
 
 三条的共同点：**不抛异常、不报错，只是页面悄悄错**。这也是为什么这个技能的测试里破图、分隔线数量、序号连续性都是硬断言。
 
-完整测试报告（62 项逐条明细、双路径 `verify.py` 原始输出、P0 bug 复盘、不可判定项清单）：[`TEST-REPORT.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/gr-zpj/TEST-REPORT.md)
+完整测试报告（62 项逐条明细、双路径 `verify.py` 原始输出、P0 bug 复盘、不可判定项清单）：[`TEST-REPORT.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/TEST-REPORT.md)
 
 ## 判不了的部分（一律 NA，不写 PASS）
 
@@ -203,7 +214,9 @@ PASS: 全部检查通过
 | 文件 | 说明 |
 |---|---|
 | `SKILL.md` | 技能规范、触发条件、五条设计原则、模板标记说明、关键注意事项 |
-| `README.md` | 概览、安装、三条使用步骤、实测基线、能力边界 |
+| `README.md` | 概览、30 秒上手、目录结构、三条使用步骤、实测基线、能力边界 |
+| `examples/minimal-content.json` | 3 KB 最小可用输入（1 项目 / 2 段履历），先跑这个 |
+| `examples/README.md` | 三个示例的区别、跑法、改成自己内容的五步 |
 | `assets/form.html` | 采集表单（离线单文件，720 KB：内嵌模板 + 示例 + 浏览器端渲染引擎） |
 | `assets/template.html` | 作品集模板骨架（**单一事实来源**，519 行） |
 | `scripts/sync_assets.py` | 模板 / 示例 → 表单 的注入与一致性校验（`--check` 可入 CI） |
@@ -224,6 +237,7 @@ PASS: 全部检查通过
 
 | 版本 | 变更 |
 |---|---|
+| v2.0.0 | 收敛为单一技能包 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增 3 KB 最小示例 `examples/minimal-content.json` + `examples/README.md`；`verify.py` 修一处误判：未配证书 / 二维码时 `certs`/`qrs` 计数为 0 属于合法状态，从 `FAIL` 改为 `SKIP`，五端「关键区块」检查也按容器是否为空跳过；表单草稿键与调试入口统一为 `zpj-draft-v1` / `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 2.41 MB → 68 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端）。内容层面按既有简历重建为 13 个项目 / 8 段履历（9 个项目级条目 + 4 个 Word 里并列写明的具名子产品：云枢 PaaS、乐心医生 SaaS、乐心保险中台、第七大道游戏官网群）|
 | v1.0.0 | 首个版本。表单驱动采集 → 即时生成单页作品集；声明式区块标记（`SEC / NAV / HR / N`）；表单与命令行两处渲染一致性由测试守护；56 项单测 |
 

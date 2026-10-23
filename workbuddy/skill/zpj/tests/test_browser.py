@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 浏览器端单测（Playwright / Chromium）
+"""zpj · 浏览器端单测（Playwright / Chromium）
 
 两块：
   A. 表单本身 —— 九个采集块都在、增删行可用、示例可载入、导出 JSON 形状正确、
@@ -145,7 +145,7 @@ class TestFormUI(BrowserBase):
         exp = expected_counts()
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
-        pay = self.page.evaluate("() => __grzpj.payload()")
+        pay = self.page.evaluate("() => __zpj.payload()")
         self.assertEqual(len(pay["metrics"]), exp["metrics"])
         self.assertEqual(len(pay["content"]["pillars"]), exp["pillars"])
         self.assertEqual(len(pay["content"]["stack"]), exp["stack"])
@@ -186,16 +186,16 @@ class TestFormUI(BrowserBase):
         self.page.wait_for_timeout(250)
         self.page.click('#list-projects .row:first-child .rm')
         self.page.wait_for_timeout(150)
-        html = self.page.evaluate("() => __grzpj.render(__grzpj.payload())")
-        second = self.page.evaluate("() => __grzpj.payload().content.projects[0].title")
+        html = self.page.evaluate("() => __zpj.render(__zpj.payload())")
+        second = self.page.evaluate("() => __zpj.payload().content.projects[0].title")
         self.assertIn('<span class="no">01</span>' + second, html)
 
     def test_export_shape_is_buildable(self):
         """表单导出的 JSON 必须能直接被命令行构建器吃下（离线互通）。"""
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
-        pay = self.page.evaluate("() => __grzpj.payload()")
-        pay["paths"] = {"out_dir": tempfile.mkdtemp(prefix="grzpj-x-")}
+        pay = self.page.evaluate("() => __zpj.payload()")
+        pay["paths"] = {"out_dir": tempfile.mkdtemp(prefix="zpj-x-")}
         try:
             html, stats, _a = B.build(pay, SKILL)
             exp = expected_counts()
@@ -208,17 +208,17 @@ class TestFormUI(BrowserBase):
     def test_import_export_roundtrip(self):
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
-        pay = self.page.evaluate("() => __grzpj.payload()")
+        pay = self.page.evaluate("() => __zpj.payload()")
         self.page.evaluate("() => document.getElementById('btnClear')")
-        self.page.evaluate("p => __grzpj.load(p)", json.loads(json.dumps(pay)))
+        self.page.evaluate("p => __zpj.load(p)", json.loads(json.dumps(pay)))
         self.page.wait_for_timeout(300)
-        pay2 = self.page.evaluate("() => __grzpj.payload()")
+        pay2 = self.page.evaluate("() => __zpj.payload()")
         self.assertEqual(json.dumps(pay, sort_keys=True), json.dumps(pay2, sort_keys=True))
 
     def test_disk_paths_are_flagged_not_silently_dropped(self):
         """命令行格式的 content.json（磁盘路径图）导入后必须给出提示。"""
         cfg = json.load(open(os.path.join(SKILL, "examples", "content.json"), encoding="utf-8"))
-        self.page.evaluate("p => __grzpj.load(p)", cfg)
+        self.page.evaluate("p => __zpj.load(p)", cfg)
         self.page.wait_for_timeout(300)
         txt = self.page.inner_text("#sumBox")
         self.assertIn("磁盘路径", txt)
@@ -250,7 +250,7 @@ class TestRenderParity(BrowserBase):
     def setUpClass(cls):
         super().setUpClass()
         cfg = json.load(open(DEMO, encoding="utf-8"))
-        cls.tmp = tempfile.mkdtemp(prefix="grzpj-parity-")
+        cls.tmp = tempfile.mkdtemp(prefix="zpj-parity-")
         cfg["paths"] = {"out_dir": cls.tmp}
         cls.py_html, _, _ = B.build(cfg, SKILL)
         cls.path = os.path.join(cls.tmp, "index.html")
@@ -263,10 +263,10 @@ class TestRenderParity(BrowserBase):
         super().tearDownClass()
 
     def form_html(self):
-        self.page.evaluate("p => __grzpj.load(p)",
+        self.page.evaluate("p => __zpj.load(p)",
                            json.load(open(DEMO, encoding="utf-8")))
         self.page.wait_for_timeout(400)
-        return self.page.evaluate("() => __grzpj.render(__grzpj.payload())")
+        return self.page.evaluate("() => __zpj.render(__zpj.payload())")
 
     def test_structure_counts_identical(self):
         a = self.probe(self.py_html)

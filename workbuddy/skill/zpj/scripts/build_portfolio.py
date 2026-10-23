@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 把 content.json 渲染成自包含单页作品集 index.html
+"""zpj · 把 content.json 渲染成自包含单页作品集 index.html
 
 用法：
-    python build_portfolio.py <content.json> [--skill-dir <gr-zpj 根目录>] [--stats]
+    python build_portfolio.py <content.json> [--skill-dir <zpj 根目录>] [--stats]
 
 与 jl-zpj 的关系：同一套版式与编码策略，但把「区块是否渲染」交给显式标记，
 不再依赖改版时人工数着删。三个约定：
@@ -608,7 +608,7 @@ def main():
     ap.add_argument("config", help="content.json 路径")
     ap.add_argument("--skill-dir",
                     default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                    help="gr-zpj 技能根目录（用于定位 assets/template.html）")
+                    help="zpj 技能根目录（用于定位 assets/template.html）")
     ap.add_argument("--out", default="", help="输出 index.html 路径（默认 <paths.out_dir>/index.html）")
     ap.add_argument("--stats", action="store_true", help="把统计以 STATS:{...} 单行 JSON 打印")
     args = ap.parse_args()

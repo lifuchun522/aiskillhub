@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 构建器单测（全部离线，不需要浏览器）
+"""zpj · 构建器单测（全部离线，不需要浏览器）
 
 覆盖四类断言：
   A. 结构计数与产物整洁（残留标记 / 导航死链 / 孤立分隔线 / 章节序号）
@@ -52,7 +52,7 @@ class Base(unittest.TestCase):
     """每例一个临时目录，图片按需生成，避免依赖本机素材。"""
 
     def setUp(self):
-        self.tmp = tempfile.mkdtemp(prefix="grzpj-")
+        self.tmp = tempfile.mkdtemp(prefix="zpj-")
         self.img = os.path.join(self.tmp, "a.png")
         open(self.img, "wb").write(png(900, 500))
         self.img2 = os.path.join(self.tmp, "b.jpg")

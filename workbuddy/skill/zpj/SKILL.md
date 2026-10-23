@@ -1,12 +1,12 @@
 ---
-name: gr-zpj
-description: 用一张离线表单采集结构化个人信息（基础信息 / 首屏数据条 / 名片 / 自述 / 能力支柱 / 技术栈 / 工作经历 / 教育认证主页 / 项目），当场生成离线可用、手机·微信·企业 IM 都能正常打开的单页 HTML 作品集；也支持「content.json → 命令行构建」的完整流水线。适用于：用户想「填个表就能生成作品集 / 个人主页 / 简历网页 / portfolio」；给了一份零散材料（简历文本、项目清单、架构图、证书图片）要求整理成个人主页；要求把作品集做成自包含单文件 HTML 并能在手机上打开；要求按数据自动增删区块（没填的整块不出现、不留死链与孤立分隔线）；要求把表单填好的内容导出成 JSON 再交给脚本渲染；要求在既有作品集上压体积、多端适配、内容断言。含 2 个入口（表单 / 命令行）、5 个脚本、62 项自动化测试（含两处渲染一致性比对与五端渲染自检）。触发词：表单生成作品集、作品集表单、采集信息生成网页、个人主页生成器、portfolio、作品集 HTML、填表出作品集、gr-zpj。
-description_zh: 表单采集 → 即时生成离线单页作品集（手机/微信/企业 IM 可用），亦支持 content.json 命令行构建；区块按数据自动增删，含 62 项自动化测试。触发词：表单生成作品集、采集信息生成网页、个人主页生成器、gr-zpj。
+name: zpj
+description: 用一张离线表单采集结构化个人信息（基础信息 / 首屏数据条 / 名片 / 自述 / 能力支柱 / 技术栈 / 工作经历 / 教育认证主页 / 项目），当场生成离线可用、手机·微信·企业 IM 都能正常打开的单页 HTML 作品集；也支持「content.json → 命令行构建」的完整流水线。适用于：用户想「填个表就能生成作品集 / 个人主页 / 简历网页 / portfolio」；给了一份零散材料（简历文本、项目清单、架构图、证书图片）要求整理成个人主页；要求把作品集做成自包含单文件 HTML 并能在手机上打开；要求按数据自动增删区块（没填的整块不出现、不留死链与孤立分隔线）；要求把表单填好的内容导出成 JSON 再交给脚本渲染；要求在既有作品集上压体积、多端适配、内容断言。含 2 个入口（表单 / 命令行）、5 个脚本、62 项自动化测试（含两处渲染一致性比对与五端渲染自检）。触发词：表单生成作品集、作品集表单、采集信息生成网页、个人主页生成器、portfolio、作品集 HTML、填表出作品集、zpj。
+description_zh: 表单采集 → 即时生成离线单页作品集（手机/微信/企业 IM 可用），亦支持 content.json 命令行构建；区块按数据自动增删，含 62 项自动化测试。触发词：表单生成作品集、采集信息生成网页、个人主页生成器、zpj。
 description_en: Collect structured profile data with an offline HTML form, then instantly generate a self-contained single-page portfolio that renders correctly on mobile, WeChat and enterprise IM browsers. Also supports a content.json CLI pipeline. Sections appear only when they have data (no dead nav links, no orphan separators); 62 automated tests including form-vs-CLI render parity and a five-profile render check.
 agent_created: true
 ---
 
-# gr-zpj · 表单驱动作品集生成
+# zpj · 表单驱动作品集生成
 
 把「一堆零散的个人材料」变成一页**离线可用、零依赖**的作品集 HTML ——
 入口可以是**一张表单**（双击就能用），也可以是一份 `content.json`（进流水线 / 进 CI）。
@@ -41,6 +41,16 @@ PPT 制作（走 `workbuddy-pptx`）。需要从**简历 PDF 抽素材**时先�
 5. **一处一事** —— 数据条管概览数字，项目 `result` 管成果数字，`steps` 只管动作，
    技术名词归 `chips`。重复不是「更完整」，是让人一眼看出内容的稀薄。
 
+## 最小验证（先跑这个）
+
+```bash
+python scripts/build_portfolio.py examples/minimal-content.json --skill-dir . --stats
+python scripts/verify.py "dist/minimal-demo/index.html" --last-section projects
+```
+
+产物 31 KB HTML + 30 KB 占位名片。`certs / qrs` 计数为 0 时 `verify.py` 打印 `SKIP`
+（没配证书 / 二维码，网格整块不出现），不算失败。
+
 ## 路径 A：表单（30 秒上手）
 
 ```bash
@@ -56,7 +66,7 @@ assets/form.html
 图片在浏览器里就按用途压好（名片 / 二维码不缩放不重压，手绘 1440、分层 1280、证书 620）。
 内嵌总量 > 5MB 时面板告警 —— 该改走路径 B（能 PNG8 量化）。
 
-调试 / 自动化：`window.__grzpj`（`state / payload / load / render / summary`）。
+调试 / 自动化：`window.__zpj`（`state / payload / load / render / summary`）。
 
 ## 路径 B：命令行
 
@@ -104,12 +114,14 @@ assets/form.html
 |---|---|
 | `assets/form.html` | 采集表单（离线单文件；内嵌模板与示例数据；含浏览器端渲染引擎） |
 | `assets/template.html` | 作品集模板骨架（**单一事实来源**；深色专业风、灯箱、滚动动效、老内核兜底） |
-| `examples/content.json` | 完整示例（命令行用，图片走磁盘路径） |
-| `examples/demo-content.json` | 同一份内容的演示尺寸版（表单用，图片内联 data URI） |
+| `examples/minimal-content.json` | 最小示例（1 项目 / 2 段履历，30 秒验证环境） |
+| `examples/content.json` | 完整示例（13 项目 / 8 段履历 / 22 张图，命令行用） |
+| `examples/demo-content.json` | 同一份内容的演示尺寸版（表单用，图片内联 data URI，由 `make_demo.py` 生成） |
+| `examples/README.md` | 三个示例的区别、跑法、改成自己内容的五步 |
 | `tests/` | 62 项单测：构建器 34 + 资产一致性 9 + 浏览器端 19 |
-| `TEST-REPORT.md` | 测试报告：62 项逐条明细、双路径 `verify.py` 原始输出、3 个 P0 bug 复盘、不可判定项清单 |
+| `TEST-REPORT.md` | 测试报告：62 项逐条明细、双路径 `verify.py` 原始输出、4 个 bug 复盘、不可判定项清单 |
 | `references/01-workflow.md` | 两条路径 + 编码策略表 + 五端检查表 |
-| `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2，含本次开发中真实踩到的 3 个 P0） |
+| `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2，含本次开发中真实踩到的 3 个 P0 + 1 个 P1） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、检查清单、版本历史 |
 

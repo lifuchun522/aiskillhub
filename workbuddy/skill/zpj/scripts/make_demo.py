@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""gr-zpj · 从 examples/content.json 生成 examples/demo-content.json
+"""zpj · 从 examples/content.json 生成 examples/demo-content.json
 
 表单里的「载入示例」要在**没有任何本机素材**的情况下也能跑通，所以示例数据必须把
 图片一并带上（data URI 内联）。直接把生产级原图内联会让示例文件几 MB 大，

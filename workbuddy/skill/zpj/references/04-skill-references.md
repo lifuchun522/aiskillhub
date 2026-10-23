@@ -18,7 +18,7 @@ python -m playwright install chromium
 
 | 技能 | 关系 | 地址 |
 |---|---|---|
-| `jl-zpj` | 上游：从**简历 / 作品集 PDF** 抽素材、多端适配、打包交付的完整六阶段流水线。`gr-zpj` 的模板与编码策略沿用它，但入口换成表单，并把区块裁减改成声明式标记 | 本仓库 `workbuddy/skill/` 内同名目录（发布名 `jl-zpj`） |
+| `jl-zpj` | 上游：从**简历 / 作品集 PDF** 抽素材、多端适配、打包交付的完整六阶段流水线。`zpj` 的模板与编码策略沿用它，但入口换成表单，并把区块裁减改成声明式标记 | 本仓库 `workbuddy/skill/` 内同名目录（发布名 `jl-zpj`） |
 | `delivery-no-pseudoblock` | 交付前闸门：任何一次向用户交付之前必须实跑 D1–D12 快照 | `~/.workbuddy/skills/delivery-no-pseudoblock/` |
 | `workbuddy-docx` | 把作品集内容再产出 Word 版（投递用） | 内置技能 |
 | `workbuddy-pptx` | 把 `diagrams/` 归档图组装成 PPT | 内置技能 |
@@ -28,8 +28,8 @@ python -m playwright install chromium
 
 | 语境 | 写法 |
 |---|---|
-| Git Bash / 本技能脚本 | `/d/src/github/.../gr-zpj` |
-| Python（Windows） | `D:/src/github/.../gr-zpj` 或 `D:\\src\\github\\...` |
+| Git Bash / 本技能脚本 | `/d/src/github/.../zpj` |
+| Python（Windows） | `D:/src/github/.../zpj` 或 `D:\\src\\github\\...` |
 | JSON 配置里的 `src` / `archive` | 统一用正斜杠 `D:/…`；相对路径以 `paths.src_dir` 为基准 |
 | `file://` URL（浏览器 / Playwright） | `file:///D:/…`（三个斜杠 + 正斜杠） |
 
@@ -57,5 +57,6 @@ python scripts/package.py "<out>"
 
 | 版本 | 变更 |
 |---|---|
+| v2.0.0 | 技能包收敛为 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增最小示例 `examples/minimal-content.json`（3 KB，1 项目 / 2 段履历）+ `examples/README.md`；`verify.py` 修「未配证书 / 二维码被判失败」的误判（`OPTIONAL_STATS` + `KEY_BLOCKS` 三元组）；表单草稿键改 `zpj-draft-v1`、调试入口改 `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 从 2.4 MB 降到 ~70 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 的名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端） |
 | v1.0.0 | 首个版本。表单驱动采集 → 即时生成单页作品集；声明式区块标记（`SEC/NAV/HR/N`）；表单与命令行两处渲染一致性由测试守护；56 项单测（37 项离线 + 19 项浏览器端） |
