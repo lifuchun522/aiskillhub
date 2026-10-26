@@ -10,7 +10,7 @@
       + 导航无死链 + 收尾整洁（无空壳页脚、无孤立分隔线、body 无游离区块）
       + 区块位置（--last-section）+ 章节序号与 DOM 顺序连续
       + 首屏主体：名片占内容宽度比例达标
-  [4] 内容断言：--must 必须出现、--absent 必须不出现
+  [4] 内容断言：--must 必须出现、--absent 必须不出现、--must-alt 名片 alt 必须包含
   [5] 数据映射：项目主图资源键顺序 == --expect；项目周期时间降序；编号连续
   [6] 交互：灯箱打开 / ESC 关闭、名片可放大、二维码链接协议正确
   [7] 多端渲染：桌面 Chrome / 平板 / iPhone 微信 / Android 微信 / iPhone 企业微信
@@ -19,6 +19,7 @@
 用法：
     python verify.py <index.html> [--expect fig1,fig2,…] [--shots <目录>]
                      [--must "必须出现的词"] [--absent "必须消失的旧文案"]
+                     [--must-alt "名片 alt 里必须出现的词"]
                      [--last-section projects] [--skip-multi]
 
 退出码非 0 表示有 FAIL，可直接用作门禁。
@@ -65,7 +66,7 @@ KEY_BLOCKS = [
     ("自述", ".intro", None), ("能力支柱", ".pillar", None), ("项目卡", ".p-card", None),
     ("技术栈", "#stack .st", None), ("时间线", ".tl-item", None),
     ("证书", ".cert", ".certs"), ("二维码", ".qr", ".qrs"),
-    ("教育背景", "#edu .edu", None),
+    ("教育背景", "#edu .edu", "#edu"),
 ]
 
 # 这三个计数允许为 0：没配数据条 / 证书 / 二维码时，对应区块整块不渲染
@@ -85,6 +86,8 @@ def main():
     ap.add_argument("--expect", default="", help="期望的项目主图资源键，逗号分隔（顺序敏感；无主图的项目不占位）")
     ap.add_argument("--must", default="", help="页面文本里必须出现的关键词，逗号分隔")
     ap.add_argument("--absent", default="", help="页面文本里必须不出现的关键词，逗号分隔")
+    ap.add_argument("--must-alt", default="",
+                    help="名片 alt 里必须出现的关键词，逗号分隔（信息烤进位图时，alt 是唯一文本通道）")
     ap.add_argument("--last-section", default="", help="要求排在最末的区块 id")
     ap.add_argument("--shots", default="", help="截图输出目录（可选）")
     ap.add_argument("--viewport", default="1440x1000")
@@ -212,6 +215,15 @@ def main():
             check("必须出现 " + kw, kw in txt)
         for kw in [x.strip() for x in args.absent.split(",") if x.strip()]:
             check("必须消失 " + kw, kw not in txt)
+
+        # 名片把求职意向 / 学历 / 擅长领域烤进了位图，页面 innerText 里没有这些词。
+        # 搜索、复制、读屏只能靠 alt —— 所以 alt 要单独断言，否则「信息已进图」
+        # 会静默退化成「信息只存在于像素里」。
+        if args.must_alt:
+            alt = pg.evaluate(
+                "()=>{const n=document.querySelector('.hero-card img'); return n ? n.alt : ''}")
+            for kw in [x.strip() for x in args.must_alt.split(",") if x.strip()]:
+                check("名片 alt 含 " + kw, kw in alt)
 
         print("[3b] 自述与名片（可选区块）")
         opt = pg.evaluate("""()=>{

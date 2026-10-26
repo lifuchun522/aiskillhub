@@ -17,7 +17,7 @@
 | 4 | 两条入口渲染一致性（parity，逐项比对） | **6 项断言全过**（结构计数 / 序号 / 导航 / 文本 / 标题 / 破图） |
 | 5 | 五端渲染（1440 / 820 / 390 / 360 / 320） | **19 / 19 通过**，无横向溢出、正文字号 ≥14.5px |
 | 6 | 资产一致性（模板 / 示例 ↔ 表单内联） | `--check` 通过，`md5 34116dbe6797` |
-| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（62930）＋ 14 张外置图字节相同 |
+| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（62050）＋ 14 张外置图字节相同 |
 | 8 | 仓库副本独立运行（`git archive` 导出后） | `--check` 通过 + 67 项单测 OK |
 | 9 | 开发期发现的真 bug | **4 个**（3 个 P0 + 1 个 P1），全部已修并加断言 |
 | 10 | 未覆盖 / 判不了 | 4 类，见 §8（一律记 NA，不写 PASS） |
@@ -32,7 +32,7 @@
 | Python | 3.13.14（WorkBuddy 隔离环境 `envs/default`） |
 | Pillow | 12.3.0（图片编码 / PNG8 量化） |
 | Playwright | 1.62.0 + Chromium（浏览器端单测与五端渲染） |
-| 被测产物 | `index.html` 63,599 B + `img/` 14 张图 1.64 MB（命令行路径，外置；`STATS.bytes` 记 62,930 —— 差 669 字节是 Windows 落盘的行尾 CRLF，669 行每行 +1）<br>`index.html` 0.45 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 34,299 B + 30 KB 占位名片（最小示例） |
+| 被测产物 | `index.html` 62,701 B + `img/` 14 张图 1.71 MB（命令行路径，外置；`STATS.bytes` 记 62,050 —— 差 651 字节是 Windows 落盘的行尾 CRLF，651 行每行 +1）<br>`index.html` 0.45 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 34,299 B + 30 KB 占位名片（最小示例） |
 
 表单路径**零第三方依赖**：只用浏览器原生 API（`FileReader` / `canvas` / `iframe`）。
 
@@ -175,14 +175,14 @@
 
 ## 5. 端到端：双路径 `verify.py`
 
-### 5.1 命令行路径（`index.html` 63,599 B + `img/` 14 张图 1.64 MB）
+### 5.1 命令行路径（`index.html` 62,701 B + `img/` 14 张图 1.71 MB）
 
 ```
-外置资源 1.64 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects+edu
+外置资源 1.71 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
 STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
         "timeline":8,"certs":4,"qrs":4,"images":18,
         "kept":["capability","stack","career","credential","projects"],
-        "bytes":62930,"assets_bytes":1724454,"external":"img"}
+        "bytes":62050,"assets_bytes":1793907,"external":"img"}
 
 [0] 产物文本
   无残留 模板 token                   PASS []
@@ -213,7 +213,7 @@ STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
   末尾非孤立分隔线                       PASS last=.
   末区块为 projects                  PASS capability->stack->career->credential->projects
   章节序号按 DOM 顺序连续                 PASS ['01', '02', '03', '04', '05']
-  章节序号与标题对应                      PASS [('01 / CAPABILITY', '核心能力'), ('02 / TECH STACK', '技术栈'), ('03 / CAREER', '工作经历'), ('04 / CREDENTIAL', '教育背景 · 专业认证 · 个人主页'), ('05 / MY PROJECTS', '我的项目')]
+  章节序号与标题对应                      PASS [('01 / CAPABILITY', '核心能力'), ('02 / TECH STACK', '技术栈'), ('03 / CAREER', '工作经历'), ('04 / CREDENTIAL', '专业认证 · 个人主页'), ('05 / MY PROJECTS', '我的项目')]
 [3c] 首屏主体（名片）
   名片占屏宽比                         PASS 77% (1108x624)
 [3d] 内容断言
@@ -340,7 +340,7 @@ PASS: 全部检查通过
 
 | # | 复核方式 | 结果 |
 |---|---|---|
-| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 14 张外置图的字节 | 两次均 `62930` + 外置合计 `1724454`，逐字节相同 |
+| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 14 张外置图的字节 | 两次均 `62050` + 外置合计 `1793907`，逐字节相同 |
 | 2 | 把技能目录整份拷到临时目录（模拟「解压后独立运行」）跑 `sync_assets.py --check` + 67 项单测 | `PASS` ／ `Ran 67 tests ... OK` |
 | 3 | 用 `git archive HEAD` 导出**提交后的字节**（经 `.gitattributes` 的 LF 归一）再跑 `--check` + 67 项单测 | `PASS`（`md5 34116dbe6797`）／ `Ran 67 tests ... OK` |
 

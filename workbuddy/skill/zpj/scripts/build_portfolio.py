@@ -199,6 +199,9 @@ def render_namecard(card):
     名片就是首屏本身 —— 不再有「大标题 + 信条 + 徽章 + 按钮」的文案块：
     名片已含姓名 / 头衔 / 教育背景 / 核心方向 / 代表项目 / 联系方式，而原文案块
     的信息与证书图、ABOUT ME 自述重复。名片必须铺满内容宽度，否则卡面文字不可读。
+
+    alt 是名片信息的**唯一文本通道**：卡面上的求职意向 / 学历 / 擅长领域等都烤进了
+    位图，搜索、复制、读屏只能靠 alt。所以 `card.alt` 允许写长，缺省回落 title。
     """
     if not card:
         return ""
@@ -206,7 +209,7 @@ def render_namecard(card):
     return ('<div class="hero-card" data-zoom="namecard" data-title="%s" data-sub="%s">'
             '<img data-asset="namecard" alt="%s">'
             '<div class="hc-hint">%s</div></div>'
-            % (esc(t), esc(card.get("sub", "")), esc(t),
+            % (esc(t), esc(card.get("sub", "")), esc(card.get("alt") or t),
                esc(card.get("hint") or "点击名片可放大 ↗")))
 
 
@@ -452,7 +455,8 @@ def build(cfg, skill_dir):
         "career": truthy(C.get("timeline")),
         "credential": bool(certs or qrs),
         "projects": truthy(projects),
-        "edu": truthy(C.get("edu")),
+        # 只看 tags：edu 对象上可能挂着已废弃的 label，空标签仍算「没有教育背景」
+        "edu": truthy((C.get("edu") or {}).get("tags")),
     }
 
     # ---- 资源：默认内嵌 data URI；paths.external 非空时改写文件到指定目录（相对路径引用）

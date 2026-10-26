@@ -94,7 +94,12 @@ assets/form.html
 
 判断「有没有数据」的规则：`tagline` 看 `texts.TAGLINE`，`metrics` 看数据条，
 `intro / capability / stack / career / projects` 看对应内容数组，
-`profile` 看档案键值行，`credential` 看「认证 / 二维码」是否至少有一项，`edu` 是独立的末区块（教育背景不再挂在 04 里）。
+`profile` 看档案键值行，`credential` 看「认证 / 二维码」是否至少有一项，
+`edu` 只看 `edu.tags`（独立的末区块，空则整块不渲染）。
+
+这三块（数据条 / 档案条 / 教育背景）也可以把内容直接画进名片图片 —— 此时对应数据留空，
+但必须把同样信息写进 `card.alt` 并用 `verify.py --must-alt` 断言：卡面上的字是像素，
+alt 是搜索、复制、读屏获取这些字段的唯一通道。
 裁减后 `verify.py` 会断言：**导航无死链、无遗留页脚、body 无游离区块、末尾非孤立分隔线、
 章节序号与 DOM 顺序连续**。
 

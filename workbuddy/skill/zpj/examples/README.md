@@ -22,7 +22,7 @@ python scripts/verify.py "dist/minimal-demo/index.html" \
 
 ```
 外置 namecard            29.6 KB -> img/card/namecard.jpg
-外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+projects+edu+edu
+外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+projects+edu
 STATS:{"metrics": 3, "namecard": 1, "intro": 1, "profile": 0, "pillars": 2, "projects": 1,
        "stack": 1, "timeline": 2, "certs": 0, "qrs": 0, "edu": 1, "images": 1,
        "kept": [...], "bytes": 34299, ...}
