@@ -187,7 +187,7 @@ PASS: 全部检查通过
 
 14 张图按项目分成四类落在 `img/` 下（`p01-digitalhuman` … `p09-7road` 九组架构图 /
 `card` 名片 / `certs` 证书 / `qr` 二维码），
-`index.html` 落盘 63,599 B（`STATS.bytes` 记 62,727，差 872 = Windows 每行 CRLF +1）。
+`index.html` 落盘 63,599 B（`STATS.bytes` 记 62,930，差 669 = Windows 每行 CRLF +1）。
 换一张架构图不用碰页面。
 
 ### 最小示例（最小可用输入）
