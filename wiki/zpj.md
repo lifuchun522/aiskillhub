@@ -84,7 +84,7 @@ assets/form.html        # 双击 / 拖进浏览器都行
 python scripts/build_portfolio.py examples/content.json --stats
 
 python scripts/verify.py "<out>/index.html" \
-    --expect nh_digitalhuman,nh_gfs,nh_herodash,nh_game,nh_lowcode,yunshu_tech \
+    --expect arch_digitalhuman,arch_gfs,arch_aics,arch_chanyou,arch_mofang,arch_yunshu,arch_lifesense,arch_supplychain,arch_7road \
     --last-section projects \
     --must "我的项目" --absent "重点项目" --shots shots/
 
@@ -149,7 +149,7 @@ img/
 ### 单测
 
 ```
-Ran 62 tests in 43.5s
+Ran 62 tests in 26.0s
 
 OK
 ```
@@ -160,26 +160,26 @@ OK
 
 新增两小组守着本轮改动：`TestExternalAssets`（4 项，图片真落盘 / 相对路径与落盘一致 / `file`+`group` 生效 / 外置跳过归档）与 `TestProjectWithoutFigure`（2 项，无主图只出文字卡 / 混排时编号连续）。
 
-### 一份 13 项目 / 8 段履历的完整作品集（命令行路径 + 图片外置）
+### 一份 9 项目 / 8 段履历的完整作品集（命令行路径 + 图片外置）
 
 ```
-外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
-计数 pillars 3 ｜ metrics 6 ｜ cards 13 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 18
+外置资源 1.74 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
+计数 pillars 3 ｜ metrics 6 ｜ cards 9 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 14
 导航无死链 ✓  无遗留页脚 ✓  body 无游离区块 ✓  末尾非孤立分隔线 ✓
 末区块为 projects ✓  章节序号按 DOM 顺序连续 ['01','02','03','04','05'] ✓
 名片占屏宽比 77% (1108×624) ✓  名片已加载 ✓ 1672×941（外置）
-主图映射顺序 ✓（6 项）  项目按时间降序 ✓  项目编号连续 01–13 ✓
+主图映射顺序 ✓（9 项）  项目按时间降序 ✓  项目编号连续 01–09 ✓
 五端（1440 / 820 / 390 / 360 / 320）无横向溢出 ✓  关键区块不超宽 ✓  正文字号 ≥14.5px ✓
 PASS: 全部检查通过
 ```
 
-`cards 13` 但 `主图映射` 只比 6 项 —— 只有 01–06 六个项目留存了架构图；云枢 PaaS、乐心健康云、乐心医生 SaaS、乐心保险中台、跨境电商供应链、第七大道页游平台、游戏官网群这 7 个 `fig` 留空走文字卡，编号仍然连续到 `13`。
+9 个项目**全部**配了架构图，`cards 9` 与 `主图映射` 9 项一一对应；`fig` 留空的项目只出文字卡、不占空图位，编号仍连续。
 
-`index.html` 从 v1.0.0 的 **2.41 MB 降到 74,690 B（`STATS.bytes` 记 74,033，差 657 = Windows 每行 CRLF +1）**，22 张图按项目分到九组落在 `img/` 下。
+`index.html` 从 v1.0.0 的 **2.41 MB 降到 61,762 B（`STATS.bytes` 记 61,143，差 619 = Windows 每行 CRLF +1）**，18 张图按项目分到九组落在 `img/` 下。
 
 ### 同一次运行里，表单路径产物也过同一套自检
 
-表单路径不做 PNG8 量化（浏览器里做不了调色板量化），演示尺寸内联 22 张图，产物 **0.66 MB**。把它丢进同一个 `verify.py`：
+表单路径不做 PNG8 量化（浏览器里做不了调色板量化），演示尺寸内联 18 张图，产物 **0.51 MB**。把它丢进同一个 `verify.py`：
 
 ```
 [0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS
@@ -237,6 +237,7 @@ PASS: 全部检查通过
 
 | 版本 | 变更 |
 |---|---|
+| v2.1.0 | 示例内容按 2026-10 版《标准简历.docx》重建：工作经历 8 段、项目 9 个全部取自简历表格原文；图片换成配套 9 张分层架构图 + 新头像重制的首屏名片 + 微信二维码；`index.html` 61,762 B + 外置 1.74 MB，18 张图按 `img/p01-digitalhuman` … `p09-7road` / `card` / `certs` / `qr` 分组 |
 | v2.0.0 | 收敛为单一技能包 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增 3 KB 最小示例 `examples/minimal-content.json` + `examples/README.md`；`verify.py` 修一处误判：未配证书 / 二维码时 `certs`/`qrs` 计数为 0 属于合法状态，从 `FAIL` 改为 `SKIP`，五端「关键区块」检查也按容器是否为空跳过；表单草稿键与调试入口统一为 `zpj-draft-v1` / `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 2.41 MB → 68 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端）。内容层面按既有简历重建为 13 个项目 / 8 段履历（9 个项目级条目 + 4 个 Word 里并列写明的具名子产品：云枢 PaaS、乐心医生 SaaS、乐心保险中台、第七大道游戏官网群）|
 | v1.0.0 | 首个版本。表单驱动采集 → 即时生成单页作品集；声明式区块标记（`SEC / NAV / HR / N`）；表单与命令行两处渲染一致性由测试守护；56 项单测 |

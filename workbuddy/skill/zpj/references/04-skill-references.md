@@ -57,6 +57,7 @@ python scripts/package.py "<out>"
 
 | 版本 | 变更 |
 |---|---|
+| v2.1.0 | 示例内容按 2026-10 版《标准简历.docx》重建：工作经历 8 段、项目 9 个，全部取自简历表格原文；图片换成配套的 9 张分层架构图（1600×900）+ 新头像重制的首屏名片 + 微信二维码，18 张图按 `img/p01-digitalhuman` … `img/p09-7road` / `card` / `certs` / `qr` 分组，`index.html` 61,762 B + 外置 1.74 MB。无代码改动，两处渲染与 62 项单测不变 |
 | v2.0.0 | 技能包收敛为 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增最小示例 `examples/minimal-content.json`（3 KB，1 项目 / 2 段履历）+ `examples/README.md`；`verify.py` 修「未配证书 / 二维码被判失败」的误判（`OPTIONAL_STATS` + `KEY_BLOCKS` 三元组）；表单草稿键改 `zpj-draft-v1`、调试入口改 `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 从 2.4 MB 降到 ~70 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 的名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端） |
 | v1.0.0 | 首个版本。表单驱动采集 → 即时生成单页作品集；声明式区块标记（`SEC/NAV/HR/N`）；表单与命令行两处渲染一致性由测试守护；56 项单测（37 项离线 + 19 项浏览器端） |

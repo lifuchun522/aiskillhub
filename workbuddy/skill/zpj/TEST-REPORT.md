@@ -17,7 +17,7 @@
 | 4 | 两条入口渲染一致性（parity，逐项比对） | **6 项断言全过**（结构计数 / 序号 / 导航 / 文本 / 标题 / 破图） |
 | 5 | 五端渲染（1440 / 820 / 390 / 360 / 320） | **19 / 19 通过**，无横向溢出、正文字号 ≥14.5px |
 | 6 | 资产一致性（模板 / 示例 ↔ 表单内联） | `--check` 通过，`md5 34116dbe6797` |
-| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（74033）＋ 22 张外置图字节相同 |
+| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（61143）＋ 18 张外置图字节相同 |
 | 8 | 仓库副本独立运行（`git archive` 导出后） | `--check` 通过 + 62 项单测 OK |
 | 9 | 开发期发现的真 bug | **4 个**（3 个 P0 + 1 个 P1），全部已修并加断言 |
 | 10 | 未覆盖 / 判不了 | 4 类，见 §8（一律记 NA，不写 PASS） |
@@ -32,7 +32,7 @@
 | Python | 3.13.14（WorkBuddy 隔离环境 `envs/default`） |
 | Pillow | 12.3.0（图片编码 / PNG8 量化） |
 | Playwright | 1.62.0 + Chromium（浏览器端单测与五端渲染） |
-| 被测产物 | `index.html` 74,690 B + `img/` 22 张图 1.77 MB（命令行路径，外置；`STATS.bytes` 记 74,033 —— 差 657 字节是 Windows 落盘的行尾 CRLF，每行 +1）<br>`index.html` 0.66 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 31,671 B + 30 KB 占位名片（最小示例） |
+| 被测产物 | `index.html` 61,762 B + `img/` 18 张图 1.74 MB（命令行路径，外置；`STATS.bytes` 记 61,143 —— 差 619 字节是 Windows 落盘的行尾 CRLF，619 行每行 +1）<br>`index.html` 0.51 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 31,671 B + 30 KB 占位名片（最小示例） |
 
 表单路径**零第三方依赖**：只用浏览器原生 API（`FileReader` / `canvas` / `iframe`）。
 
@@ -169,57 +169,93 @@
 | `test_form_output_has_no_residue` | 两处产物都不残留任何标记 | 均为 0 |
 | `test_form_output_images_all_load` | **破图列表为空**（资源字典形状写错时这一步会炸） | 均为 0 |
 
-> 缩放元素只用「类型序列」比对（`e.className.split(' ')[0]`），因为两条入口生成的**资源键名本来就不同**（表单按位置 `fig_1 / x_1_1`，手写 JSON 用语义键 `nh_agentx`）。这是设计如此，不是缺陷。
+> 缩放元素只用「类型序列」比对（`e.className.split(' ')[0]`），因为两条入口生成的**资源键名本来就不同**（表单按位置 `fig_1 / x_1_1`，手写 JSON 用语义键 `arch_yunshu`）。这是设计如此，不是缺陷。
 
 ---
 
 ## 5. 端到端：双路径 `verify.py`
 
-### 5.1 命令行路径（`index.html` 74,690 B + `img/` 22 张图 1.77 MB）
+### 5.1 命令行路径（`index.html` 61,762 B + `img/` 18 张图 1.74 MB）
 
 ```
-外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
-STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":13,"stack":6,
-        "timeline":8,"certs":4,"qrs":4,"images":22,
+外置资源 1.74 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
+STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
+        "timeline":8,"certs":4,"qrs":4,"images":18,
         "kept":["capability","stack","career","credential","projects"],
-        "bytes":74036,"assets_bytes":1854370,"external":"img"}
+        "bytes":61143,"assets_bytes":1827595,"external":"img"}
 
-[0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS []
-[1] 运行时     JS 错误                                          PASS []
-[2] 资源      破图 PASS []        图片总数>0 PASS imgs=23
-[3] 结构      计数 pillars 3 / herocard 1 / metrics 6 / cards 13 / zoom 18 / certs 4
-              qrs 4 / tl 8 / stack 6 / navlinks 6 / anchors 6        PASS
-              数据条列数=条数 PASS --mc=6 条数=6
-              导航无死链 PASS []   无遗留页脚 PASS footer=0
-              body 无游离区块 PASS []   末尾非孤立分隔线 PASS last=.
-              末区块为 projects PASS capability->stack->career->credential->projects
-              章节序号按 DOM 顺序连续 PASS ['01','02','03','04','05']
-              章节序号与标题对应 PASS
-[3c] 首屏主体  名片占屏宽比 PASS 77% (1108x624)
-[3b] 自述名片  自述文本非空 PASS 184 字   名片已加载 PASS 1672x941（外置）   名片可放大 PASS
-[5] 数据映射  主图映射顺序 PASS（6 项，与 --expect 逐项相等）
-              项目按时间降序 PASS ['2025.07','2024.11','2023.05','2021.12','2021.12',
-                                   '2020.04','2020.04','2018.09','2018.09','2018.09',
-                                   '2015.01','2011.07','2011.07']
-              项目编号连续 PASS ['01'…'13']
-[6] 交互      灯箱打开 / 灯箱 ESC 关闭 / 二维码链接 4 个            PASS
-[7] 多端渲染  见 §5.3
-PASS: 全部检查通过
+[0] 产物文本
+  无残留 模板 token                   PASS []
+  无残留 区块标记                       PASS []
+  无残留 分隔线标记                      PASS []
+  无残留 序号标记                       PASS []
+[1] 运行时
+  JS 错误                          PASS []
+[2] 资源
+  破图                             PASS []
+  图片总数>0                         PASS imgs=19
+[3] 结构
+  计数 pillars                     PASS 3
+  计数 herocard                    PASS 1
+  计数 metrics                     PASS 6
+  计数 cards                       PASS 9
+  计数 zoom                        PASS 14
+  计数 certs                       PASS 4
+  计数 qrs                         PASS 4
+  计数 tl                          PASS 8
+  计数 stack                       PASS 6
+  计数 navlinks                    PASS 6
+  计数 anchors                     PASS 6
+  数据条列数=条数                       PASS --mc=6 条数=6
+  导航无死链                          PASS []
+  无遗留页脚                          PASS footer=0
+  body 无游离区块                     PASS []
+  末尾非孤立分隔线                       PASS last=.
+  末区块为 projects                  PASS capability->stack->career->credential->projects
+  章节序号按 DOM 顺序连续                 PASS ['01', '02', '03', '04', '05']
+  章节序号与标题对应                      PASS [('01 / CAPABILITY', '核心能力'), ('02 / TECH STACK', '技术栈'), ('03 / CAREER', '工作经历'), ('04 / CREDENTIAL', '教育背景 · 专业认证 · 个人主页'), ('05 / MY PROJECTS', '我的项目')]
+[3c] 首屏主体（名片）
+  名片占屏宽比                         PASS 77% (1108x624)
+[3d] 内容断言
+  必须出现 我的项目                      PASS
+  必须消失 重点项目                      PASS
+[3b] 自述与名片（可选区块）
+  自述文本非空                         PASS 184 字
+  名片已加载                          PASS 1672x941（外置）
+  名片可放大                          PASS
+[5] 数据映射
+      01 01 数字员工平台                                   2025.07 — 2026.07        -> arch_digitalhuman
+      02 02 跨境物流配送系统 GFS                             2024.12 — 2025.06        -> arch_gfs
+      03 03 全球 AI 客服平台                               2023.05 — 2024.11        -> arch_aics
+      04 04 禅游发行系统                                   2022.10 — 2023.04        -> arch_chanyou
+      05 05 魔方                                       2021.12 — 2022.10        -> arch_mofang
+      06 06 云枢                                       2020.04 — 2021.11        -> arch_yunshu
+      07 07 乐心健康云                                    2018.09 — 2019.03        -> arch_lifesense
+      08 08 跨境电商供应链平台                                2015.01 — 2018.09        -> arch_supplychain
+      09 09 第七大道网页游戏平台                               2011.07 — 2014.12        -> arch_7road
+  主图映射顺序                         PASS 期望['arch_digitalhuman', 'arch_gfs', 'arch_aics', 'arch_chanyou', 'arch_mofang', 'arch_yunshu', 'arch_lifesense', 'arch_supplychain', 'arch_7road'] 实际['arch_digitalhuman', 'arch_gfs', 'arch_aics', 'arch_chanyou', 'arch_mofang', 'arch_yunshu', 'arch_lifesense', 'arch_supplychain', 'arch_7road']
+  项目按时间降序                        PASS ['2025.07', '2024.12', '2023.05', '2022.10', '2021.12', '2020.04', '2018.09', '2015.01', '2011.07']
+  项目编号连续                         PASS ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+[6] 交互
+  灯箱打开                           PASS
+  灯箱 ESC 关闭                      PASS
+  二维码链接                          PASS 4 个
+[7] 多端渲染  1440/820/390/360/320 五端全部无横向溢出、关键区块不超宽、正文字号 ≥14.5px   PASS
 ```
 
-> 仅 01–06 六个项目留存了架构图，其余 7 个（`fig: ""`）只出文字卡，因此 `cards 13` 但 `主图映射` 只有 6 项、
-> `zoom 18`（6 组主图 + 3 组补充图 + 名片 + 4 张证书 + 4 张二维码）。**无图项目不占图位**，
-> 编号仍然连续到 `13`。
+> 示例数据 9 个项目**全部**配了架构图，`cards 9` 与 `主图映射` 9 项一一对应；
+> `zoom 14` = 1 张名片 + 9 张项目主图 + 4 张证书。`fig` 留空的项目只出文字卡、
+> 不占空图位，`主图映射` 也不计入，编号仍连续。
 
-### 5.2 表单路径（`index.html` 0.66 MB，内联 22 张演示尺寸图）
+### 5.2 表单路径（`index.html` 0.51 MB，内联 18 张演示尺寸图）
 
 点「载入示例」→ 点「生成作品集」→ 取弹层 `iframe` 里真实渲染的结果，丢进**同一个** `verify.py`：
 
 ```
 [0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS []
 [1] 运行时     JS 错误                                          PASS []
-[2] 资源      破图 PASS []        图片总数>0 PASS imgs=23
-[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 6 / cards 13 / zoom 18 /
+[2] 资源      破图 PASS []        图片总数>0 PASS imgs=19
+[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 6 / cards 9 / zoom 14 /
               certs 4 / qrs 4 / tl 8 / stack 6 / navlinks 6 / anchors 6）
               导航无死链 PASS   末尾非孤立分隔线 PASS
               末区块为 projects PASS   章节序号 ['01','02','03','04','05'] PASS
@@ -230,7 +266,7 @@ PASS: 全部检查通过
 PASS: 全部检查通过
 ```
 
-表单路径的资源键名按位置生成（`fig_1…fig_6`），命令行路径用语义键（`nh_gfs` 等）——
+表单路径的资源键名按位置生成（`fig_1…fig_9`），命令行路径用语义键（`arch_gfs` 等）——
 所以上面两条的 `[5]` 段键名不同、结构计数完全相同。这是设计如此，parity 只比「类型序列」。
 
 ### 5.3 五端渲染明细
@@ -304,7 +340,7 @@ PASS: 全部检查通过
 
 | # | 复核方式 | 结果 |
 |---|---|---|
-| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 22 张外置图的字节 | 两次均 `74033` + 外置合计 `1854370`，逐字节相同 |
+| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 18 张外置图的字节 | 两次均 `61143` + 外置合计 `1827595`，逐字节相同 |
 | 2 | 把技能目录整份拷到临时目录（模拟「解压后独立运行」）跑 `sync_assets.py --check` + 62 项单测 | `PASS` ／ `Ran 62 tests ... OK` |
 | 3 | 用 `git archive HEAD` 导出**提交后的字节**（经 `.gitattributes` 的 LF 归一）再跑 `--check` + 62 项单测 | `PASS`（`md5 34116dbe6797`）／ `Ran 62 tests ... OK` |
 
@@ -341,7 +377,7 @@ python -W ignore::ResourceWarning -m unittest discover -s tests -t . -v
 # 3) 命令行路径：构建 → 五端自检 → 打包
 python scripts/build_portfolio.py examples/content.json --skill-dir . --stats
 python scripts/verify.py "<out>/index.html" \
-    --expect nh_digitalhuman,nh_gfs,nh_herodash,nh_game,nh_lowcode,yunshu_tech \
+    --expect arch_digitalhuman,arch_gfs,arch_aics,arch_chanyou,arch_mofang,arch_yunshu,arch_lifesense,arch_supplychain,arch_7road \
     --last-section projects --must "我的项目" --absent "重点项目" --shots shots/
 python scripts/package.py "<out>"
 

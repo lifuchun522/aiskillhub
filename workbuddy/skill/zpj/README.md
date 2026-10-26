@@ -45,7 +45,7 @@ zpj/
 ├── examples/
 │   ├── README.md               三个示例的区别与跑法
 │   ├── minimal-content.json    最小可跑输入（1 项目 / 2 段履历）
-│   ├── content.json            真实案例（13 项目 / 8 段履历 / 22 张图）
+│   ├── content.json            真实案例（9 项目 / 8 段履历 / 18 张图）
 │   ├── demo-content.json       表单内联用（由 make_demo.py 生成，勿手改）
 │   └── assets/namecard-demo.jpg  示例占位名片
 ├── references/
@@ -112,7 +112,7 @@ assets/form.html        # 双击 / 拖进浏览器都行
 python scripts/build_portfolio.py examples/content.json --stats
 
 python scripts/verify.py "<out>/index.html" \
-    --expect nh_digitalhuman,nh_gfs,nh_herodash,nh_game,nh_lowcode,yunshu_tech \
+    --expect arch_digitalhuman,arch_gfs,arch_aics,arch_chanyou,arch_mofang,arch_yunshu,arch_lifesense,arch_supplychain,arch_7road \
     --last-section projects --must "我的项目" --absent "重点项目" --shots shots/
 
 python scripts/package.py "<out>"
@@ -152,7 +152,7 @@ python scripts/package.py "<out>"
 | 文件 | 体量 | 用途 |
 |---|---|---|
 | `examples/minimal-content.json` | 3 KB | 最小可跑（1 项目 / 2 段履历 / 2 支柱），验证环境 |
-| `examples/content.json` | 39 KB | 真实案例（13 项目 / 8 段履历 / 22 张图） |
+| `examples/content.json` | 28 KB | 真实案例（9 项目 / 8 段履历 / 18 张图） |
 | `examples/demo-content.json` | 640 KB | 表单「载入示例」用的压缩版，由脚本生成，勿手改 |
 
 详见 [`examples/README.md`](./examples/README.md)。
@@ -162,7 +162,7 @@ python scripts/package.py "<out>"
 ### 单测
 
 ```
-Ran 62 tests in 43.5s
+Ran 62 tests in 26.0s
 OK
 ```
 
@@ -171,22 +171,22 @@ OK
 与命令行构建的页面：结构计数、章节序号、导航、缩放元素类型序列、可见文本、`<title>`
 逐项相等）与**破图断言**。
 
-### 一份 13 项目 / 8 段履历的完整作品集（外置图）
+### 一份 9 项目 / 8 段履历的完整作品集（外置图）
 
 ```
-外置资源 1.77 MB ｜ index.html 0.07 MB ｜ 区块 capability+stack+career+credential+projects
-计数 pillars 3 ｜ metrics 6 ｜ cards 13 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 18
+外置资源 1.74 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
+计数 pillars 3 ｜ metrics 6 ｜ cards 9 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 14
 导航无死链 ✓   无遗留页脚 ✓   body 无游离区块 ✓   末尾非孤立分隔线 ✓
 末区块为 projects ✓   章节序号按 DOM 顺序连续 ['01','02','03','04','05'] ✓
 名片占屏宽比 77% ✓
-主图映射顺序 ✓（6 项）   项目按时间降序 ✓   项目编号连续 01–13 ✓
+主图映射顺序 ✓（9 项）   项目按时间降序 ✓   项目编号连续 01–09 ✓
 五端（1440/820/390/360/320）无横向溢出 ✓   关键区块不超宽 ✓   触摸端正文字号 ≥14.5px ✓
 PASS: 全部检查通过
 ```
 
-22 张图按项目分成九组落在 `img/` 下（`p01-digital-human` / `p02-gfs` / `p03-ai-cs` /
-`p04-chanyou` / `p05-mofang` / `p06-yunshu` / `card` / `certs` / `qr`），
-`index.html` 落盘 74,690 B（`STATS.bytes` 记 74,033，差 657 = Windows 每行 CRLF +1）。
+18 张图按项目分成四类落在 `img/` 下（`p01-digitalhuman` … `p09-7road` 九组架构图 /
+`card` 名片 / `certs` 证书 / `qr` 二维码），
+`index.html` 落盘 61,762 B（`STATS.bytes` 记 61,062，差 700 = Windows 每行 CRLF +1）。
 换一张架构图不用碰页面。
 
 ### 最小示例（最小可用输入）
@@ -200,7 +200,7 @@ PASS: 全部检查通过
 
 ### 表单路径产物体积
 
-演示尺寸的完整作品集（22 张图内联）**0.66 MB** —— 表单路径不做 PNG8 量化，
+演示尺寸的完整作品集（18 张图内联）**0.51 MB** —— 表单路径不做 PNG8 量化，
 体积会大于命令行产物；检查面板在超过 5MB 时直接给出改用命令行的建议。
 
 ## 判不了的部分（一律不写 PASS）

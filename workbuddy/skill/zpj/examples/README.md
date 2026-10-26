@@ -3,7 +3,7 @@
 | 文件 | 体量 | 用途 | 跑完得到 |
 |---|---|---|---|
 | `minimal-content.json` | 3 KB · 1 个项目 / 2 段履历 | **先跑这个**。最小可用输入，验证环境对不对 | `dist/minimal-demo/index.html` + `img/card/namecard.jpg` |
-| `content.json` | 39 KB · 13 个项目 / 8 段履历 / 22 张图 | 真实案例（含架构图、证书、二维码），看**满配**长什么样 | `<paths.out_dir>/index.html` + `img/` 下 22 张图 |
+| `content.json` | 28 KB · 9 个项目 / 8 段履历 / 18 张图 | 真实案例（含架构图、证书、二维码），看**满配**长什么样 | `<paths.out_dir>/index.html` + `img/` 下 18 张图 |
 | `demo-content.json` | 640 KB | **不要手改**。由 `scripts/make_demo.py` 从 `content.json` 生成，图片压到演示尺寸后内联，供表单「载入示例」用 | 经 `sync_assets.py` 注入 `assets/form.html` |
 
 `assets/namecard-demo.jpg` 是 `minimal-content.json` 用的占位名片（1000×520，纯图形 + 英文，无真实个人信息）。

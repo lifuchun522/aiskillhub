@@ -115,7 +115,7 @@ assets/form.html
 | `assets/form.html` | 采集表单（离线单文件；内嵌模板与示例数据；含浏览器端渲染引擎） |
 | `assets/template.html` | 作品集模板骨架（**单一事实来源**；深色专业风、灯箱、滚动动效、老内核兜底） |
 | `examples/minimal-content.json` | 最小示例（1 项目 / 2 段履历，30 秒验证环境） |
-| `examples/content.json` | 完整示例（13 项目 / 8 段履历 / 22 张图，命令行用） |
+| `examples/content.json` | 完整示例（9 项目 / 8 段履历 / 18 张图，命令行用） |
 | `examples/demo-content.json` | 同一份内容的演示尺寸版（表单用，图片内联 data URI，由 `make_demo.py` 生成） |
 | `examples/README.md` | 三个示例的区别、跑法、改成自己内容的五步 |
 | `tests/` | 62 项单测：构建器 34 + 资产一致性 9 + 浏览器端 19 |
