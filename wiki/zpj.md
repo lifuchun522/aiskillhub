@@ -40,7 +40,7 @@
 cp -r workbuddy/skill/zpj ~/.workbuddy/skills/zpj
 
 cd ~/.workbuddy/skills/zpj
-python -m unittest discover -s tests -t . -v      # 62 项，全绿
+python -m unittest discover -s tests -t . -v      # 67 项，全绿
 
 # 只有命令行路径与自检需要
 pip install pillow playwright
@@ -72,7 +72,9 @@ assets/form.html        # 双击 / 拖进浏览器都行
 3. **生成作品集** → 弹层预览 → **另存 HTML**
 4. **导出 JSON** 存断点，下次「导入 JSON」接着填
 
-九个区块：基础信息 / 首屏数据条 / 首屏名片 / 第一人称自述 / 核心能力支柱 / 技术栈分组 / 工作经历 / 教育背景·专业认证·个人主页 / 我的项目。列表行都能增删，项目卡还能挂多张补充架构图。
+九个区块：基础信息 / 首屏数据条（可留空）/ 首屏名片·个人档案 / 第一人称自述 / 核心能力支柱 / 技术栈分组 / 工作经历 / 教育背景·专业认证·个人主页 / 我的项目。列表行都能增删，项目卡还能挂多张补充架构图。
+
+页面叙事顺序：Hero（tagline + 满宽名片 + 4 行个人档案）→ ABOUT ME 自述 → 01 核心能力 → 02 技术栈 → 03 工作经历 → 04 专业认证·个人主页 → 05 我的项目 → 06 教育背景（末区块，收尾留白）。
 
 检查面板会主动报出：姓名未填、项目无主图、项目没写关键动作、项目没写成果、项目无标签、二维码缺链接、产物体积超 5 MB、以及**导入的图是本机磁盘路径需要重新选**（磁盘路径图无法内联，会记入 `_dropped` 逐条列出，不静默丢弃）。
 
@@ -200,7 +202,7 @@ PASS: 全部检查通过
 
 三条的共同点：**不抛异常、不报错，只是页面悄悄错**。这也是为什么这个技能的测试里破图、分隔线数量、序号连续性都是硬断言。
 
-完整测试报告（62 项逐条明细、双路径 `verify.py` 原始输出、P0 bug 复盘、不可判定项清单）：[`TEST-REPORT.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/TEST-REPORT.md)
+完整测试报告（67 项逐条明细、双路径 `verify.py` 原始输出、P0 bug 复盘、不可判定项清单）：[`TEST-REPORT.md`](https://github.com/lifuchun522/aiskillhub/blob/main/workbuddy/skill/zpj/TEST-REPORT.md)
 
 ## 判不了的部分（一律 NA，不写 PASS）
 
@@ -231,12 +233,13 @@ PASS: 全部检查通过
 | `references/02-pitfalls.md` | 踩坑清单（P0 / P1 / P2） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、六步检查清单 |
-| `TEST-REPORT.md` | 测试报告：62 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
+| `TEST-REPORT.md` | 测试报告：67 项单测明细、双路径 `verify.py` 输出、3 个 P0 bug 记录、不可判定项清单 |
 
 ## 版本历史
 
 | 版本 | 变更 |
 |---|---|
+| v2.2.0 | 版式与内容双调整：导航去掉「logo + 姓名 + 头衔」品牌块（改由名片 + 语义 `h1` 承载）；首屏数据条下线（`metrics: []`，机制保留、`verify.py` 计入 `OPTIONAL_STATS`）；ABOUT ME 去掉署名 / 城市侧栏（`.intro.noside`）；**教育背景从 04 CREDENTIAL 独立成 06 EDUCATION 末区块**（容器改 `.edu`、新增 `<!--NAV:edu-->` 与 `--last-section edu`）；新增 `content.profile` 把简历表格的求职意向 / 出生年月 / 擅长领域 / 岗位优势归纳成名片下方键值条；证书 4→2、二维码 4→2 自动落 `c2` 双列。示例 14 图，`index.html` 63,599 B + 外置 1.64 MB，67 项单测 |
 | v2.1.0 | 示例内容按 2026-10 版《标准简历.docx》重建：工作经历 8 段、项目 9 个全部取自简历表格原文；图片换成配套 9 张分层架构图 + 新头像重制的首屏名片 + 微信二维码；`index.html` 61,762 B + 外置 1.74 MB，18 张图按 `img/p01-digitalhuman` … `p09-7road` / `card` / `certs` / `qr` 分组 |
 | v2.0.0 | 收敛为单一技能包 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增 3 KB 最小示例 `examples/minimal-content.json` + `examples/README.md`；`verify.py` 修一处误判：未配证书 / 二维码时 `certs`/`qrs` 计数为 0 属于合法状态，从 `FAIL` 改为 `SKIP`，五端「关键区块」检查也按容器是否为空跳过；表单草稿键与调试入口统一为 `zpj-draft-v1` / `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 2.41 MB → 68 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端）。内容层面按既有简历重建为 13 个项目 / 8 段履历（9 个项目级条目 + 4 个 Word 里并列写明的具名子产品：云枢 PaaS、乐心医生 SaaS、乐心保险中台、第七大道游戏官网群）|
