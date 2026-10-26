@@ -60,14 +60,16 @@ PROFILES = [
 # (标签, 子元素选择器, 容器选择器)。第三个非空 = 可选区块：容器里一个子项都没有时，
 # 这块本来就不该出现（没配证书 / 二维码），跳过而非判缺。
 KEY_BLOCKS = [
-    ("导航", ".nav", None), ("名片", ".hero-card img", None), ("数据指标", ".metrics div", None),
+    ("导航", ".nav", None), ("名片", ".hero-card img", None),
+    ("档案", ".pf-i", ".pf"),
     ("自述", ".intro", None), ("能力支柱", ".pillar", None), ("项目卡", ".p-card", None),
     ("技术栈", "#stack .st", None), ("时间线", ".tl-item", None),
     ("证书", ".cert", ".certs"), ("二维码", ".qr", ".qrs"),
+    ("教育背景", "#edu .edu", None),
 ]
 
-# 这两个计数允许为 0：没配证书 / 二维码时，对应网格整块不渲染
-OPTIONAL_STATS = ("certs", "qrs")
+# 这三个计数允许为 0：没配数据条 / 证书 / 二维码时，对应区块整块不渲染
+OPTIONAL_STATS = ("metrics", "certs", "qrs")
 
 RESIDUE = [
     ("模板 token", re.compile(r"\{\{[A-Z0-9_]+\}\}")),

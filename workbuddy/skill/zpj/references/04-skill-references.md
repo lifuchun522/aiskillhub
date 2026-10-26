@@ -39,7 +39,7 @@ python -m playwright install chromium
 # 1. 资产同步（改了模板或示例之后必须做）
 python scripts/sync_assets.py --check
 
-# 2. 单测（62 项，含 19 项浏览器端）
+# 2. 单测（67 项，含 19 项浏览器端）
 python -m unittest discover -s tests -t . -v
 
 # 3. 构建
@@ -47,7 +47,7 @@ python scripts/build_portfolio.py examples/content.json --stats
 
 # 4. 五端自检 + 截图
 python scripts/verify.py "<out>/index.html" --expect <主图键,逗号分隔> \
-    --last-section projects --must "<新词>" --absent "<旧文案>" --shots <目录>
+    --last-section edu --must "<新词>" --absent "<旧文案>" --shots <目录>
 
 # 5. 打包
 python scripts/package.py "<out>"
@@ -57,6 +57,7 @@ python scripts/package.py "<out>"
 
 | 版本 | 变更 |
 |---|---|
+| v2.2.0 | 版式与内容双调整：① 导航去掉「logo + 姓名 + 头衔」品牌块，只留锚点条（姓名与头衔已由名片 / `<title>` / 语义 `h1` 承载）；② 首屏数据条下线（`metrics: []`，机制保留，`verify.py` 计入 `OPTIONAL_STATS`）；③ ABOUT ME 去掉署名 / 城市侧栏（`who`/`where` 空 → `.intro.noside` 正文满行）；④ **教育背景从 04 CREDENTIAL 独立成 06 EDUCATION 末区块**，容器改 `.edu`（首条标签作主行）、新增 `<!--NAV:edu-->` 与 `--last-section edu`；⑤ 新增 `content.profile`（`<!--PROFILE-->`），把简历表格的求职意向 / 出生年月 / 擅长领域 / 岗位优势归纳成名片下方 4 行键值；⑥ 证书 4→2、二维码 4→2（`cert_star`/`cert_expert`/`qr_csdn`/`qr_cnblogs` 下线），自动落 `c2` 双列。示例 14 图，`index.html` 63,599 B + 外置 1.64 MB；67 项单测（构建器 39 + 资产 9 + 浏览器 19） |
 | v2.1.0 | 示例内容按 2026-10 版《标准简历.docx》重建：工作经历 8 段、项目 9 个，全部取自简历表格原文；图片换成配套的 9 张分层架构图（1600×900）+ 新头像重制的首屏名片 + 微信二维码，18 张图按 `img/p01-digitalhuman` … `img/p09-7road` / `card` / `certs` / `qr` 分组，`index.html` 61,762 B + 外置 1.74 MB。无代码改动，两处渲染与 62 项单测不变 |
 | v2.0.0 | 技能包收敛为 `zpj`（原 `gr-zpj`，`git mv` 保留历史）；新增最小示例 `examples/minimal-content.json`（3 KB，1 项目 / 2 段履历）+ `examples/README.md`；`verify.py` 修「未配证书 / 二维码被判失败」的误判（`OPTIONAL_STATS` + `KEY_BLOCKS` 三元组）；表单草稿键改 `zpj-draft-v1`、调试入口改 `window.__zpj` |
 | v1.1.0 | 图片可外置：`paths.external` 非空时把图写到 `<out_dir>/img/<分组>/…` 并用相对路径引用，`index.html` 从 2.4 MB 降到 ~70 KB；项目卡支持无主图（`fig` 留空 → 只出文字卡）；`verify.py` 的名片断言从「必须是 data URI」改为「必须解码出像素」，主图映射只比有图项目。62 项单测（43 项离线 + 19 项浏览器端） |

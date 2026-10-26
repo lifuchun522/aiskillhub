@@ -77,6 +77,8 @@ class Base(unittest.TestCase):
                 "intro": {"label": "ABOUT ME", "who": "测试君", "where": "深圳",
                           "lead": "一句话 <b>重音</b>。", "paras": ["第一段", "第二段"],
                           "facts": [["10 年", "经验"]]},
+                "profile": {"rows": [["求职意向", "架构师 <em>可到岗</em>"],
+                                     ["擅长领域", "分布式 / 云原生"]]},
                 "pillars": [{"icon": "arch", "title": "架构", "desc": "描述",
                              "tags": ["高并发", "分布式"]}],
                 "stack": [["后端", "Java / Spring", "说明"]],
@@ -114,8 +116,10 @@ class TestStructure(Base):
         self.assertEqual(stats["certs"], 1)
         self.assertEqual(stats["qrs"], 1)
         self.assertEqual(stats["namecard"], 1)
+        self.assertEqual(stats["profile"], 1)
+        self.assertEqual(stats["edu"], 1)
         self.assertEqual(stats["kept"],
-                         ["capability", "stack", "career", "credential", "projects"])
+                         ["capability", "stack", "career", "credential", "projects", "edu"])
 
     def test_no_template_residue(self):
         html, _s, _a = self.build(self.cfg())
@@ -126,14 +130,22 @@ class TestStructure(Base):
     def test_section_numbers_are_dom_ordered(self):
         html, _s, _a = self.build(self.cfg())
         nums = re.findall(r'class="idx">(\d\d) / ([\w ]+)', html)
-        self.assertEqual([n[0] for n in nums], ["01", "02", "03", "04", "05"])
+        self.assertEqual([n[0] for n in nums], ["01", "02", "03", "04", "05", "06"])
         self.assertEqual([n[1] for n in nums],
-                         ["CAPABILITY", "TECH STACK", "CAREER", "CREDENTIAL", "MY PROJECTS"])
+                         ["CAPABILITY", "TECH STACK", "CAREER", "CREDENTIAL",
+                          "MY PROJECTS", "EDUCATION"])
+
+    def test_edu_is_the_last_section(self):
+        """教育背景必须排在 main 的最后一段（表格里的学历信息收尾）。"""
+        html, _s, _a = self.build(self.cfg())
+        main = html.split("<main>")[1].split("</main>")[0]
+        ids = re.findall(r'<section id="([a-z]+)"', main)
+        self.assertEqual(ids[-1], "edu")
 
     def test_separators_between_sections_only(self):
         """分隔线数量 = 区块数 - 1；且不落在 main 的最前 / 最后。"""
         html, _s, _a = self.build(self.cfg())
-        self.assertEqual(html.count('class="hr"'), 4)
+        self.assertEqual(html.count('class="hr"'), 5)
         main = html.split("<main>")[1].split("</main>")[0]
         self.assertFalse(main.strip().startswith('<div class="wrap"><div class="hr">'))
         self.assertFalse(main.strip().endswith("</div></div>"))
@@ -149,9 +161,33 @@ class TestStructure(Base):
         cfg = self.cfg(texts={"NAME": "张三", "ROLE": "架构师", "ROLE_SHORT": "架构师"})
         html, _s, _a = self.build(cfg)
         self.assertIn("<title>张三 · 架构师 | 作品集</title>", html)
-        self.assertIn('<div class="mk">张</div>', html)
+        # 姓名与头衔以语义 h1 兜底（视觉上由名片承载），导航不再有品牌块
+        self.assertIn('<h1 class="sr">张三 · 架构师</h1>', html)
+        self.assertNotIn('class="brand"', html)
         self.assertIn("共 1 段履历", html)                 # CAREER_LEAD 自动生成
         self.assertIn("共 1 个项目", html)                 # PROJ_LEAD 自动生成
+
+    def test_profile_renders_as_key_value_rows(self):
+        html, stats, _a = self.build(self.cfg())
+        self.assertEqual(stats["profile"], 1)
+        self.assertIn('<div class="k">求职意向</div><div class="v">架构师 <em>可到岗</em></div>',
+                      html)
+
+    def test_profile_empty_is_dropped(self):
+        cfg = self.cfg()
+        cfg["content"]["profile"] = {"rows": ""}
+        html, stats, _a = self.build(cfg)
+        self.assertEqual(stats["profile"], 0)
+        self.assertNotIn('class="pf rv"', html)
+
+    def test_intro_side_is_optional(self):
+        """署名 / 城市留空 -> 不渲染侧栏，正文占满整行。"""
+        cfg = self.cfg()
+        cfg["content"]["intro"].pop("who")
+        cfg["content"]["intro"].pop("where")
+        html, _s, _a = self.build(cfg)
+        self.assertIn('class="intro rv noside"', html)
+        self.assertNotIn('class="side"', html)
 
     def test_metrics_columns_match_rows(self):
         html, _s, _a = self.build(self.cfg())
@@ -188,8 +224,8 @@ class TestStructure(Base):
         a = self.build(arr)[0]
         b = self.build(s)[0]
         self.assertEqual(re.sub(r"\s+", "", a), re.sub(r"\s+", "", b))
-        # 6 个导航项 + 2 个支柱标签 + 2 条时间线要点 + 2 条项目动作
-        self.assertEqual(b.count("<li>"), 12)
+        # 7 个导航项 + 2 个支柱标签 + 2 条时间线要点 + 2 条项目动作
+        self.assertEqual(b.count("<li>"), 13)
         self.assertEqual(b.count('<span class="chip">'), 2)   # CI/CD 不被拆开
 
 
@@ -202,29 +238,40 @@ class TestSectionPruning(Base):
         html, stats, _a = self.build(cfg)
         self.assertNotIn('id="capability"', html)
         self.assertNotIn('href="#capability"', html)
-        self.assertEqual(html.count('class="hr"'), 3)
-        self.assertEqual(stats["kept"], ["stack", "career", "credential", "projects"])
-        self.assertEqual(re.findall(r'class="idx">(\d\d)', html), ["01", "02", "03", "04"])
+        self.assertEqual(html.count('class="hr"'), 4)
+        self.assertEqual(stats["kept"],
+                         ["stack", "career", "credential", "projects", "edu"])
+        self.assertEqual(re.findall(r'class="idx">(\d\d)', html), ["01", "02", "03", "04", "05"])
 
-    def test_drop_tail_credential(self):
-        """删掉尾部区块不能留下「什么都没有的分隔线」。"""
+    def test_drop_middle_credential(self):
+        """删掉中间区块（认证主页）不能留下「连着的两条分隔线」。"""
         cfg = self.cfg()
-        cfg["content"]["credential"] = None
-        cfg["content"].pop("credential", None)
         cfg["content"]["cert_label"] = []
         cfg["content"]["qrs"] = []
-        cfg["content"]["edu"] = {}
         html, _s, _a = self.build(cfg)
-        self.assertEqual(html.count('class="hr"'), 3)
+        self.assertEqual(html.count('class="hr"'), 4)
+        self.assertNotIn('id="credential"', html)
+        self.assertNotIn('<div class="hr"></div></div>\n\n<div class="wrap"><div class="hr">', html)
+        self.assertIn('id="edu"', html)
+
+    def test_drop_tail_edu(self):
+        """删掉末尾区块（教育背景）不能留下「后面什么都没有的分隔线」。"""
+        cfg = self.cfg()
+        cfg["content"]["edu"] = {}
+        html, stats, _a = self.build(cfg)
+        self.assertEqual(html.count('class="hr"'), 4)
+        self.assertNotIn('id="edu"', html)
+        self.assertNotIn('href="#edu"', html)
+        self.assertEqual(stats["kept"][-1], "projects")
         main = html.split("<main>")[1].split("</main>")[0].strip()
         self.assertTrue(main.endswith("</section>"), "main 末尾不该是分隔线")
-        self.assertNotIn('id="credential"', html)
 
     def test_only_projects_no_separator(self):
         cfg = self.cfg()
         for k in ("pillars", "stack", "timeline"):
             cfg["content"][k] = []
         cfg["content"]["intro"] = None
+        cfg["content"]["profile"] = {"rows": ""}
         cfg["content"]["cert_label"], cfg["content"]["qrs"] = [], []
         cfg["content"]["edu"] = {}
         cfg["card"] = None

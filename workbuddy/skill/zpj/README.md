@@ -18,7 +18,7 @@
 # 只要装了 Python + Pillow
 python scripts/build_portfolio.py examples/minimal-content.json --skill-dir . --stats
 python scripts/verify.py "dist/minimal-demo/index.html" \
-    --last-section projects --must "订单履约平台重构"
+    --last-section edu --must "订单履约平台重构"
 ```
 
 产物：`dist/minimal-demo/index.html`（31 KB）+ `img/card/namecard.jpg`（30 KB）。
@@ -32,7 +32,7 @@ python scripts/verify.py "dist/minimal-demo/index.html" \
 zpj/
 ├── SKILL.md                    技能规范：触发条件、五条设计原则、标记语法
 ├── README.md                   本文件
-├── TEST-REPORT.md              62 项单测明细 + 双路径自检原始输出 + 4 个 bug 复盘
+├── TEST-REPORT.md              67 项单测明细 + 双路径自检原始输出 + 4 个 bug 复盘
 ├── assets/
 │   ├── form.html               采集表单（离线单文件，内嵌模板 + 示例 + 渲染引擎）
 │   └── template.html           作品集模板骨架（单一事实来源）
@@ -45,7 +45,7 @@ zpj/
 ├── examples/
 │   ├── README.md               三个示例的区别与跑法
 │   ├── minimal-content.json    最小可跑输入（1 项目 / 2 段履历）
-│   ├── content.json            真实案例（9 项目 / 8 段履历 / 18 张图）
+│   ├── content.json            真实案例（9 项目 / 8 段履历 / 14 张图）
 │   ├── demo-content.json       表单内联用（由 make_demo.py 生成，勿手改）
 │   └── assets/namecard-demo.jpg  示例占位名片
 ├── references/
@@ -53,7 +53,7 @@ zpj/
 │   ├── 02-pitfalls.md          踩坑清单（P0 / P1 / P2）
 │   ├── 03-content-schema.md    content.json 全字段规格 + 写作纪律
 │   └── 04-skill-references.md  依赖、相关技能、路径换算
-└── tests/                      62 项：构建器 34 + 资产一致性 9 + 浏览器端 19
+└── tests/                      67 项：构建器 39 + 资产一致性 9 + 浏览器端 19
 ```
 
 ## 它解决什么问题
@@ -81,7 +81,7 @@ zpj/
 cp -r workbuddy/skill/zpj ~/.workbuddy/skills/zpj
 
 cd ~/.workbuddy/skills/zpj
-python -m unittest discover -s tests -t . -v      # 62 项，全绿
+python -m unittest discover -s tests -t . -v      # 67 项，全绿
 
 # 可选：命令行路径与自检需要
 pip install pillow playwright
@@ -103,8 +103,9 @@ assets/form.html        # 双击 / 拖进浏览器都行
 3. **生成作品集** → 弹层预览 → **另存 HTML**
 4. **导出 JSON** 存断点
 
-九个区块：基础信息 / 首屏数据条 / 首屏名片 / 第一人称自述 / 核心能力支柱 /
+九个区块：基础信息 / 首屏数据条 / 首屏名片·个人档案 / 第一人称自述 / 核心能力支柱 /
 技术栈分组 / 工作经历 / 教育背景·认证·主页 / 我的项目。都能增删，项目卡还能加多张补充架构图。
+数据条与教育背景都可以留空：前者整条不渲染，后者会排到页面最后。
 
 ### 2 · 命令行路径
 
@@ -113,7 +114,7 @@ python scripts/build_portfolio.py examples/content.json --stats
 
 python scripts/verify.py "<out>/index.html" \
     --expect arch_digitalhuman,arch_gfs,arch_aics,arch_chanyou,arch_mofang,arch_yunshu,arch_lifesense,arch_supplychain,arch_7road \
-    --last-section projects --must "我的项目" --absent "重点项目" --shots shots/
+    --last-section edu --must "我的项目" --absent "重点项目" --shots shots/
 
 python scripts/package.py "<out>"
 ```
@@ -152,7 +153,7 @@ python scripts/package.py "<out>"
 | 文件 | 体量 | 用途 |
 |---|---|---|
 | `examples/minimal-content.json` | 3 KB | 最小可跑（1 项目 / 2 段履历 / 2 支柱），验证环境 |
-| `examples/content.json` | 28 KB | 真实案例（9 项目 / 8 段履历 / 18 张图） |
+| `examples/content.json` | 28 KB | 真实案例（9 项目 / 8 段履历 / 14 张图） |
 | `examples/demo-content.json` | 640 KB | 表单「载入示例」用的压缩版，由脚本生成，勿手改 |
 
 详见 [`examples/README.md`](./examples/README.md)。
@@ -162,37 +163,37 @@ python scripts/package.py "<out>"
 ### 单测
 
 ```
-Ran 62 tests in 26.0s
+Ran 67 tests in 25.2s
 OK
 ```
 
 （浏览器端 19 项要起 Chromium，耗时随机器负载在 35–100s 间浮动，项数恒为 62。）
-构建器 34 + 资产一致性 9 + 浏览器端 19。浏览器端含**两处渲染一致性**（表单生成的页面
+构建器 39 + 资产一致性 9 + 浏览器端 19。浏览器端含**两处渲染一致性**（表单生成的页面
 与命令行构建的页面：结构计数、章节序号、导航、缩放元素类型序列、可见文本、`<title>`
 逐项相等）与**破图断言**。
 
 ### 一份 9 项目 / 8 段履历的完整作品集（外置图）
 
 ```
-外置资源 1.74 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
-计数 pillars 3 ｜ metrics 6 ｜ cards 9 ｜ certs 4 ｜ qrs 4 ｜ tl 8 ｜ stack 6 ｜ zoom 14
+外置资源 1.64 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects+edu
+计数 pillars 3 ｜ metrics 0（未配，整条不渲染）｜ cards 9 ｜ certs 2 ｜ qrs 2 ｜ tl 8 ｜ stack 6 ｜ zoom 12
 导航无死链 ✓   无遗留页脚 ✓   body 无游离区块 ✓   末尾非孤立分隔线 ✓
-末区块为 projects ✓   章节序号按 DOM 顺序连续 ['01','02','03','04','05'] ✓
+末区块为 edu ✓   章节序号按 DOM 顺序连续 ['01','02','03','04','05','06'] ✓
 名片占屏宽比 77% ✓
 主图映射顺序 ✓（9 项）   项目按时间降序 ✓   项目编号连续 01–09 ✓
 五端（1440/820/390/360/320）无横向溢出 ✓   关键区块不超宽 ✓   触摸端正文字号 ≥14.5px ✓
 PASS: 全部检查通过
 ```
 
-18 张图按项目分成四类落在 `img/` 下（`p01-digitalhuman` … `p09-7road` 九组架构图 /
+14 张图按项目分成四类落在 `img/` 下（`p01-digitalhuman` … `p09-7road` 九组架构图 /
 `card` 名片 / `certs` 证书 / `qr` 二维码），
-`index.html` 落盘 61,762 B（`STATS.bytes` 记 61,062，差 700 = Windows 每行 CRLF +1）。
+`index.html` 落盘 63,599 B（`STATS.bytes` 记 62,727，差 872 = Windows 每行 CRLF +1）。
 换一张架构图不用碰页面。
 
 ### 最小示例（最小可用输入）
 
 ```
-外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+credential+projects
+外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+projects+edu
 计数 pillars 2 ｜ metrics 3 ｜ cards 1 ｜ certs 0 ｜ qrs 0 ｜ tl 2 ｜ stack 1 ｜ zoom 1
 计数 certs / qrs                    SKIP（未配，区块整块不出现）
 PASS: 全部检查通过
@@ -200,7 +201,7 @@ PASS: 全部检查通过
 
 ### 表单路径产物体积
 
-演示尺寸的完整作品集（18 张图内联）**0.51 MB** —— 表单路径不做 PNG8 量化，
+演示尺寸的完整作品集（14 张图内联）**0.45 MB** —— 表单路径不做 PNG8 量化，
 体积会大于命令行产物；检查面板在超过 5MB 时直接给出改用命令行的建议。
 
 ## 判不了的部分（一律不写 PASS）
@@ -230,6 +231,6 @@ PASS: 全部检查通过
 | `references/02-pitfalls.md` | 踩坑清单（P0/P1/P2） |
 | `references/03-content-schema.md` | `content.json` 全字段规格 + 写作纪律 |
 | `references/04-skill-references.md` | 依赖、相关技能、路径换算、六步检查清单 |
-| `TEST-REPORT.md` | 测试报告：62 项单测明细、双路径 `verify.py` 输出、4 个 bug 复盘、不可判定项清单 |
+| `TEST-REPORT.md` | 测试报告：67 项单测明细、双路径 `verify.py` 输出、4 个 bug 复盘、不可判定项清单 |
 
 完整测试报告见 [`TEST-REPORT.md`](./TEST-REPORT.md)。

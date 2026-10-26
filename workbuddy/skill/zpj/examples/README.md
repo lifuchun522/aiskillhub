@@ -3,7 +3,7 @@
 | 文件 | 体量 | 用途 | 跑完得到 |
 |---|---|---|---|
 | `minimal-content.json` | 3 KB · 1 个项目 / 2 段履历 | **先跑这个**。最小可用输入，验证环境对不对 | `dist/minimal-demo/index.html` + `img/card/namecard.jpg` |
-| `content.json` | 28 KB · 9 个项目 / 8 段履历 / 18 张图 | 真实案例（含架构图、证书、二维码），看**满配**长什么样 | `<paths.out_dir>/index.html` + `img/` 下 18 张图 |
+| `content.json` | 29 KB · 9 个项目 / 8 段履历 / 14 张图 | 真实案例（含架构图、证书、二维码），看**满配**长什么样 | `<paths.out_dir>/index.html` + `img/` 下 14 张图 |
 | `demo-content.json` | 640 KB | **不要手改**。由 `scripts/make_demo.py` 从 `content.json` 生成，图片压到演示尺寸后内联，供表单「载入示例」用 | 经 `sync_assets.py` 注入 `assets/form.html` |
 
 `assets/namecard-demo.jpg` 是 `minimal-content.json` 用的占位名片（1000×520，纯图形 + 英文，无真实个人信息）。
@@ -15,16 +15,17 @@
 ```bash
 python scripts/build_portfolio.py examples/minimal-content.json --skill-dir . --stats
 python scripts/verify.py "dist/minimal-demo/index.html" \
-    --last-section projects --must "订单履约平台重构"
+    --last-section edu --must "订单履约平台重构"
 ```
 
 期望输出（节选）：
 
 ```
 外置 namecard            29.6 KB -> img/card/namecard.jpg
-外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+credential+projects
-STATS:{"metrics": 3, "namecard": 1, "intro": 1, "pillars": 2, "projects": 1, "stack": 1,
-       "timeline": 2, "certs": 0, "qrs": 0, "images": 1, "kept": [...], "bytes": 31671, ...}
+外置资源 0.03 MB ｜ index.html 0.03 MB ｜ 区块 capability+stack+career+projects+edu+edu
+STATS:{"metrics": 3, "namecard": 1, "intro": 1, "profile": 0, "pillars": 2, "projects": 1,
+       "stack": 1, "timeline": 2, "certs": 0, "qrs": 0, "edu": 1, "images": 1,
+       "kept": [...], "bytes": 34299, ...}
 PASS: 全部检查通过
 ```
 

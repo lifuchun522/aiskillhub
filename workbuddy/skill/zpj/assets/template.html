@@ -41,19 +41,18 @@ body::before{content:"";position:fixed;top:0;right:0;bottom:0;left:0;pointer-eve
     radial-gradient(700px 700px at 50% 108%,rgba(47,208,127,.05),transparent 60%)}
 .wrap{max-width:1160px;margin:0 auto;padding:0 26px;position:relative;z-index:1}
 a{color:inherit;text-decoration:none}
+/* 只给读屏 / 复制 / 检索用的文本（不影响布局，也不产生滚动宽度） */
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* ---------- nav ---------- */
 .nav{position:-webkit-sticky;position:sticky;top:0;z-index:60;
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   background:rgba(7,10,16,.93);border-bottom:1px solid transparent;transition:border-color .3s}
 .nav.solid{border-bottom-color:var(--border)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
-.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px}
-.brand .mk{width:30px;height:30px;border-radius:9px;flex:none;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:grid;place-items:center;font-size:13px;color:#fff;font-weight:800;
-  box-shadow:0 4px 16px rgba(78,168,255,.30)}
-.brand small{display:block;font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.6px}
+/* 导航只保留锚点条 —— 左上角的「logo + 姓名 + 头衔」与首屏名片重复，
+   姓名/头衔已经在名片与 <title> 里各出现一次，这里不再重复第三遍。 */
+.nav .wrap{display:flex;align-items:center;justify-content:center;height:60px}
 .nav ul{display:flex;gap:2px;list-style:none}
 .nav ul a{padding:7px 10px;border-radius:8px;font-size:13px;color:var(--muted);transition:.2s}
 .nav ul a:hover{color:var(--text);background:var(--chip)}
@@ -61,8 +60,8 @@ a{color:inherit;text-decoration:none}
 /* 小屏 / 手机 / 微信内置浏览器：导航不隐藏，改为可横向滑动的锚点条，
    避免用户只能靠长页面滚动找章节（企业 IM 里尤其需要明确入口） */
 @media(max-width:1000px){
-  .nav .wrap{flex-wrap:wrap;height:auto;min-height:54px;padding-top:9px;padding-bottom:0}
-  .nav .brand{padding-bottom:9px;min-width:0}
+  .nav .wrap{flex-wrap:wrap;height:auto;min-height:54px;padding-top:9px;padding-bottom:0;
+    justify-content:flex-start}
   /* min-width:0 是必须的：flex 项默认 min-width:auto，会被内容撑宽
      （导航条一旦撑宽，整页在 320~360px 机型上就出现横向滚动） */
   .nav ul{width:100%;min-width:0;max-width:100%;flex-wrap:nowrap;
@@ -75,9 +74,11 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- hero：首屏即名片 ---------- */
 /* 版式决议：Hero 不放「大标题 + 头衔 + 信条 + 徽章 + 按钮」文案块，直接以
-   满宽名片开屏。理由 —— 名片本身已承载姓名 / 头衔 / 教育背景 / 核心方向 /
-   代表项目 / 联系方式；而文案块的信息与 04 CREDENTIAL 的证书图、ABOUT ME
-   自述大面积重复。名片在 400px 小尺寸下正文根本看不清，只有铺满内容宽度才可用。 */
+   满宽名片开屏。理由 —— 名片本身已承载姓名 / 头衔 / 核心方向 / 代表项目 / 联系方式；
+   而文案块的信息与证书图、ABOUT ME 自述大面积重复。名片在 400px 小尺寸下正文根本
+   看不清，只有铺满内容宽度才可用。招聘视角的硬信息（求职意向 / 基本信息 / 擅长领域 /
+   岗位优势）不塞进图片，改由「档案条」（.pf）用文本渲染 —— 图片里的字小屏读不出，
+   也不该与名片各说一遍。 */
 .hero{padding:70px 0 30px}
 .tagline{font-family:var(--mono);font-size:12.5px;color:var(--accent);letter-spacing:1.4px;
   text-transform:uppercase;margin-bottom:18px}
@@ -99,6 +100,21 @@ a{color:inherit;text-decoration:none}
   .hero-card::after{top:-8px;right:-8px;bottom:-8px;left:-8px;filter:blur(20px)}
 }
 
+/* ---------- profile：名片下方的「个人档案」归纳条 ---------- */
+/* 数据来自简历表格（求职意向 / 出生年月 / 籍贯 / 擅长领域 / 岗位优势），
+   在这里归纳成 4 行键值 —— 不照搬表格的 8 行，也不重复名片上已有的
+   行业背景 / 技术背景 / 代表项目。值里允许 <b> / <em>。 */
+.pf{margin-top:22px;background:linear-gradient(165deg,var(--card),var(--bg2));
+  border:1px solid var(--border);border-radius:var(--radius);padding:4px 24px}
+.pf-i{display:grid;grid-template-columns:92px 1fr;gap:18px;padding:13px 0;
+  border-top:1px solid var(--border)}
+.pf-i:first-child{border-top:0}
+.pf .k{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1.4px;
+  padding-top:4px;white-space:nowrap}
+.pf .v{font-size:14px;color:#c3d1e4;line-height:1.7}
+.pf .v b{color:#fff;font-weight:650}
+.pf .v em{font-style:normal;color:var(--muted);font-size:13px}
+
 /* ---------- metrics ---------- */
 /* 列数由渲染层按数据条数写入 --mc（内联自定义属性，媒体查询仍可覆盖列数） */
 .metrics{display:grid;grid-template-columns:repeat(var(--mc,6),1fr);gap:1px;background:var(--border);
@@ -118,6 +134,9 @@ a{color:inherit;text-decoration:none}
   border-radius:var(--radius);padding:30px 32px;position:relative;overflow:hidden}
 .intro::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
   background:linear-gradient(180deg,var(--accent),var(--accent2))}
+/* 侧栏（署名 / 城市）可留空：姓名与定位已在名片与档案条里，不填侧栏时正文占满整行，
+   不再留一根空着的 170px 左边栏 */
+.intro.noside{grid-template-columns:1fr}
 @media(max-width:760px){.intro{grid-template-columns:1fr;gap:16px;padding:22px 20px}}
 .intro .side .lb{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1.8px}
 .intro .side .who{font-size:16px;font-weight:750;margin-top:9px;letter-spacing:-.2px}
@@ -142,6 +161,12 @@ a{color:inherit;text-decoration:none}
   .tagline{font-size:11px;letter-spacing:1px;margin-bottom:13px}
   .hero-card img{border-radius:11px}
   .hero-card .hc-hint{font-size:10.5px;margin-top:9px}
+  .pf{margin-top:16px;padding:2px 16px}
+  .pf-i{grid-template-columns:1fr;gap:3px;padding:11px 0}
+  .pf .k{padding-top:0}
+  .pf .v{font-size:13.5px}
+  .edu{padding:18px 16px}
+  .edu .main{font-size:15.5px}
   .metrics{margin-top:26px}
   .metrics div{padding:17px 12px}
   .metrics b{font-size:22px}
@@ -310,6 +335,16 @@ section{padding:74px 0}
 .qr .ql{font-size:12.5px;color:var(--text);margin-top:10px;font-weight:600}
 .qr .qu{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px;word-break:break-all;line-height:1.5}
 
+/* ---------- edu：末区块（教育背景） ---------- */
+/* 首行是「学校 · 专业 · 学历」（数据里的第一条标签），其余落成标签。
+   末区块不设页脚 —— 它自己的 section 下边距就是收尾留白。 */
+.edu{background:linear-gradient(165deg,var(--card),var(--bg2));border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px 24px}
+.edu .main{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.edu .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.edu .tags span{font-size:12.5px;color:#a9bdd6;background:var(--chip);
+  border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+
 /* ---------- 项目卡内的补充架构图网格 ---------- */
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
 @media(max-width:640px){.gal{grid-template-columns:1fr}}
@@ -319,7 +354,7 @@ section{padding:74px 0}
 .gitem img{width:100%;display:block;aspect-ratio:4/3;object-fit:contain;background:#0b101a}
 .gitem .gl{font-size:12.5px;padding:10px 12px 4px;color:#b7c6da}
 
-/* 页面止于最后一个区块：末区块自身 74px 底边距即收尾留白。
+/* 页面止于最后一个区块（06 教育背景）：末区块自身 74px 下边距即收尾留白。
    联系方式不单列区块（首屏名片已含电话 / 邮箱 / 城市 / 二维码），页脚签名行不下线则重复。 */
 
 /* ---------- modal ---------- */
@@ -353,8 +388,6 @@ section{padding:74px 0}
 <body>
 
 <nav class="nav" id="nav"><div class="wrap">
-  <div class="brand"><div class="mk">{{MARK}}</div>
-    <div>{{NAME}}<small>{{ROLE_SHORT}}</small></div></div>
   <ul>
 <!--NAV:about--><li><a href="#about">关于我</a></li><!--/NAV:about-->
 <!--NAV:capability--><li><a href="#capability">核心能力</a></li><!--/NAV:capability-->
@@ -362,13 +395,19 @@ section{padding:74px 0}
 <!--NAV:career--><li><a href="#career">工作经历</a></li><!--/NAV:career-->
 <!--NAV:credential--><li><a href="#credential">认证主页</a></li><!--/NAV:credential-->
 <!--NAV:projects--><li><a href="#projects">我的项目</a></li><!--/NAV:projects-->
+<!--NAV:edu--><li><a href="#edu">教育背景</a></li><!--/NAV:edu-->
   </ul>
 </div></nav>
 
 <header class="hero"><div class="wrap">
+  <!-- 语义 h1：页面主标题。姓名与头衔在视觉上都由名片（图片）承载，
+       这里保留一份可被复制 / 检索 / 朗读的纯文本，不额外占用版面 -->
+  <h1 class="sr">{{NAME}} · {{ROLE}}</h1>
 <!--SEC:tagline-->  <div class="tagline">{{TAGLINE}}</div>
 <!--/SEC:tagline-->
   <!--NAMECARD-->
+<!--SEC:profile-->  <div class="pf rv"><!--PROFILE--></div>
+<!--/SEC:profile-->
 <!--SEC:metrics-->  <!--METRICS-->
 <!--/SEC:metrics-->
 <!--SEC:intro-->  <div id="about"><!--INTRO--></div>
@@ -418,7 +457,6 @@ section{padding:74px 0}
     <div class="idx"><!--N--> / CREDENTIAL</div>
     <h2>{{CRED_H2}}</h2>
   </div>
-  <!--EDU-->
   <div class="certs<!--CERT_COLS-->"><!--CERTS--></div>
   <div class="qrs<!--QR_COLS-->"><!--QRS--></div>
 </div></section>
@@ -435,6 +473,22 @@ section{padding:74px 0}
   <div class="proj" id="projList"><!--PROJECTS--></div>
 </div></section>
 <!--/SEC:projects-->
+
+<!--HR-->
+
+<!--SEC:edu-->
+<!-- 教育背景排在最后：15 年从业者，学历不是第一顺位的判断依据，
+     项目与履历讲完再用一行学校收尾（表格里的毕业学校 / 学历 / CET 落在这里）。
+     这段注释必须写在 SEC 标记**内部** —— 写在标记外面，区块被裁掉后会留下
+     一段「看不见但非空」的内容，尾部的孤立分隔线就归一不掉了。 -->
+<section id="edu"><div class="wrap">
+  <div class="sec-head rv">
+    <div class="idx"><!--N--> / EDUCATION</div>
+    <h2>教育背景</h2>
+  </div>
+  <!--EDU-->
+</div></section>
+<!--/SEC:edu-->
 
 </main>
 

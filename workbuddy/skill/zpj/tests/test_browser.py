@@ -67,7 +67,8 @@ PROBE = """() => ({
     sections: document.querySelectorAll('main > section').length,
     hrs:      document.querySelectorAll('.hr').length,
     namecard: document.querySelectorAll('.hero-card img').length,
-    edu:      document.querySelectorAll('#credential .st').length
+    profile:  document.querySelectorAll('.pf-i').length,
+    edu:      document.querySelectorAll('#edu .edu').length
   },
   idx:   Array.from(document.querySelectorAll('main > section')).map(
            s => (s.querySelector('.idx')||{}).textContent || ''),
@@ -146,7 +147,8 @@ class TestFormUI(BrowserBase):
         self.page.click("#btnDemo")
         self.page.wait_for_timeout(300)
         pay = self.page.evaluate("() => __zpj.payload()")
-        self.assertEqual(len(pay["metrics"]), exp["metrics"])
+        # 空数据条不会写进 payload（与命令行侧 cfg.get("metrics") 同语义）
+        self.assertEqual(len(pay.get("metrics") or []), exp["metrics"])
         self.assertEqual(len(pay["content"]["pillars"]), exp["pillars"])
         self.assertEqual(len(pay["content"]["stack"]), exp["stack"])
         self.assertEqual(len(pay["content"]["timeline"]), exp["timeline"])

@@ -213,15 +213,19 @@ def render_namecard(card):
 def render_intro(intro):
     """第一人称自述。intro 缺省 / 为空 -> 返回空串（整块不渲染）。
 
-    字段：label 侧栏小标 / who 姓名 / where 头衔·城市 /
+    字段：label 侧栏小标 / who 姓名 / where 头衔·城市（侧栏可选）/
           lead 首句重音（可含 <b>） / paras 正文段落列表 / facts [[数值, 说明], ...]
+    who / where 都留空时不渲染侧栏，正文占满整行（.intro.noside）——
+    姓名与定位已经由名片和档案条承载，正文块里再写一遍就是重复。
     """
     if not intro:
         return ""
-    side = ('<div class="side"><div class="lb">%s</div><div class="who">%s</div>'
-            '<div class="where">%s</div></div>'
-            % (esc(intro.get("label") or "ABOUT ME"), intro.get("who", ""),
-               intro.get("where", "")))
+    side = ""
+    if truthy(intro.get("who")) or truthy(intro.get("where")):
+        side = ('<div class="side"><div class="lb">%s</div><div class="who">%s</div>'
+                '<div class="where">%s</div></div>'
+                % (esc(intro.get("label") or "ABOUT ME"), intro.get("who", ""),
+                   intro.get("where", "")))
     txt = ['<div class="txt">']
     if intro.get("lead"):
         txt.append('<p class="lead">%s</p>' % intro["lead"])
@@ -232,7 +236,24 @@ def render_intro(intro):
         txt.append('<div class="facts">%s</div>' % "".join(
             "<div><b>%s</b><span>%s</span></div>" % (f[0], f[1]) for f in facts))
     txt.append("</div>")
-    return '<div class="intro rv">%s%s</div>' % (side, "".join(txt))
+    return '<div class="intro rv%s">%s%s</div>' % ("" if side else " noside",
+                                                   side, "".join(txt))
+
+
+def render_profile(profile):
+    """首屏「个人档案」归纳条，紧跟名片。
+
+    profile: {rows: [[键, 值], ...]}（也吃 "键 | 值" 一行一条的字符串）。
+    值里允许 <b> / <em> —— 与自述正文同规则，不转义。
+    缺省 / 全空 -> 整块不渲染（名片下面不留空条）。
+    """
+    if not profile:
+        return ""
+    rows = [r for r in pairs(profile.get("rows")) if r[0] or r[1]]
+    if not rows:
+        return ""
+    return "\n".join('<div class="pf-i"><div class="k">%s</div><div class="v">%s</div></div>'
+                     % (esc(k), v) for k, v in rows)
 
 
 def render_pillars(rows):
@@ -307,14 +328,19 @@ def render_timeline(timeline):
 
 
 def render_edu(edu):
-    """教育背景行。edu: {label, tags[] | "a / b"}；缺省则整行不渲染。"""
+    """教育背景（页面末区块主体）。edu: {tags[] | "a / b"}；缺省则整段不渲染。
+
+    第一条标签作为主行（学校 · 专业 · 学历），其余落成标签 —— 教育背景在页面最后
+    只承担「一句话交代」，不需要再排成卡片网格。
+    """
     if not edu or not truthy(edu.get("tags")):
         return ""
-    tags = "".join("<span>%s</span>" % esc(t) for t in split_tags(edu["tags"]))
-    return ('<div class="st rv" style="margin-bottom:26px;display:flex;align-items:center;'
-            'gap:20px;flex-wrap:wrap"><h4 style="margin:0">%s</h4>'
-            '<div class="tags">%s</div></div>'
-            % (esc(edu.get("label") or "教育背景"), tags))
+    tags = split_tags(edu["tags"])
+    if not tags:
+        return ""
+    rest = "".join("<span>%s</span>" % esc(t) for t in tags[1:])
+    return ('<div class="edu rv"><div class="main">%s</div>%s</div>'
+            % (esc(tags[0]), ('<div class="tags">%s</div>' % rest) if rest else ""))
 
 
 def render_certs(cert_label):
@@ -390,18 +416,19 @@ def number_sections(html):
 # ----------------------------------------------------------------- 主流程
 PLACEHOLDERS = ["<!--METRICS-->", "<!--NAMECARD-->", "<!--INTRO-->", "<!--PILLARS-->",
                 "<!--PROJECTS-->", "<!--STACK-->", "<!--TIMELINE-->", "<!--EDU-->",
-                "<!--CERTS-->", "<!--QRS-->", "<!--CERT_COLS-->", "<!--QR_COLS-->",
-                "<!--N-->", HR_MARK, "/*ASSETS*/{}/*END*/"]
+                "<!--PROFILE-->", "<!--CERTS-->", "<!--QRS-->", "<!--CERT_COLS-->",
+                "<!--QR_COLS-->", "<!--N-->", HR_MARK, "/*ASSETS*/{}/*END*/"]
 
 KNOWN_TOP_KEYS = {"paths", "texts", "card", "metrics", "images", "content"}
-KNOWN_CONTENT_KEYS = {"intro", "pillars", "projects", "stack", "timeline",
+KNOWN_CONTENT_KEYS = {"intro", "profile", "pillars", "projects", "stack", "timeline",
                       "edu", "cert_label", "qrs"}
 TOP_ONLY_KEYS = {"card", "metrics"}
 TOKEN_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
-SEC_KEYS = ("tagline", "metrics", "intro", "capability", "stack", "career",
-            "credential", "projects")
+SEC_KEYS = ("tagline", "metrics", "intro", "profile", "capability", "stack", "career",
+            "credential", "projects", "edu")
 NAV_TO_SEC = {"about": "intro", "capability": "capability", "stack": "stack",
-              "career": "career", "credential": "credential", "projects": "projects"}
+              "career": "career", "credential": "credential", "projects": "projects",
+              "edu": "edu"}
 
 
 def build(cfg, skill_dir):
@@ -419,11 +446,13 @@ def build(cfg, skill_dir):
         "tagline": truthy((cfg.get("texts") or {}).get("TAGLINE")),
         "metrics": truthy(cfg.get("metrics")),
         "intro": truthy(C.get("intro")),
+        "profile": truthy(C.get("profile")),
         "capability": truthy(C.get("pillars")),
         "stack": truthy(C.get("stack")),
         "career": truthy(C.get("timeline")),
-        "credential": bool(truthy(C.get("edu")) or certs or qrs),
+        "credential": bool(certs or qrs),
         "projects": truthy(projects),
+        "edu": truthy(C.get("edu")),
     }
 
     # ---- 资源：默认内嵌 data URI；paths.external 非空时改写文件到指定目录（相对路径引用）
@@ -491,18 +520,15 @@ def build(cfg, skill_dir):
     # ---- token：先合并派生默认值，再做双向一致门禁
     n_proj, n_tl = len(projects), len(C.get("timeline") or [])
     cred_parts = []
-    if truthy(C.get("edu")):
-        cred_parts.append("教育背景")
     if certs:
         cred_parts.append("专业认证")
     if qrs:
         cred_parts.append("个人主页")
     T = cfg.get("texts") or {}
     defaults = {
-        # 这四项用户不填也允许为空（表单里可以留空）—— 空值有明确语义：
-        # MARK 用 placeholder，TAGLINE 空则整行不渲染，NAME 空则由构建时告警提示。
+        # 这三项用户不填也允许为空（表单里可以留空）—— 空值有明确语义：
+        # TAGLINE 空则整行不渲染，NAME / ROLE 由构建时告警提示。
         "NAME": "", "ROLE": "", "ROLE_SHORT": "", "TAGLINE": "",
-        "MARK": (T.get("NAME") or "·")[0],
         "TITLE": "%s · %s | 作品集" % (T.get("NAME", ""), T.get("ROLE_SHORT", "")),
         "META_DESC": "%s · %s 个人作品集" % (T.get("NAME", ""), T.get("ROLE", "")),
         "CAP_LEAD": "从核心编码到架构决策，从能力工程化到团队与交付体系，全部亲自下场。",
@@ -522,8 +548,9 @@ def build(cfg, skill_dir):
 
     tpl_tokens = set(TOKEN_RE.findall(tpl))
     missing = sorted(tpl_tokens - set(texts))
-    # ROLE 作为 META_DESC 的输入被间接消费，模板里不再单独出现 —— 不算死键
-    dead = sorted(set(T) - tpl_tokens - {"ROLE"})
+    # ROLE / ROLE_SHORT 作为 <title> / <meta description> 的输入被间接消费，
+    # 模板正文里不再单独出现 —— 不算死键
+    dead = sorted(set(T) - tpl_tokens - {"ROLE", "ROLE_SHORT"})
     if missing:
         sys.exit("[构建失败] 模板占位符在 texts 段没有对应值：%s\n"
                  "  请补 texts.%s，或从 assets/template.html 删除该 {{...}}。"
@@ -553,6 +580,7 @@ def build(cfg, skill_dir):
     html = (tpl
             .replace("<!--METRICS-->", render_metrics(cfg.get("metrics") or []))
             .replace("<!--NAMECARD-->", render_namecard(card))
+            .replace("<!--PROFILE-->", render_profile(C.get("profile")))
             .replace("<!--INTRO-->", render_intro(C.get("intro")))
             .replace("<!--PILLARS-->", render_pillars(C.get("pillars") or []))
             .replace("<!--PROJECTS-->", render_projects(projects))
@@ -586,15 +614,17 @@ def build(cfg, skill_dir):
         "metrics": len(cfg.get("metrics") or []),
         "namecard": 1 if card else 0,
         "intro": 1 if keep["intro"] else 0,
+        "profile": 1 if keep["profile"] else 0,
         "pillars": len(C.get("pillars") or []),
         "projects": n_proj,
         "stack": len(C.get("stack") or []),
         "timeline": n_tl,
         "certs": len(certs),
         "qrs": len(qrs),
+        "edu": 1 if keep["edu"] else 0,
         "images": len(assets),
-        "kept": [k for k in ("capability", "stack", "career", "credential", "projects")
-                 if keep[k]],
+        "kept": [k for k in ("capability", "stack", "career", "credential",
+                             "projects", "edu") if keep[k]],
         "bytes": len(html.encode("utf-8")),
         "assets_bytes": raw_bytes,
         "external": ext_dir,

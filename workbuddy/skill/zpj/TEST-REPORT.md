@@ -1,6 +1,6 @@
 # zpj 测试报告（v2.0.0）
 
-> **结论先行**：62 项自动化测试全绿；两条入口（表单 / 命令行）的产物**各自**跑完整 `verify.py` 均 `PASS`；开发期抓到 4 个「不报错、文字全对」的真 bug，已全部修掉并转为硬断言。
+> **结论先行**：67 项自动化测试全绿；两条入口（表单 / 命令行）的产物**各自**跑完整 `verify.py` 均 `PASS`；开发期抓到 4 个「不报错、文字全对」的真 bug，已全部修掉并转为硬断言。
 
 日期：2026-10-23　｜　被测版本：`zpj` v2.0.0　｜　基线提交：`fae0efe`（v1.1.0）
 　｜　v2.0.0 变更：技能包收敛更名为 `zpj`（原 `gr-zpj`）、新增最小示例、修 `verify.py` 对「未配证书 / 二维码」的误判
@@ -17,8 +17,8 @@
 | 4 | 两条入口渲染一致性（parity，逐项比对） | **6 项断言全过**（结构计数 / 序号 / 导航 / 文本 / 标题 / 破图） |
 | 5 | 五端渲染（1440 / 820 / 390 / 360 / 320） | **19 / 19 通过**，无横向溢出、正文字号 ≥14.5px |
 | 6 | 资产一致性（模板 / 示例 ↔ 表单内联） | `--check` 通过，`md5 34116dbe6797` |
-| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（61143）＋ 18 张外置图字节相同 |
-| 8 | 仓库副本独立运行（`git archive` 导出后） | `--check` 通过 + 62 项单测 OK |
+| 7 | 构建可重复性 | 两次构建 `bytes` 逐字节相同（62727）＋ 14 张外置图字节相同 |
+| 8 | 仓库副本独立运行（`git archive` 导出后） | `--check` 通过 + 67 项单测 OK |
 | 9 | 开发期发现的真 bug | **4 个**（3 个 P0 + 1 个 P1），全部已修并加断言 |
 | 10 | 未覆盖 / 判不了 | 4 类，见 §8（一律记 NA，不写 PASS） |
 
@@ -32,7 +32,7 @@
 | Python | 3.13.14（WorkBuddy 隔离环境 `envs/default`） |
 | Pillow | 12.3.0（图片编码 / PNG8 量化） |
 | Playwright | 1.62.0 + Chromium（浏览器端单测与五端渲染） |
-| 被测产物 | `index.html` 61,762 B + `img/` 18 张图 1.74 MB（命令行路径，外置；`STATS.bytes` 记 61,143 —— 差 619 字节是 Windows 落盘的行尾 CRLF，619 行每行 +1）<br>`index.html` 0.51 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 31,671 B + 30 KB 占位名片（最小示例） |
+| 被测产物 | `index.html` 63,599 B + `img/` 14 张图 1.64 MB（命令行路径，外置；`STATS.bytes` 记 62,727 —— 差 872 字节是 Windows 落盘的行尾 CRLF，872 行每行 +1）<br>`index.html` 0.45 MB 全内联（表单路径）<br>`dist/minimal-demo/index.html` 31,671 B + 30 KB 占位名片（最小示例） |
 
 表单路径**零第三方依赖**：只用浏览器原生 API（`FileReader` / `canvas` / `iframe`）。
 
@@ -175,14 +175,14 @@
 
 ## 5. 端到端：双路径 `verify.py`
 
-### 5.1 命令行路径（`index.html` 61,762 B + `img/` 18 张图 1.74 MB）
+### 5.1 命令行路径（`index.html` 63,599 B + `img/` 14 张图 1.64 MB）
 
 ```
-外置资源 1.74 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects
+外置资源 1.64 MB ｜ index.html 0.06 MB ｜ 区块 capability+stack+career+credential+projects+edu
 STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
         "timeline":8,"certs":4,"qrs":4,"images":18,
         "kept":["capability","stack","career","credential","projects"],
-        "bytes":61143,"assets_bytes":1827595,"external":"img"}
+        "bytes":62727,"assets_bytes":1724454,"external":"img"}
 
 [0] 产物文本
   无残留 模板 token                   PASS []
@@ -244,10 +244,10 @@ STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
 ```
 
 > 示例数据 9 个项目**全部**配了架构图，`cards 9` 与 `主图映射` 9 项一一对应；
-> `zoom 14` = 1 张名片 + 9 张项目主图 + 4 张证书。`fig` 留空的项目只出文字卡、
+> `zoom 12` = 1 张名片 + 9 张项目主图 + 2 张证书。`fig` 留空的项目只出文字卡、
 > 不占空图位，`主图映射` 也不计入，编号仍连续。
 
-### 5.2 表单路径（`index.html` 0.51 MB，内联 18 张演示尺寸图）
+### 5.2 表单路径（`index.html` 0.45 MB，内联 14 张演示尺寸图）
 
 点「载入示例」→ 点「生成作品集」→ 取弹层 `iframe` 里真实渲染的结果，丢进**同一个** `verify.py`：
 
@@ -255,8 +255,8 @@ STATS: {"metrics":6,"namecard":1,"intro":1,"pillars":3,"projects":9,"stack":6,
 [0] 产物文本   无残留 模板 token / 区块标记 / 分隔线标记 / 序号标记   PASS []
 [1] 运行时     JS 错误                                          PASS []
 [2] 资源      破图 PASS []        图片总数>0 PASS imgs=19
-[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 6 / cards 9 / zoom 14 /
-              certs 4 / qrs 4 / tl 8 / stack 6 / navlinks 6 / anchors 6）
+[3] 结构      计数与命令行产物逐项一致（pillars 3 / metrics 0 / cards 9 / zoom 12 /
+              certs 2 / qrs 2 / tl 8 / stack 6 / navlinks 7 / anchors 7）
               导航无死链 PASS   末尾非孤立分隔线 PASS
               末区块为 projects PASS   章节序号 ['01','02','03','04','05'] PASS
 [3c] 首屏主体  名片占屏宽比 PASS 77% (1108x624)
@@ -327,7 +327,7 @@ PASS: 全部检查通过
 | 根因 | 自检把「证书 / 二维码」当成必然存在的区块，用 `v > 0` 与「选择器必须命中」两条硬判据；而**区块由数据决定是否出现**是本技能的第一原则 —— 没配数据时它们本就该整块消失 |
 | 暴露方式 | 新增最小示例后首次运行 `verify.py`，7 条 FAIL 全部指向这两个可选区块 |
 | 修复 | ① `certs` / `qrs` 归入 `OPTIONAL_STATS`，为 0 时打印 `SKIP 0（未配，区块整块不出现）`；② `KEY_BLOCKS` 由二元组扩为三元组，第三项填容器选择器，容器内无子项时跳过 |
-| 回归验证 | 最小示例自检 `PASS`（certs/qrs SKIP）；主示例仍 `PASS`（certs 4 / qrs 4 照常检查）；把 `edu` 也清空后 `credential` 整块下线、序号变 `01…04`、`verify.py` 仍 `PASS` |
+| 回归验证 | 最小示例自检 `PASS`（certs/qrs SKIP）；主示例仍 `PASS`（certs 2 / qrs 2 照常检查）；把 `edu` 也清空后 `edu` 区块与导航项一起下线、序号连续、`verify.py` 仍 `PASS` |
 
 这条的价值不在于「修了 7 条 FAIL」，而在于自检的判据必须与产品的裁减规则一致 ——
 否则用户越按「只填需要的」用，自检越容易误报。
@@ -340,9 +340,9 @@ PASS: 全部检查通过
 
 | # | 复核方式 | 结果 |
 |---|---|---|
-| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 18 张外置图的字节 | 两次均 `61143` + 外置合计 `1827595`，逐字节相同 |
-| 2 | 把技能目录整份拷到临时目录（模拟「解压后独立运行」）跑 `sync_assets.py --check` + 62 项单测 | `PASS` ／ `Ran 62 tests ... OK` |
-| 3 | 用 `git archive HEAD` 导出**提交后的字节**（经 `.gitattributes` 的 LF 归一）再跑 `--check` + 62 项单测 | `PASS`（`md5 34116dbe6797`）／ `Ran 62 tests ... OK` |
+| 1 | 同一配置连跑两次构建，比对 `STATS.bytes` 与 14 张外置图的字节 | 两次均 `62727` + 外置合计 `1724454`，逐字节相同 |
+| 2 | 把技能目录整份拷到临时目录（模拟「解压后独立运行」）跑 `sync_assets.py --check` + 67 项单测 | `PASS` ／ `Ran 67 tests ... OK` |
+| 3 | 用 `git archive HEAD` 导出**提交后的字节**（经 `.gitattributes` 的 LF 归一）再跑 `--check` + 67 项单测 | `PASS`（`md5 34116dbe6797`）／ `Ran 67 tests ... OK` |
 
 第 3 层最要紧：仓库开启 `* text=auto eol=lf`，提交会把 CRLF 归一成 LF。若「模板 ↔ 表单内联」这条一致性依赖于行尾字节，克隆下来就会失败 —— 实测不会，因为内联用的是 `json.dumps` 后的转义字面量，换行在字符串里是 `\n` 两个字符而非真实行尾。
 
@@ -371,19 +371,19 @@ cd ~/.workbuddy/skills/zpj
 # 1) 资产一致性：模板 / 示例 ↔ 表单内联
 python scripts/sync_assets.py --check
 
-# 2) 全部 62 项单测（浏览器端需 chromium）
+# 2) 全部 67 项单测（浏览器端需 chromium）
 python -W ignore::ResourceWarning -m unittest discover -s tests -t . -v
 
 # 3) 命令行路径：构建 → 五端自检 → 打包
 python scripts/build_portfolio.py examples/content.json --skill-dir . --stats
 python scripts/verify.py "<out>/index.html" \
     --expect arch_digitalhuman,arch_gfs,arch_aics,arch_chanyou,arch_mofang,arch_yunshu,arch_lifesense,arch_supplychain,arch_7road \
-    --last-section projects --must "我的项目" --absent "重点项目" --shots shots/
+    --last-section edu --must "我的项目" --absent "重点项目" --shots shots/
 python scripts/package.py "<out>"
 
 # 4) 表单路径：双击 assets/form.html → 载入示例 → 生成作品集 → 另存 HTML
 #    再把产物喂给同一套 verify.py
-python scripts/verify.py "<表单另存的 index.html>" --last-section projects --must "我的项目"
+python scripts/verify.py "<表单另存的 index.html>" --last-section edu --must "我的项目"
 ```
 
 退出码约定：`verify.py` 与 `sync_assets.py --check` 通过为 `0`，任一断言失败为非 `0` —— 可直接挂 CI 当门禁。

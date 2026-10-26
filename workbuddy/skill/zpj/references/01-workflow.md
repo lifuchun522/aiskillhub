@@ -47,7 +47,7 @@ assets/form.html
 ① 准备素材        images/           架构图、证书、二维码、名片
 ② 写 content.json 字段规格见 03-content-schema.md
 ③ 构建            python scripts/build_portfolio.py content.json --stats
-④ 自检            python scripts/verify.py "<out>/index.html" --expect … --last-section projects
+④ 自检            python scripts/verify.py "<out>/index.html" --expect … --last-section edu
 ⑤ 打包            python scripts/package.py "<out>"
 ⑥ 交付前闸门      加载 delivery-no-pseudoblock，实跑 D1–D12
 ```
@@ -76,15 +76,19 @@ assets/form.html
 ## 页面叙事顺序（由模板固定）
 
 ```
-Hero（一行 tagline + 满宽名片）→ 首屏数据条 → ABOUT ME 自述
+Hero（一行 tagline + 满宽名片 + 个人档案条）→ 首屏数据条（可选）→ ABOUT ME 自述
   01 / CAPABILITY   核心能力（2–4 条支柱）
   02 / TECH STACK   技术栈分组
   03 / CAREER       工作经历（按时间由近及远）
-  04 / CREDENTIAL   教育背景 · 专业认证 · 个人主页
+  04 / CREDENTIAL   专业认证 · 个人主页
   05 / MY PROJECTS  我的项目（一个项目一节）
+  06 / EDUCATION    教育背景（学校 · 专业 · 学历 + 补充标签）
 ```
 
-项目放最后：前面先把能力、技术栈、履历交代清楚，再用项目做实证。
+顺序的理由：能力 / 技术栈 / 履历先立住「能做什么」，项目做实证，教育背景收尾 ——
+15 年从业者的学历不是第一顺位判断依据。名片下方紧跟一条 4 行「个人档案」
+（求职意向 / 基本信息 / 擅长领域 / 岗位优势），把简历表格里的零散字段归纳成键值，
+不塞进名片图片（图片里的字在 320px 屏上读不出来）。
 章节序号由 DOM 顺序自动生成，挪区块不必手改编号。
 
 ---

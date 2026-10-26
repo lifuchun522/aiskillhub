@@ -13,38 +13,7 @@
     "CAP_LEAD": "从核心编码到架构决策，从 AI 能力工程化到团队与交付体系，全部亲自下场。",
     "STACK_LEAD": "按能力维度组织：以 Java 生态为主干，Python 补齐 AI 与数据侧能力，云原生与信创双栈并行。"
   },
-  "metrics": [
-    [
-      "15",
-      "年+",
-      "研发经验 / 7 年架构"
-    ],
-    [
-      "800",
-      "万+",
-      "平台日活峰值"
-    ],
-    [
-      "500",
-      "万+",
-      "累计服务用户"
-    ],
-    [
-      "3",
-      "万 QPS",
-      "峰值秒级并发"
-    ],
-    [
-      "99.9",
-      "%",
-      "实时通话可用性"
-    ],
-    [
-      "10–15",
-      "人",
-      "团队管理与交付"
-    ]
-  ],
+  "metrics": [],
   "card": {
     "title": "李福春 · 名片",
     "sub": "资深架构师 · 腾讯云架构师同盟名人堂专家 · 深圳",
@@ -108,38 +77,12 @@
       "group": "certs",
       "file": "img/certs/cert-lecturer.jpg"
     },
-    "cert_star": {
-      "src": "cert-creator-star.jpg",
-      "max_w": 620,
-      "quality": 84,
-      "group": "certs",
-      "file": "img/certs/cert-creator-star.jpg"
-    },
     "cert_hall": {
       "src": "cert-architect-hall.jpg",
       "max_w": 620,
       "quality": 84,
       "group": "certs",
       "file": "img/certs/cert-architect-hall.jpg"
-    },
-    "cert_expert": {
-      "src": "cert-expert.jpg",
-      "max_w": 620,
-      "quality": 84,
-      "group": "certs",
-      "file": "img/certs/cert-expert.jpg"
-    },
-    "qr_csdn": {
-      "src": "qr-csdn.png",
-      "as_png": true,
-      "group": "qr",
-      "file": "img/qr/csdn.png"
-    },
-    "qr_cnblogs": {
-      "src": "qr-cnblogs.png",
-      "as_png": true,
-      "group": "qr",
-      "file": "img/qr/cnblogs.png"
     },
     "qr_tencent": {
       "src": "qr-tencent.png",
@@ -156,14 +99,32 @@
   "content": {
     "intro": {
       "label": "ABOUT ME",
-      "who": "李福春",
-      "where": "资深架构师 · 深圳",
       "lead": "做了 <b>15 年研发</b>、<b>7 年架构</b>，<b>5 年的技术团队管理</b>，<b>一直没离开代码</b>。",
       "paras": [
         "早些年我主要做 <b>高并发、低代码和 SaaS 平台</b>，解决的是系统怎么扛得住；这几年转向 <b>AI 客服、Agent 和数字人</b>，更多在琢磨怎么让 AI 真正干得了活。",
         "做过 <b>几百万用户</b>的平台，也做过 <b>银行、保险客户的私有化交付</b>。一路走下来，我一直在做的一件事，就是：<b>把复杂系统设计成简单可依赖的产品</b>。"
       ],
       "facts": []
+    },
+    "profile": {
+      "rows": [
+        [
+          "求职意向",
+          "架构师 / 研发经理 <em>已离职 · 可即时到岗</em>"
+        ],
+        [
+          "基本信息",
+          "1988.01 · 男 · 湖南常宁 <em>现居深圳</em>"
+        ],
+        [
+          "擅长领域",
+          "AI 应用开发 · 分布式架构 · 云原生 · 技术管理 · FDE 交付 · 产品 0 → 1"
+        ],
+        [
+          "岗位优势",
+          "架构设计 · 产品落地 · 技术管理 · AI 组织化建设"
+        ]
+      ]
     },
     "pillars": [
       {
@@ -495,19 +456,9 @@
         "WorkBuddy 开发者沙龙 · 深圳站"
       ],
       [
-        "cert_star",
-        "腾讯云创作之星",
-        "腾讯云开发者社区"
-      ],
-      [
         "cert_hall",
         "腾讯云架构师名人堂",
         "Tencent Cloud Architects Professional"
-      ],
-      [
-        "cert_expert",
-        "腾讯云认证架构师",
-        "腾讯云架构师技术同盟"
       ]
     ],
     "qrs": [
@@ -515,16 +466,6 @@
         "qr_wechat",
         "微信公众号",
         "http://weixin.qq.com/r/mp/uC_fh7vELuZRrf-k93qq"
-      ],
-      [
-        "qr_csdn",
-        "CSDN",
-        "https://blog.csdn.net/tian583391571"
-      ],
-      [
-        "qr_cnblogs",
-        "博客园",
-        "https://www.cnblogs.com/snidget"
       ],
       [
         "qr_tencent",
