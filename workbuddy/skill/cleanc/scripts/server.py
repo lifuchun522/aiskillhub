@@ -29,6 +29,7 @@ import glob
 import json
 import os
 import shutil
+import stat as statmod
 import sys
 import threading
 import time
@@ -41,6 +42,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TARGETS_FILE = os.path.join(HERE, "targets.json")
 HTML_FILE = os.path.join(HERE, "index.html")
 LOG_DIR = os.path.join(HERE, "logs")
+SNAP_DIR = os.path.join(LOG_DIR, "snapshots")
+SNAP_KEEP = 60                     # 只保留最近 N 份体积快照
+
+# WSL2 / Docker 的虚拟磁盘（swap.vhdx、ext4.vhdx、docker_data.vhdx）。
+# 这类文件被删除会导致发行版或容器数据丢失，且通常被 vmwp/wslservice 占用。
+VHDX_EXT = (".vhdx", ".vhd")
 
 # ----------------------------------------------------------------- Windows 前置
 if os.name != "nt":
@@ -98,6 +105,22 @@ def is_no_go(path: str) -> bool:
     return any(n.startswith(x) for x in NO_GO_PREFIX)
 
 
+REPARSE_FLAG = getattr(statmod, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+
+
+def is_reparse(path: str) -> bool:
+    """
+    是否为 junction / 符号链接（Windows 的 reparse point）。
+    Windows 上 Docker Desktop 会用 junction 指向同一份 docker_data.vhdx，
+    跟随这些链接会把 42 GB 数成 85 GB，必须先剪掉。
+    """
+    try:
+        st = os.stat(path, follow_symlinks=False)
+    except OSError:
+        return False
+    return bool(getattr(st, "st_file_attributes", 0) & REPARSE_FLAG) or os.path.islink(path)
+
+
 # ----------------------------------------------------------------- 等价指令
 def cmd_clear(path: str) -> str:
     """清空目录内容、保留目录本身 —— 等价 PowerShell 指令。"""
@@ -140,6 +163,8 @@ def path_size(path: str) -> tuple[int, int]:
                 for e in it:
                     try:
                         if e.is_dir(follow_symlinks=False):
+                            if is_reparse(e.path):      # junction/符号链接不入栈，避免重复计数
+                                continue
                             stack.append(e.path)
                         elif e.is_file(follow_symlinks=False):
                             total += e.stat(follow_symlinks=False).st_size
@@ -232,6 +257,8 @@ def scan(force: bool = False) -> dict:
     }
     _SCAN_CACHE["at"] = time.time()
     _SCAN_CACHE["data"] = data
+    if os.environ.get("CLEANC_NO_SNAPSHOT") != "1":
+        data["snapshot"] = save_snapshot(data)
     return data
 
 
@@ -261,6 +288,50 @@ def _patch_cache(finished: list[dict]) -> None:
     _SCAN_CACHE["at"] = time.time()
 
 
+# ----------------------------------------------------------------- 体积快照与增长归因
+def save_snapshot(data: dict) -> str | None:
+    """每次真实扫描落一份体积快照，用于回答"到底是谁在长"。"""
+    try:
+        os.makedirs(SNAP_DIR, exist_ok=True)
+        path = os.path.join(SNAP_DIR, time.strftime("%Y%m%d_%H%M%S") + ".json")
+        payload = {
+            "at": data["generated_at"],
+            "disk_free_mb": data["disk_free_mb"],
+            "items": {i["path"]: i["size_mb"] for i in data["items"]},
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False)
+        for old in sorted(glob.glob(os.path.join(SNAP_DIR, "*.json")))[:-SNAP_KEEP]:
+            try:
+                os.remove(old)
+            except OSError:
+                pass
+        return path
+    except OSError:
+        return None
+
+
+def growth(top: int = 15) -> dict:
+    """对比最近两份快照，输出增长最多的目录与可用空间变化。"""
+    files = sorted(glob.glob(os.path.join(SNAP_DIR, "*.json")))[-2:]
+    if len(files) < 2:
+        return {"ok": False, "error": "快照不足 2 份，先跑两次 scan（间隔一段时间的两次真实扫描）"}
+    with open(files[0], encoding="utf-8") as f:
+        a = json.load(f)
+    with open(files[1], encoding="utf-8") as f:
+        b = json.load(f)
+    rows = []
+    for path, now_mb in b["items"].items():
+        delta = round(now_mb - a["items"].get(path, 0.0), 1)
+        if delta > 0.5:
+            rows.append({"path": path, "before_mb": a["items"].get(path, 0.0),
+                         "now_mb": now_mb, "delta_mb": delta})
+    rows.sort(key=lambda r: -r["delta_mb"])
+    return {"ok": True, "from": a["at"], "to": b["at"],
+            "disk_free_before_mb": a["disk_free_mb"], "disk_free_after_mb": b["disk_free_mb"],
+            "rows": rows[:top]}
+
+
 # ----------------------------------------------------------------- 异步清理任务
 JOBS: dict[str, dict] = {}
 JOBS_LOCK = threading.Lock()
@@ -278,26 +349,55 @@ def _del_timeout(nfiles: int) -> float:
     return min(DEL_TIMEOUT_MAX, DEL_TIMEOUT_BASE + nfiles * DEL_TIMEOUT_PER_FILE)
 
 
-def _delete_path(path: str, is_file: bool) -> tuple[str, list[str], str, bool, int]:
+def _delete_path(path: str, is_file: bool, min_age_hours: float = 0.0
+                 ) -> tuple[str, list[str], str, bool, int, int, int]:
     """
-    删除目标内容（保留目录本身），带看门狗。
-    返回 (status, failed_list, err_text, timed_out, files_considered)。
-    status: OK / PARTIAL / FAIL / TIMEOUT(批量删除被拦截)
+    删除目标内容（保留目录本身），带看门狗与两条保护：
+      1. *.vhdx / *.vhd（WSL、Docker 虚拟磁盘）永不删除；
+      2. min_age_hours > 0 时只删修改时间早于该时长的文件。
+    返回 (status, failed, err_text, timed_out, files_considered, kept_vhdx, kept_recent)。
+    status: OK / OK(部分保留) / PARTIAL / FAIL / TIMEOUT(批量删除被拦截)
     """
-    holder: dict = {"failed": [], "err": ""}
+    holder: dict = {"failed": [], "err": "", "vhdx": 0, "recent": 0}
+    cutoff = time.time() - max(0.0, min_age_hours) * 3600.0
+
+    def keep(fp: str, st) -> bool:
+        if fp.lower().endswith(VHDX_EXT):
+            holder["vhdx"] += 1
+            return True
+        if min_age_hours > 0 and st.st_mtime > cutoff:
+            holder["recent"] += 1
+            return True
+        return False
 
     def work() -> None:
         try:
             if is_file:
+                if keep(path, os.stat(path, follow_symlinks=False)):
+                    return
                 os.remove(path)
                 return
-            for name in os.listdir(path):
-                fp = os.path.join(path, name)
+            for root, dirs, files in os.walk(path, topdown=True):
+                # 剪掉 junction/符号链接：顺着链接删会删到别处
+                dirs[:] = [d for d in dirs if not is_reparse(os.path.join(root, d))]
+                for fn in files:
+                    fp = os.path.join(root, fn)
+                    try:
+                        if keep(fp, os.stat(fp, follow_symlinks=False)):
+                            continue
+                        os.remove(fp)
+                    except OSError as exc:
+                        holder["failed"].append(fp)
+                        holder["err"] = (f"[WinError {getattr(exc, 'winerror', None) or '-'}] "
+                                         f"{exc.strerror or exc}")
+            for root, _dirs, _files in os.walk(path, topdown=False):
+                if root == path or is_reparse(root):
+                    continue
                 try:
-                    shutil.rmtree(fp) if os.path.isdir(fp) else os.remove(fp)
-                except OSError as exc:
-                    holder["failed"].append(fp)
-                    holder["err"] = f"[WinError {getattr(exc, 'winerror', '-')}] {exc.strerror}"
+                    if not os.listdir(root):
+                        os.rmdir(root)      # 只删空目录
+                except OSError:
+                    pass
         except OSError as exc:
             holder["err"] = f"[WinError {getattr(exc, 'winerror', '-')}] {exc.strerror}"
 
@@ -305,21 +405,26 @@ def _delete_path(path: str, is_file: bool) -> tuple[str, list[str], str, bool, i
     th = threading.Thread(target=work, daemon=True)
     th.start()
     th.join(_del_timeout(n))
+    extra = (holder["vhdx"], holder["recent"])
     if th.is_alive():
-        return "TIMEOUT(批量删除被拦截)", [], holder["err"], True, n
+        return ("TIMEOUT(批量删除被拦截)", [], holder["err"], True, n) + extra
     if holder["failed"]:
-        return "PARTIAL", holder["failed"], holder["err"], False, n
+        return ("PARTIAL", holder["failed"], holder["err"], False, n) + extra
     if holder["err"]:
-        return "FAIL", [], holder["err"], False, n
-    return "OK", [], "", False, n
+        return ("FAIL", [], holder["err"], False, n) + extra
+    if holder["vhdx"] or holder["recent"]:
+        return ("OK(部分保留)", [], "", False, n) + extra
+    return ("OK", [], "", False, n) + extra
 
 
-def _new_job(apply: bool) -> dict:
+
+def _new_job(apply: bool, min_age_hours: float = 0.0) -> dict:
     job_id = f"{time.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
     os.makedirs(LOG_DIR, exist_ok=True)
     job = {
         "id": job_id,
         "apply": apply,
+        "min_age_hours": max(0.0, float(min_age_hours or 0.0)),
         "started": time.strftime("%Y-%m-%d %H:%M:%S"),
         "_t0": time.time(),
         "done": False,
@@ -335,8 +440,8 @@ def _new_job(apply: bool) -> dict:
     return job
 
 
-def start_clean(ids: list[str], apply: bool) -> dict:
-    job = _new_job(apply)
+def start_clean(ids: list[str], apply: bool, min_age_hours: float = 0.0) -> dict:
+    job = _new_job(apply, min_age_hours)
     threading.Thread(target=_clean_worker, args=(job, ids), daemon=True).start()
     return job
 
@@ -385,6 +490,9 @@ def _clean_worker(job: dict, ids: list[str]) -> None:
         w(f" 主机 {HOME}")
         w(f" 执行权限：{'管理员（可删除受保护文件）' if IS_ADMIN else '普通用户（ProgramData/受保护目录会失败，需提权）'}")
         w(f" 待处理 {len(targets)} 个目录，清理前合计 {total_before:.1f} MB")
+        age_txt = ("；仅清理 %.0f 小时前的文件" % job["min_age_hours"]
+                   if job["min_age_hours"] else "")
+        w(" 保留策略：*.vhdx / *.vhd（WSL·Docker 虚拟磁盘）永不删除" + age_txt)
         w(f" C 盘可用（清理前）{df_before:.1f} MB")
         w("=" * 88)
 
@@ -427,7 +535,16 @@ def _clean_worker(job: dict, ids: list[str]) -> None:
             except OSError:
                 pass
 
-            status, failed, err_text, timed_out, nfiles = _delete_path(p, is_file)
+            if p.lower().endswith(VHDX_EXT):
+                w(f"  清理后：{b:.1f} MB    释放：0.0 MB    状态：SKIP(虚拟磁盘，不删除)")
+                w("  说明：这是 WSL / Docker 的虚拟磁盘，删除会丢掉发行版或容器数据。"
+                  "要回收空间请先 wsl --shutdown，再用 Docker Desktop 的磁盘压缩。")
+                finished.append({"after_path": p, "before_mb": b, "after_mb": b,
+                                 "freed_mb": 0.0, "status": "SKIP(虚拟磁盘)", "cmd": cmd_clear(p)})
+                continue
+
+            status, failed, err_text, timed_out, nfiles, kept_vhdx, kept_recent = _delete_path(
+                p, is_file, job["min_age_hours"])
 
             # 复核：删除调用可能被宿主策略静默忽略（正常返回但文件仍在），
             # 必须先复查再判定状态，否则界面会报假绿的 OK。
@@ -440,6 +557,10 @@ def _clean_worker(job: dict, ids: list[str]) -> None:
                     status = "BLOCKED(删除未生效)"
 
             w(f"  清理后：{a:.1f} MB    释放：{b - a:.1f} MB    状态：{status}")
+            if kept_vhdx:
+                w(f"  保留 {kept_vhdx} 个虚拟磁盘（*.vhdx 未删除，需 wsl --shutdown 后单独处理）")
+            if kept_recent:
+                w(f"  保留 {kept_recent} 个文件：修改时间在 {job['min_age_hours']:.0f} 小时内，可能正被使用")
 
             if status in ("PARTIAL", "FAIL", "TIMEOUT(批量删除被拦截)", "BLOCKED(删除未生效)"):
                 if timed_out:
@@ -482,7 +603,7 @@ def _clean_worker(job: dict, ids: list[str]) -> None:
         w(f" 汇总：清理前 {total_before:.1f} MB → 清理后 {total_after:.1f} MB，"
           f"节约 {saved:.1f} MB（{saved / 1024:.2f} GB）")
         w(f" C 盘可用：{df_before:.1f} MB → {df_after:.1f} MB（增加 {df_after - df_before:.1f} MB）")
-        bad = [r for r in finished if r["status"] not in ("OK", "DRY-RUN")]
+        bad = [r for r in finished if not r["status"].startswith(("OK", "DRY-RUN"))]
         if bad:
             w(f" 需人工处理 {len(bad)} 项，见上方各项的处置命令。")
         for r in rejected:
@@ -512,9 +633,10 @@ def _clean_worker(job: dict, ids: list[str]) -> None:
         }
 
 
-def clean_sync(ids: list[str], apply: bool = False, echo: bool = True) -> dict:
+def clean_sync(ids: list[str], apply: bool = False, echo: bool = True,
+               min_age_hours: float = 0.0) -> dict:
     """CLI / 自检用：同步跑完一个清理任务。"""
-    job = start_clean(ids, apply)
+    job = start_clean(ids, apply, min_age_hours)
     while not job["done"]:
         time.sleep(0.2)
     if not echo:
@@ -581,6 +703,7 @@ class Handler(BaseHTTPRequestHandler):
             with JOBS_LOCK:
                 self._json({"ok": True, "id": job["id"], "apply": job["apply"],
                             "started": job["started"], "done": job["done"],
+                            "min_age_hours": job["min_age_hours"],
                             "elapsed": round(time.time() - job["_t0"], 1),
                             "lines": list(job["lines"]), "result": job["result"]})
             return
@@ -612,13 +735,18 @@ class Handler(BaseHTTPRequestHandler):
                 return
             apply = bool(body.get("apply"))
             try:
-                job = start_clean(ids, apply)
+                try:
+                    min_age = max(0.0, float(body.get("min_age_hours") or 0))
+                except (TypeError, ValueError):
+                    min_age = 0.0
+                job = start_clean(ids, apply, min_age)
             except Exception as exc:                                   # noqa: BLE001
                 self._json({"ok": False, "error": str(exc)}, 500)
                 return
             print(f"[cleanc] 任务 {job['id']} 已启动："
-                  f"{'实际清理' if apply else '预演'} ids={ids}", flush=True)
+                  f"{'实际清理' if apply else '预演'} ids={ids} 最小文件年龄={min_age}h", flush=True)
             self._json({"ok": True, "job_id": job["id"], "apply": job["apply"],
+                        "min_age_hours": job["min_age_hours"],
                         "log_file": job["log_file"]})
             return
         self._send(404, b"not found", "text/plain; charset=utf-8")
@@ -678,6 +806,11 @@ def main() -> int:
     s3.add_argument("--ids", required=True, help="逗号分隔的 id，或 __all_low__")
     s3.add_argument("--apply", action="store_true", help="真正删除；缺省为 dry-run")
     s3.add_argument("--yes", action="store_true", help="跳过交互确认")
+    s3.add_argument("--min-age-hours", type=float, default=0.0,
+                    help="只删除修改时间早于该小时数的文件（定时任务建议 24）；*.vhdx 永不删除")
+
+    s4 = sub.add_parser("growth", help="对比最近两次扫描快照，列出增长最多的目录")
+    s4.add_argument("--top", type=int, default=15)
 
     args = ap.parse_args()
     if not args.cmd:
@@ -719,14 +852,33 @@ def main() -> int:
             if input("确认执行请输入 yes: ").strip() != "yes":
                 print("[ABORT] 已取消，未做任何修改。")
                 return 1
-        res = clean_sync(ids, apply=args.apply)
-        print(f"\n{'[APPLY]' if args.apply else '[DRY-RUN]'} 处理 {len(res['items'])} 项")
+        res = clean_sync(ids, apply=args.apply, min_age_hours=args.min_age_hours)
+        print(f"\n{'[APPLY]' if args.apply else '[DRY-RUN]'} 处理 {len(res['items'])} 项"
+              f"（最小文件年龄 {args.min_age_hours:g} 小时）")
         print(f"清理前 {res['total_before_mb']:.1f} MB -> 清理后 {res['total_after_mb']:.1f} MB")
         print(f"节约空间 {res['saved_mb']:.1f} MB ({res['saved_gb']} GB)")
         print(f"C盘可用 {res['disk_free_before_mb']:.1f} MB -> {res['disk_free_after_mb']:.1f} MB")
         print(f"日志 {res['log_file']}")
         for r in res["rejected"]:
             print(f"  [拒绝] {r['path']} — {r['reason']}")
+        return 0
+
+    if args.cmd == "growth":
+        g = growth(args.top)
+        if not g["ok"]:
+            print(f"[growth] {g['error']}")
+            return 1
+        print(f"[growth] {g['from']} → {g['to']}")
+        print(f" C 盘可用：{g['disk_free_before_mb']:.1f} MB → {g['disk_free_after_mb']:.1f} MB"
+              f"（{'减少' if g['disk_free_after_mb'] < g['disk_free_before_mb'] else '增加'} "
+              f"{abs(g['disk_free_after_mb'] - g['disk_free_before_mb']):.1f} MB）")
+        if not g["rows"]:
+            print(" 期间无目录增长。")
+            return 0
+        print(f" {'增长MB':>9}  {'当时MB':>9}  {'现在MB':>9}  路径")
+        for r in g["rows"]:
+            print(f" {r['delta_mb']:>9.1f}  {r['before_mb']:>9.1f}  {r['now_mb']:>9.1f}  {r['path']}")
+        print(f"\n 合计增长 {sum(r['delta_mb'] for r in g['rows']):.1f} MB")
         return 0
 
     return 2

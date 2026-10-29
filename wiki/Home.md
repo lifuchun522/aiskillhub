@@ -9,7 +9,7 @@ AI Agent Skills 集合的补充文档。
 - [zaobao（GPT 版 v6.1）｜架构师早报三问与同盟讨论](zaobao)
 - [cloudq-oss-cert-rotation（v1.4.0）｜OSS 自定义域名证书轮换](cloudq-oss-cert-rotation)
 - [zw-check（v1.0.0）｜征文稿件发布前检查：字数 / 痕迹 / 结构 / 规则 / 一致性](zw-check)
-- [cleanc（v1.0.0）｜Windows 磁盘可清理目录扫描与安全清理](cleanc)
+- [cleanc（v1.1.0）｜Windows 磁盘可清理目录扫描与安全清理](cleanc)
 - [dtyl（v1.0.0）｜动态原理拆解：结构 + 可播放动画 + 严谨/白话 + 改变条件自测题](dtyl)
 - [zpj（v2.0.0）｜表单驱动作品集生成：填一张表出单页作品集 HTML](zpj)
 - [ppt-video（v1.0.0）｜PPT 讲解视频：原速 + 1.2 倍速双版本出片，页切换与字幕对齐配音时轴](ppt-video)

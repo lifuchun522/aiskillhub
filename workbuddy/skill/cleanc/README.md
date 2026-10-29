@@ -1,6 +1,6 @@
 # cleanc
 
-Windows 磁盘可清理目录的**只读扫描 → 授权清单 → 本地管理网页**技能（v1.0.0）。
+Windows 磁盘可清理目录的**只读扫描 → 授权清单 → 本地管理网页**技能（v1.1.0）。
 
 喊一句「C 盘满了 / 帮我清一下 C 盘」，它不急着删：先只读扫出每个候选目录的实测体积，再按授权清单分级——**低风险**的给出清理按钮，**中风险**的逐条写清清理后果——最后在一个本地网页上让你逐条确认。清理到哪一步、释放了多少、哪一条没删成、该怎么手工补，全部有日志。
 
@@ -34,6 +34,8 @@ python server.py scan                                   :: 只读扫描，打印
 python server.py scan --root "C:\" --top 25              :: 只读统计一级目录体积，用于发现清单外的新目标
 python server.py clean --ids __all_low__                 :: dry-run：只统计释放量，不删
 python server.py clean --ids __all_low__ --apply         :: 真删，执行前需输入 yes
+python server.py clean --ids local-temp --apply --yes --min-age-hours 24  :: 只删 24h 前的文件
+python server.py growth                                  :: 对比两次扫描，谁在长
 python selftest.py --port 8848                           :: 端到端自检（只读 / dry-run）
 ```
 
@@ -85,6 +87,25 @@ C 盘红了之后，真正难的不是「删哪个」，而是三件事：
 | `BLOCKED(删除未生效)` | 调用成功返回但复查体积未降 —— 被宿主的批量删除保护静默忽略 |
 | `TIMEOUT(批量删除被拦截)` | 删除调用超过看门狗时限未返回 |
 | `SKIP(安全拦截)` | 命中 NO_GO 或不在本次授权集合内 |
+| `OK(部分保留)` | 该删的删了，`*.vhdx` 或未达 `--min-age-hours` 的文件被主动保留 |
+| `SKIP(虚拟磁盘)` | 目标本身是 `*.vhdx` / `*.vhd`，代码级拒绝删除 |
+
+## 治"清了又长"：三条防线
+
+清理是治标。C 盘在"清完 → 几天又满"之间循环时，先定位再动手：
+
+1. **定位**：`scan` 两次（间隔一段时间的真实扫描）→ `growth` 对比，输出增长最多的目录与可用空间变化。快照存 `scripts/logs/snapshots/`（保留最近 60 份）。
+2. **限流**：把固定增长源按上限卡住。典型是 WSL2 swap ——`swap.vhdx` 常驻 `%TEMP%\<GUID>\` 且可长到"内存 1:1"，
+   在 `~/.wslconfig` 写 `swap=2GB`、`swapFile=D://wsl//swap.vhdx`、`[experimental] autoMemoryReclaim=gradual` + `sparseVhd=true`，
+   再 `wsl --shutdown` 生效。
+3. **定期回收**：`autoclean.bat` 只清 `local-temp` 且限 24 小时以上，不碰 IDE 日志和包缓存：
+
+```bat
+schtasks /Create /TN "cleanc-Temp每日清理" /SC DAILY /ST 12:30 ^
+  /TR "\"%USERPROFILE%\.workbuddy\skills\cleanc\scripts\autoclean.bat\""
+```
+
+**内置保护（不可关闭）**：`*.vhdx` / `*.vhd` 永不删除（删了会丢 WSL 发行版或容器数据）；junction / 符号链接不跟随（既防体积虚高，也防删到链接目标）。
 
 ## 授权清单 `scripts/targets.json`
 
@@ -111,7 +132,8 @@ cleanc/
 │   ├── server.py               # 扫描 + 清理 + HTTP API + 内置管理页（纯标准库，736 行）
 │   ├── targets.json            # 授权清单
 │   ├── index.html              # 管理网页
-│   ├── selftest.py             # 端到端自检 37 断言，全 dry-run
+│   ├── selftest.py             # 端到端自检 43 断言，全 dry-run
+│   ├── autoclean.bat           # 每日定时清理入口：Temp 中 24h 前的文件（CRLF 换行）
 │   ├── 启动cleanc服务.bat       # 推荐启动方式（CRLF 换行）
 │   └── logs/                   # 运行期日志与 manifest（已 gitignore）
 ├── tests/
@@ -180,6 +202,11 @@ rmdir /s /q "<path>" && mkdir "<path>"
 | 文件数 > 50（`Cursor\logs` 84 个、`Temp` 256 个） | `BLOCKED(删除未生效)` |
 | 服务由宿主会话启动 | 上述三条均成立 |
 | 服务由用户双击 `.bat` 启动 | 批量删除保护不生效，按钮可直接清理 |
+
+### 1.5 junction 会让体积虚高 100 倍
+
+`%LOCAL%/Packages/OpenAI.Codex_*/LocalCache` 跟随 junction 量出 **85.5 GB**，实际 **0.8 GB**（两个 `DockerRecovery-*` 指向同一份 `docker_data.vhdx`）。
+`is_reparse()` 用 `st_file_attributes & FILE_ATTRIBUTE_REPARSE_POINT` 判定，统计不入栈、删除不从 `dirs` 进入。任何体积结论都在这个口径下复核。
 
 ### 2. Windows 下 `SO_REUSEADDR` 会导致双实例抢端口
 

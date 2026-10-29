@@ -5,7 +5,8 @@ description: 磁盘可清理空间分析（C 盘为主）。只读扫描体积 �
 
 # cleanc — 磁盘可清理目录扫描与安全清理
 
-> 版本 1.0.0。Windows 专有。只读扫描 → 授权清单 → 本地管理网页（低风险一键清 / 中风险只解释后果）。
+> 版本 1.1.0。Windows 专有。只读扫描 → 授权清单 → 本地管理网页（低风险一键清 / 中风险只解释后果）。
+> 1.1.0 新增：`*.vhdx` 保护、按文件年龄清理（`--min-age-hours`）、增长归因（`growth`）、junction 去重。
 > 仓库地址：<https://github.com/lifuchun522/aiskillhub/tree/main/workbuddy/skill/cleanc>
 
 ## 这个 skill 解决什么
@@ -31,7 +32,8 @@ cleanc/
 │   ├── server.py              # 扫描 + 清理 + HTTP API + 本地管理页（纯标准库）
 │   ├── targets.json           # 授权清单：风险等级 / 影响说明 / authorized 开关
 │   ├── index.html             # 管理网页（server.py 内置提供）
-│   ├── selftest.py            # 端到端自检 37 断言，全 dry-run
+│   ├── selftest.py            # 端到端自检 43 断言，全 dry-run
+│   ├── autoclean.bat          # 每日定时清理入口：只清 Temp 中 24h 前的文件
 │   └── 启动cleanc服务.bat      # 推荐启动方式：由用户自己的会话拉起服务
 ├── tests/
 │   └── verify_browser.py      # 可选：真实浏览器走一遍阈值过滤 + 清理链路（需 playwright）
@@ -91,9 +93,32 @@ python <skill>/scripts/server.py serve --port 8848
 python <skill>/scripts/server.py clean --ids __all_low__            # dry-run
 python <skill>/scripts/server.py clean --ids __all_low__ --apply    # 真删，需输入 yes
 python <skill>/scripts/server.py clean --ids pip-cache,local-temp --apply --yes
+python <skill>/scripts/server.py clean --ids local-temp --apply --yes --min-age-hours 24
 ```
 
 `--ids` 取 `scan` 输出里的 id，`__all_low__` 代表全部授权低风险项。
+`--min-age-hours N` 只删修改时间早于 N 小时的文件，定时任务必须带上它。
+
+### 第 3.5 步：治"清了又长"（**C 盘反复满的必做项**）
+
+清理只能治标，回涨通常是四类固定源头，先定位再谈清理：
+
+```bash
+python <skill>/scripts/server.py scan     # 第一次，落体积快照
+# …隔几小时/一两天…
+python <skill>/scripts/server.py scan     # 第二次
+python <skill>/scripts/server.py growth   # 谁在长、长了多少、可用空间怎么变
+```
+
+| 反复出现的增长源 | 判据 | 治本做法 |
+|---|---|---|
+| WSL2 `swap.vhdx`（常在 `%TEMP%\<GUID>\`，可达 8 GB） | Temp 体积里有个 8 GB 的 `*.vhdx` | `~/.wslconfig` 设 `swap=2GB`、`swapFile=D://wsl//swap.vhdx`、`[experimental] autoMemoryReclaim=gradual` + `sparseVhd=true`，然后 `wsl --shutdown` |
+| Docker `docker_data.vhdx`（只增不减） | `%LOCAL%/Docker/wsl/disk/*.vhdx` 数十 GB | `docker system df` → `docker builder prune -af`；或把磁盘镜像位置改到非系统盘 |
+| 自动化工具 Temp 残留（`playwright-java-*`、`wb-*` 等，每次会话 55–101 MB） | Temp 下成百个同前缀目录 | 每日 `autoclean.bat` + `--min-age-hours 24` |
+| 编辑器状态库 / 版本目录（如 `state.vscdb` 数 GB、旧版本各 150 MB） | 单文件特大 + 同前缀多版本 | 关程序后 `VACUUM`；旧版本目录只留最新 1–2 个 |
+
+**不要**把 8 GB 的 `swap.vhdx` 当垃圾直接删了报"释放 8 GB"——下次 WSL 起来会重写满，用户第二天又满，
+而且删除运行中的 vhdx 会波及发行版。正确顺序：先改配置限制上限并把文件挪到非系统盘，再 `wsl --shutdown` 收尾。
 
 ### 第 4 步：汇报
 
@@ -115,6 +140,8 @@ python <skill>/scripts/server.py clean --ids pip-cache,local-temp --apply --yes
 | `BLOCKED(删除未生效)` | 调用成功返回但复查体积未降 —— 被批量删除保护静默忽略 |
 | `TIMEOUT(批量删除被拦截)` | 调用超过看门狗时限未返回 |
 | `SKIP(安全拦截)` | 命中 NO_GO 或不在本次授权集合内 |
+| `OK(部分保留)` | 删了该删的，但有 `*.vhdx` 或未达 `--min-age-hours` 的文件被主动保留 |
+| `SKIP(虚拟磁盘)` | 目标本身是 `*.vhdx` / `*.vhd`，代码级拒绝删除 |
 
 **删除后必须重新测量体积（`path_size`）才能判 OK。** 只凭"调用没抛异常"就报 OK，
 会在被策略静默忽略时给用户一个假绿的结果——这是本项目踩过的真实坑。
@@ -190,7 +217,18 @@ Git Bash 的 `du` 在大量小文件下极慢。用 `server.py` 内置的 `os.sc
 
 写文件用 `-Encoding utf8`；子进程调用 Python 时设 `PYTHONIOENCODING=utf-8`。
 
-### 6. 其他
+### 6. junction / 符号链接会让体积虚高，也会把删除带到别处
+
+Windows 的 reparse point（junction、目录符号链接）在 `os.walk` / `os.scandir` 里**看似普通目录**。
+Docker Desktop 就用 junction 把 `DockerRecovery-*` 指向同一份 `docker_data.vhdx`：
+
+- 老口径量 `%LOCAL%/Packages/OpenAI.Codex_*/LocalCache` 得 **85.5 GB**，去重后只有 **0.8 GB**；
+- 删除时顺着 junction 走，会删到目标目录里去，属于越权删除。
+
+本项目的处理：`is_reparse()` 用 `st_file_attributes & FILE_ATTRIBUTE_REPARSE_POINT` 判定，
+统计时**不入栈**、删除时**从 `dirs` 里剪掉**。任何"磁盘/目录体积"结论都要在这个口径下复核一次。
+
+### 7. 其他
 
 - **并行测体积**：Docker vhdx、JetBrains index 这类大目录串行会拖很久，用 8 线程池，别改单线程。
 - **符号链接**：`os.scandir` 用 `follow_symlinks=False`，避免循环。
@@ -199,15 +237,17 @@ Git Bash 的 `du` 在大量小文件下极慢。用 `server.py` 内置的 `os.sc
 - **Docker vhdx 删了也不释放空间**：ext4.vhdx 是稀疏文件，必须先 `docker system prune`
   再 `wsl --shutdown` + `Optimize-VHD`。这一点必须在网页影响说明里写清。
 
-## 实测基线参考（2026-10 某开发机 C 盘 298 GB 已用 / 仅剩 1.8 GB）
+## 实测基线参考（2026-10-29 同一台开发机，C 盘 300 GB / 可用 0.48 GB）
 
 | 体积 | 路径 | 处置 |
 |---:|---|---|
-| 34.6 GB | `%LOCAL%/Docker/wsl` | mid，prune + 压缩 vhdx |
-| 19.1 GB | `C:/Windows/WinSxS` | mid，DISM |
+| 42.4 GB | `%LOCAL%/Docker/wsl/disk/docker_data.vhdx` | mid，`docker builder prune` + 改磁盘镜像位置 |
+| 23.8 GB | `C:/Windows/WinSxS` | mid，`DISM /StartComponentCleanup` |
 | 12.6 GB | `C:/hiberfil.sys` | mid，`powercfg /h off` |
-| 10.3 GB | `%LOCAL%/uv/cache` | low，直接清 |
-| 8.4 GB | `%LOCAL%/JetBrains/*/index` | mid，IDE 内 Invalidate Caches |
-| 6.8 GB | `%LOCAL%/Temp` | low，直接清 |
+| 9.3 GB | `%LOCAL%/JetBrains/IntelliJIdea*/index` | mid，IDE 内 Invalidate Caches |
+| 8.1 GB | `%TEMP%/<GUID>/swap.vhdx`（WSL swap） | **不是垃圾**：改 `.wslconfig` 限流 + 迁到非系统盘 |
+| 7.2 GB | `%ROAM%/Cursor/User/globalStorage/state.vscdb` | mid，关程序后 `VACUUM` |
+| 4.8 GB | Cursor `cursor-agent/versions/*`（25 份） | 只留最新 1–2 份 |
+| 12.2 GB | `%LOCAL%/Temp`（其中 8.1 GB 是上面的 swap） | low，`--min-age-hours 24` 定时清 |
 
-低风险授权项合计约 35 GB，中风险约 70 GB。
+一次实测治理：Temp 清 11.7 GB + Cursor 旧版本 4.3 GB → 可用 **0.48 GB → 13.8 GB**。

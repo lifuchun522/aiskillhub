@@ -122,6 +122,8 @@
     <button class="primary" id="btn-reload">重新扫描</button>
     <button class="danger" id="btn-all">清理全部低风险</button>
     <button id="btn-preview-all">预演（不删除）</button>
+    <span class="ctl">仅删改于
+      <input type="number" id="minAge" value="0" min="0" step="6"> 小时前的文件（0=不限；*.vhdx 永不删）</span>
     <div class="spacer"></div>
     <input type="search" id="q" placeholder="过滤路径 / 类别…">
   </div>
@@ -312,10 +314,11 @@ async function run(ids, apply) {
   render_lines([], t0);
 
   let job;
+  const minAge = Number(($('#minAge') || {}).value) || 0;
   try {
     const r = await fetch('/api/clean', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ ids, apply })
+      body: JSON.stringify({ ids, apply, min_age_hours: minAge })
     });
     job = await r.json();
     if (job.ok === false) throw new Error(job.error || ('HTTP ' + r.status));

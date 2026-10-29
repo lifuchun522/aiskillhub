@@ -188,6 +188,55 @@ def main() -> int:
           S.norm("C:\\Users\\x\\") == S.norm("c:/users/x") == "c:/users/x",
           S.norm("C:\\Users\\x\\"))
 
+    print("[13] 防再生长：vhdx 保护 / 年龄过滤 / 增长快照")
+    import shutil as _sh
+    import tempfile
+    import time as _t
+    box = tempfile.mkdtemp(prefix="cleanc_selftest_")
+    try:
+        # 13.1 *.vhdx 永不删除，其它内容照删
+        d1 = os.path.join(box, "vm")
+        os.makedirs(d1)
+        open(os.path.join(d1, "swap.vhdx"), "wb").write(b"x" * 4096)
+        open(os.path.join(d1, "junk.log"), "wb").write(b"x" * 1024)
+        stt, _f, _e, _to, _n, kept_vhdx, _kr = S._delete_path(d1, False)
+        check("vhdx 被保留且状态为部分保留",
+              kept_vhdx == 1 and stt.startswith("OK") and
+              os.path.exists(os.path.join(d1, "swap.vhdx")), f"{stt} kept={kept_vhdx}")
+        check("同目录其它垃圾已删除", not os.path.exists(os.path.join(d1, "junk.log")))
+
+        # 13.2 年龄过滤：新文件保留，旧文件删除
+        d2 = os.path.join(box, "aged")
+        os.makedirs(d2)
+        old = os.path.join(d2, "old.tmp")
+        new = os.path.join(d2, "new.tmp")
+        open(old, "wb").write(b"x" * 512)
+        open(new, "wb").write(b"x" * 512)
+        _t.time()  # noqa: B018
+        os.utime(old, (_t.time() - 72 * 3600,) * 2)
+        _st, _f, _e, _to, _n, _kv, kept_recent = S._delete_path(d2, False, 24.0)
+        check("24 小时内的新文件被保留",
+              kept_recent == 1 and os.path.exists(new), f"kept_recent={kept_recent}")
+        check("超过 24 小时的文件被删除", not os.path.exists(old))
+
+        # 13.3 增长快照对比
+        SNAP_BAK = S.SNAP_DIR
+        S.SNAP_DIR = os.path.join(box, "snap")
+        os.makedirs(S.SNAP_DIR)
+        json.dump({"at": "t1", "disk_free_mb": 1000.0, "items": {"C:/a": 10.0}},
+                  open(os.path.join(S.SNAP_DIR, "20260101_000000.json"), "w", encoding="utf-8"))
+        json.dump({"at": "t2", "disk_free_mb": 400.0, "items": {"C:/a": 610.0}},
+                  open(os.path.join(S.SNAP_DIR, "20260102_000000.json"), "w", encoding="utf-8"))
+        g = S.growth(10)
+        S.SNAP_DIR = SNAP_BAK
+        check("增长归因识别出增长目录",
+              g.get("ok") and g["rows"] and g["rows"][0]["path"] == "C:/a"
+              and g["rows"][0]["delta_mb"] == 600.0, str(g)[:160])
+        check("增长归因带出可用空间变化",
+              g["disk_free_before_mb"] == 1000.0 and g["disk_free_after_mb"] == 400.0)
+    finally:
+        _sh.rmtree(box, ignore_errors=True)
+
     print(f"\n结果: {passed} 通过 / {failed} 失败")
     return 0 if failed == 0 else 1
 

@@ -61,6 +61,7 @@ python server.py serve --port 8848
 | 低风险 · 需人工处理 | `C:\Windows\Logs`、`$RECYCLE.BIN`、`.workbuddy\logs`、`.workbuddy\traces` —— 无按钮，只给替代命令 |
 | **中风险目录** | 目录 · 类别 · 清理前MB · 占比 · **清理后的影响后果 / 建议指令**，**默认只列大于 500MB 的项**，阈值可在标题右侧输入框调整 |
 | 服务端执行日志 | 实时输出每个目录的处理过程（见下） |
+| 工具条 · 仅删改于 N 小时前的文件 | 默认 `0`（不限）。填 `24` 后，本次清理只删 24 小时前的文件，正在被使用的文件自动跳过；`*.vhdx` 恒定不删 |
 
 ### 清理按钮的行为
 
@@ -122,9 +123,46 @@ cd /d "%USERPROFILE%"\.workbuddy\skills\cleanc\scripts"
 | `python server.py clean --ids __all_low__` | **dry-run**：统计全部低风险授权目录的释放量，不删 |
 | `python server.py clean --ids __all_low__ --apply` | 真删，执行前要求输入 `yes` |
 | `python server.py clean --ids local-temp,cursor-logs --apply --yes` | 指定多个 id 真删，跳过交互确认 |
+| `python server.py clean --ids local-temp --apply --yes --min-age-hours 24` | **只删修改时间早于 24 小时的文件**（定时任务用这个） |
+| `python server.py growth` | 对比最近两次扫描快照，列出**谁在长大** |
+| `autoclean.bat` | 双击即执行"清 Temp 中 24 小时前的文件"，日志写 `logs\autoclean.log` |
 | `python selftest.py --port 8848` | 端到端自检（只读 / dry-run，不产生删除） |
 
 `scan` 输出的**风险 / 清理前MB / 授权 / 类别 / 路径**五列中，`授权` 为 `Y` 的才是 `clean --ids` 可用的目标；id 取 `targets.json` 里的 `id` 字段（页面上的每个目录也对应一个）。
+
+### 两条内置保护（不可关闭）
+
+1. **`*.vhdx` / `*.vhd` 永不删除** —— WSL 的 `swap.vhdx`、Docker 的 `docker_data.vhdx` 属于虚拟机磁盘，删掉会丢发行版或容器数据。日志会标 `保留 N 个虚拟磁盘`。
+2. **junction / 符号链接不跟随** —— 统计体积与删除时都会剪掉 reparse point。Docker Desktop 会用 junction 指向同一份 `docker_data.vhdx`，跟随会把 42 GB 数成 85 GB。
+
+### 增长归因怎么用
+
+```bat
+python server.py scan            :: 第一次，落快照
+:: …隔几小时或一两天…
+python server.py scan            :: 第二次，落快照
+python server.py growth          :: 输出增长 TOP N
+```
+
+```
+[growth] 2026-10-29 12:36:47 → 2026-10-29 12:38:24
+ C 盘可用：14073.4 MB → 14175.6 MB（增加 102.2 MB）
+      增长MB       当时MB       现在MB  路径
+       0.7      284.1      284.8  C:\Users\...\.workbuddy\logs
+```
+
+快照存 `logs\snapshots\*.json`，只保留最近 60 份；清理任务完成后会自动收敛旧条目。
+
+### 每天自动清理（防复发）
+
+```bat
+schtasks /Create /TN "cleanc-Temp每日清理" /SC DAILY /ST 12:30 ^
+  /TR "\"%USERPROFILE%\.workbuddy\skills\cleanc\scripts\autoclean.bat\""
+```
+
+删除任务：`schtasks /Delete /TN "cleanc-Temp每日清理" /F`
+
+> 只清 `local-temp` 且限 24 小时以上，不碰 IDE 日志 / 包缓存，避免第二天编译全量重下。
 
 ---
 

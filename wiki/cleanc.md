@@ -1,6 +1,6 @@
-# cleanc｜Windows 磁盘可清理目录扫描与安全清理（v1.0.0）
+# cleanc｜Windows 磁盘可清理目录扫描与安全清理（v1.1.0）
 
-> 本页对应 **WorkBuddy 版 v1.0.0**：把「C 盘满了，帮我清一下」从一次提心吊胆的手工删除，变成 **只读扫描 → 授权清单 → 网页逐条确认 → 全字段日志** 的一条闭环。低风险项一键清，中风险项只解释后果。
+> 本页对应 **WorkBuddy 版 v1.1.0**（新增 `*.vhdx` 保护、按文件年龄清理、增长归因 `growth`、junction 去重）：把「C 盘满了，帮我清一下」从一次提心吊胆的手工删除，变成 **只读扫描 → 授权清单 → 网页逐条确认 → 全字段日志** 的一条闭环。低风险项一键清，中风险项只解释后果。
 
 仓库路径：[`workbuddy/skill/cleanc/`](https://github.com/lifuchun522/aiskillhub/tree/main/workbuddy/skill/cleanc)
 
@@ -102,10 +102,42 @@ python server.py scan --json out.json               :: 结果落 JSON
 python server.py clean --ids __all_low__            :: dry-run：只统计释放量，不删
 python server.py clean --ids __all_low__ --apply    :: 真删，执行前需输入 yes
 python server.py clean --ids local-temp,cursor-logs --apply --yes
+python server.py clean --ids local-temp --apply --yes --min-age-hours 24   :: 只删 24h 前的文件
+python server.py growth                             :: 对比两次扫描快照，谁在长
 python selftest.py --port 8848                      :: 端到端自检（只读 / dry-run）
 ```
 
-### 第 5 步（可选）：按自己的机器调整清单
+### 第 5 步（推荐）：治"清了又长"
+
+清完过几天又满，说明有固定源头在回填。先定位，再限流，最后定期回收：
+
+```bat
+:: ① 定位：隔几小时/一两天各跑一次 scan，然后对比
+python server.py scan
+python server.py growth
+```
+
+`growth` 会输出「谁长了多少、C 盘可用怎么变」，快照存 `scripts\logs\snapshots\`（保留最近 60 份）。
+
+常见回填源与治本做法：
+
+| 现象 | 判据 | 治本 |
+|---|---|---|
+| Temp 里有个 8 GB 的 `swap.vhdx` | WSL2 swap 按"内存 1:1"默认增长，退出后文件留在 Temp | `~/.wslconfig`：`swap=2GB`、`swapFile=D://wsl//swap.vhdx`，加 `[experimental] autoMemoryReclaim=gradual`、`sparseVhd=true`，再 `wsl --shutdown` |
+| `%LOCAL%/Docker/wsl/disk/*.vhdx` 只增不减 | 动态 vhdx 不自动回收 | `docker system df` → `docker builder prune -af`；或把 Docker 磁盘镜像位置改到非系统盘 |
+| Temp 下几十个 `playwright-java-*` / `wb-*` | 每个自动化会话 55–101 MB，跑完不删 | 每日定时清理（见下） |
+| 编辑器 `state.vscdb` 数 GB、旧版本目录各 150 MB | 单文件特大 / 同前缀多版本 | 关程序后 `VACUUM`；旧版本只留最新 1–2 份 |
+
+```bat
+:: ② 定期回收：每天 12:30 只清 Temp 中 24 小时前的文件（*.vhdx 永不删）
+schtasks /Create /TN "cleanc-Temp每日清理" /SC DAILY /ST 12:30 ^
+  /TR "\"%USERPROFILE%\.workbuddy\skills\cleanc\scripts\autoclean.bat\""
+:: 删除：schtasks /Delete /TN "cleanc-Temp每日清理" /F
+```
+
+**两条内置保护（不可关闭）**：`*.vhdx` / `*.vhd` 永不删除；junction / 符号链接不跟随（既防体积虚高，也防删到链接目标）。
+
+### 第 6 步（可选）：按自己的机器调整清单
 
 先看真实体积，再决定放开什么：
 
@@ -126,6 +158,8 @@ python server.py scan --root "C:\Users\%USERNAME%" --top 30
 | `BLOCKED(删除未生效)` | 调用成功返回但复查体积未降 —— 被宿主批量删除保护静默忽略 |
 | `TIMEOUT(批量删除被拦截)` | 删除调用超过看门狗时限未返回 |
 | `SKIP(安全拦截)` | 命中 `NO_GO` 或不在本次授权集合内 |
+| `OK(部分保留)` | 该删的删了，`*.vhdx` 或未达 `--min-age-hours` 的文件被主动保留 |
+| `SKIP(虚拟磁盘)` | 目标本身是 `*.vhdx` / `*.vhd`，代码级拒绝删除 |
 
 看门狗时限：`min(120s, 20s + 文件数 × 0.2s)`（84 个文件 ≈ 37 秒，256 个文件 ≈ 71 秒）。环境变量 `CLEANC_BULK_THRESHOLD`（默认 50）只调整预检提示的阈值，**不改变拦截行为**。
 
@@ -146,6 +180,12 @@ python selftest.py --port 8848
 `selftest.py` 共 **37 项断言，全 dry-run，实测 37 通过 / 0 失败**，覆盖：管理页与阈值控件、扫描字段完整性、授权项必为 low、`NO_GO` 目录未被授权、空 ids 拒绝、未知 job 404、dry-run 全流程与实时日志、日志四项字段、中风险 / 未授权 / 伪造 id 三类越权拒绝、失败处置命令生成、`NO_GO` 拦截且不误伤用户缓存。
 
 浏览器实跑（`tests/verify_browser.py`，需 playwright）：中风险阈值过滤（500MB / 5000MB 两档）、点清理 → 弹窗 → 确认 → 实时日志 → 表格自动刷新，并断言页面 JS 错误为 0。
+
+## 口径提醒
+
+体积统计**不跟随 junction / 符号链接**。Docker Desktop 用 junction 把 `DockerRecovery-*` 指向同一份 `docker_data.vhdx`，
+跟随链接会把 42 GB 量成 85 GB（实测 `%LOCAL%/Packages/OpenAI.Codex_*/LocalCache`：85.5 GB → 0.8 GB）。
+任何"某个目录突然涨了几十 GB"的判断，先在这个口径下复测。
 
 ## 相关文件
 
