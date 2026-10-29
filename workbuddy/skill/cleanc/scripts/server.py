@@ -388,8 +388,8 @@ def _delete_path(path: str, is_file: bool, min_age_hours: float = 0.0
                         os.remove(fp)
                     except OSError as exc:
                         holder["failed"].append(fp)
-                        holder["err"] = (f"[WinError {getattr(exc, 'winerror', None) or '-'}] "
-                                         f"{exc.strerror or exc}")
+                        we = getattr(exc, "winerror", None)
+                        holder["err"] = (f"[WinError {we}] " if we else "") + (exc.strerror or str(exc))
             for root, _dirs, _files in os.walk(path, topdown=False):
                 if root == path or is_reparse(root):
                     continue
